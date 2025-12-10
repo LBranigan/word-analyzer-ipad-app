@@ -119,7 +119,7 @@ function calculateWordSimilarity(word1: string, word2: string): number {
  * Check if word is a filler word
  */
 function isFillerWord(word: string): boolean {
-  const fillers = ['um', 'uh', 'er', 'ah', 'like', 'you know', 'i mean', 'so', 'well'];
+  const fillers = ['um', 'uh', 'er', 'ah', 'like', 'so', 'well'];
   return fillers.includes(normalizeWord(word));
 }
 
