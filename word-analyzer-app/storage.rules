@@ -1,0 +1,21 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Uploads folder - authenticated users can write to their own folder
+    match /uploads/{userId}/{assessmentId}/{fileName} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Temp audio - read only for authenticated owner
+    match /audio-temp/{userId}/{assessmentId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // Only Cloud Functions can write
+    }
+
+    // Videos - read only for authenticated owner
+    match /videos/{userId}/{assessmentId}/{fileName} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false; // Only Cloud Functions can write
+    }
+  }
+}
