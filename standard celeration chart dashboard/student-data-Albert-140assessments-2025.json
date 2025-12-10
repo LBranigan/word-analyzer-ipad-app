@@ -1,0 +1,4793 @@
+{
+  "meta": {
+    "exportVersion": "1.0",
+    "exportDate": "2025-12-05T22:28:11.735Z",
+    "exportTimestamp": 1764973691736,
+    "source": "Word Analyzer V2",
+    "buildVersion": "2025-12-05 13:31"
+  },
+  "subject": {
+    "category": "Reading",
+    "subcategory": "Oral Reading Fluency"
+  },
+  "student": {
+    "name": "Albert",
+    "grade": "2",
+    "id": "student-albert-2025"
+  },
+  "summary": {
+    "totalAssessments": 140,
+    "dateRange": {
+      "first": "2025-01-01",
+      "last": "2025-05-20",
+      "daySpan": 140
+    },
+    "averages": {
+      "accuracy": "93.2",
+      "wpm": 161,
+      "prosody": "2.9"
+    }
+  },
+  "assessments": [
+    {
+      "assessmentIndex": 1,
+      "assessmentId": "assessment-1764973691736-z4srb0xh3",
+      "celeration": {
+        "date": "2025-01-01",
+        "timestamp": 1735689600000,
+        "calendarDay": 1,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 5,
+        "errorCount": 8,
+        "correctPerMinute": 4.9,
+        "errorsPerMinute": 7.86
+      },
+      "performance": {
+        "totalWords": 13,
+        "correctCount": 5,
+        "accuracy": 38.5,
+        "wpm": 13,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 8,
+        "skipped": 2,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 2,
+      "assessmentId": "assessment-1764973691736-ueoypntp1",
+      "celeration": {
+        "date": "2025-01-02",
+        "timestamp": 1735776000000,
+        "calendarDay": 2,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 6,
+        "errorCount": 9,
+        "correctPerMinute": 5.31,
+        "errorsPerMinute": 7.91
+      },
+      "performance": {
+        "totalWords": 15,
+        "correctCount": 6,
+        "accuracy": 40,
+        "wpm": 13,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 9,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 3,
+      "assessmentId": "assessment-1764973691736-he6awwr7e",
+      "celeration": {
+        "date": "2025-01-03",
+        "timestamp": 1735862400000,
+        "calendarDay": 3,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 6,
+        "errorCount": 9,
+        "correctPerMinute": 5.7,
+        "errorsPerMinute": 8.44
+      },
+      "performance": {
+        "totalWords": 15,
+        "correctCount": 6,
+        "accuracy": 40,
+        "wpm": 15,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 9,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 4,
+      "assessmentId": "assessment-1764973691736-gsz7aufos",
+      "celeration": {
+        "date": "2025-01-04",
+        "timestamp": 1735948800000,
+        "calendarDay": 4,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 8,
+        "errorCount": 9,
+        "correctPerMinute": 7.06,
+        "errorsPerMinute": 8
+      },
+      "performance": {
+        "totalWords": 17,
+        "correctCount": 8,
+        "accuracy": 47.1,
+        "wpm": 16,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 1.6,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 9,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 5,
+      "assessmentId": "assessment-1764973691736-ur42mor9l",
+      "celeration": {
+        "date": "2025-01-05",
+        "timestamp": 1736035200000,
+        "calendarDay": 5,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 9,
+        "errorCount": 10,
+        "correctPerMinute": 7.68,
+        "errorsPerMinute": 9.29
+      },
+      "performance": {
+        "totalWords": 19,
+        "correctCount": 9,
+        "accuracy": 47.4,
+        "wpm": 17,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 10,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 2,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 6,
+      "assessmentId": "assessment-1764973691736-tbz69f4rj",
+      "celeration": {
+        "date": "2025-01-06",
+        "timestamp": 1736121600000,
+        "calendarDay": 6,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 8,
+        "errorCount": 8,
+        "correctPerMinute": 8.07,
+        "errorsPerMinute": 7.36
+      },
+      "performance": {
+        "totalWords": 16,
+        "correctCount": 8,
+        "accuracy": 50,
+        "wpm": 15,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 8,
+        "skipped": 2,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 7,
+      "assessmentId": "assessment-1764973691736-a9i8slrmc",
+      "celeration": {
+        "date": "2025-01-07",
+        "timestamp": 1736208000000,
+        "calendarDay": 7,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 11,
+        "errorCount": 10,
+        "correctPerMinute": 10.15,
+        "errorsPerMinute": 8.85
+      },
+      "performance": {
+        "totalWords": 21,
+        "correctCount": 11,
+        "accuracy": 52.4,
+        "wpm": 19,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 10,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 2,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 8,
+      "assessmentId": "assessment-1764973691736-nz637el5a",
+      "celeration": {
+        "date": "2025-01-08",
+        "timestamp": 1736294400000,
+        "calendarDay": 8,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 11,
+        "errorCount": 7,
+        "correctPerMinute": 10.23,
+        "errorsPerMinute": 6.23
+      },
+      "performance": {
+        "totalWords": 18,
+        "correctCount": 11,
+        "accuracy": 61.1,
+        "wpm": 17,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 9,
+      "assessmentId": "assessment-1764973691736-zqu2fq4ax",
+      "celeration": {
+        "date": "2025-01-09",
+        "timestamp": 1736380800000,
+        "calendarDay": 9,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 10,
+        "errorCount": 6,
+        "correctPerMinute": 9.42,
+        "errorsPerMinute": 5.97
+      },
+      "performance": {
+        "totalWords": 16,
+        "correctCount": 10,
+        "accuracy": 62.5,
+        "wpm": 16,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 6,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 10,
+      "assessmentId": "assessment-1764973691736-gldh46juk",
+      "celeration": {
+        "date": "2025-01-10",
+        "timestamp": 1736467200000,
+        "calendarDay": 10,
+        "countingTimeSec": 56,
+        "countingTimeMin": 0.93,
+        "correctCount": 13,
+        "errorCount": 8,
+        "correctPerMinute": 13.96,
+        "errorsPerMinute": 8.36
+      },
+      "performance": {
+        "totalWords": 21,
+        "correctCount": 13,
+        "accuracy": 61.9,
+        "wpm": 23,
+        "readingTimeSeconds": 56
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 8,
+        "skipped": 2,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 11,
+      "assessmentId": "assessment-1764973691736-pxeejag5f",
+      "celeration": {
+        "date": "2025-01-11",
+        "timestamp": 1736553600000,
+        "calendarDay": 11,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 15,
+        "errorCount": 8,
+        "correctPerMinute": 13.99,
+        "errorsPerMinute": 7.27
+      },
+      "performance": {
+        "totalWords": 23,
+        "correctCount": 15,
+        "accuracy": 65.2,
+        "wpm": 21,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 8,
+        "skipped": 2,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 12,
+      "assessmentId": "assessment-1764973691736-bd3yxjgc6",
+      "celeration": {
+        "date": "2025-01-12",
+        "timestamp": 1736640000000,
+        "calendarDay": 12,
+        "countingTimeSec": 65,
+        "countingTimeMin": 1.08,
+        "correctCount": 18,
+        "errorCount": 7,
+        "correctPerMinute": 16.53,
+        "errorsPerMinute": 6.51
+      },
+      "performance": {
+        "totalWords": 25,
+        "correctCount": 18,
+        "accuracy": 72,
+        "wpm": 23,
+        "readingTimeSeconds": 65
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 13,
+      "assessmentId": "assessment-1764973691736-5n3k8o0s1",
+      "celeration": {
+        "date": "2025-01-13",
+        "timestamp": 1736726400000,
+        "calendarDay": 13,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 17,
+        "errorCount": 5,
+        "correctPerMinute": 15.84,
+        "errorsPerMinute": 4.91
+      },
+      "performance": {
+        "totalWords": 22,
+        "correctCount": 17,
+        "accuracy": 77.3,
+        "wpm": 21,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 14,
+      "assessmentId": "assessment-1764973691736-u6tytrr0h",
+      "celeration": {
+        "date": "2025-01-14",
+        "timestamp": 1736812800000,
+        "calendarDay": 14,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 18,
+        "errorCount": 6,
+        "correctPerMinute": 18.38,
+        "errorsPerMinute": 6.01
+      },
+      "performance": {
+        "totalWords": 24,
+        "correctCount": 18,
+        "accuracy": 75,
+        "wpm": 25,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 1.7,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 6,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 15,
+      "assessmentId": "assessment-1764973691736-rl0jy33ex",
+      "celeration": {
+        "date": "2025-01-15",
+        "timestamp": 1736899200000,
+        "calendarDay": 15,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 18,
+        "errorCount": 7,
+        "correctPerMinute": 17.79,
+        "errorsPerMinute": 6.49
+      },
+      "performance": {
+        "totalWords": 25,
+        "correctCount": 18,
+        "accuracy": 72,
+        "wpm": 24,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 16,
+      "assessmentId": "assessment-1764973691736-5bgsrmm7a",
+      "celeration": {
+        "date": "2025-01-16",
+        "timestamp": 1736985600000,
+        "calendarDay": 16,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 22,
+        "errorCount": 7,
+        "correctPerMinute": 24.45,
+        "errorsPerMinute": 7.85
+      },
+      "performance": {
+        "totalWords": 29,
+        "correctCount": 22,
+        "accuracy": 75.9,
+        "wpm": 32,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 17,
+      "assessmentId": "assessment-1764973691736-pn1dgiumk",
+      "celeration": {
+        "date": "2025-01-17",
+        "timestamp": 1737072000000,
+        "calendarDay": 17,
+        "countingTimeSec": 56,
+        "countingTimeMin": 0.93,
+        "correctCount": 24,
+        "errorCount": 4,
+        "correctPerMinute": 25.86,
+        "errorsPerMinute": 4.39
+      },
+      "performance": {
+        "totalWords": 28,
+        "correctCount": 24,
+        "accuracy": 85.7,
+        "wpm": 30,
+        "readingTimeSeconds": 56
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 18,
+      "assessmentId": "assessment-1764973691736-f4564kuv4",
+      "celeration": {
+        "date": "2025-01-18",
+        "timestamp": 1737158400000,
+        "calendarDay": 18,
+        "countingTimeSec": 69,
+        "countingTimeMin": 1.15,
+        "correctCount": 28,
+        "errorCount": 9,
+        "correctPerMinute": 23.91,
+        "errorsPerMinute": 7.47
+      },
+      "performance": {
+        "totalWords": 37,
+        "correctCount": 28,
+        "accuracy": 75.7,
+        "wpm": 32,
+        "readingTimeSeconds": 69
+      },
+      "prosody": {
+        "score": 1.8,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 9,
+        "skipped": 2,
+        "misread": 4,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 19,
+      "assessmentId": "assessment-1764973691736-s7wtf52i0",
+      "celeration": {
+        "date": "2025-01-19",
+        "timestamp": 1737244800000,
+        "calendarDay": 19,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 33,
+        "errorCount": 7,
+        "correctPerMinute": 30.71,
+        "errorsPerMinute": 6.27
+      },
+      "performance": {
+        "totalWords": 40,
+        "correctCount": 33,
+        "accuracy": 82.5,
+        "wpm": 38,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 20,
+      "assessmentId": "assessment-1764973691736-bp0gr6bk8",
+      "celeration": {
+        "date": "2025-01-20",
+        "timestamp": 1737331200000,
+        "calendarDay": 20,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 34,
+        "errorCount": 5,
+        "correctPerMinute": 35.29,
+        "errorsPerMinute": 5.47
+      },
+      "performance": {
+        "totalWords": 39,
+        "correctCount": 34,
+        "accuracy": 87.2,
+        "wpm": 41,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 21,
+      "assessmentId": "assessment-1764973691736-a5a4l60jg",
+      "celeration": {
+        "date": "2025-01-21",
+        "timestamp": 1737417600000,
+        "calendarDay": 21,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 35,
+        "errorCount": 7,
+        "correctPerMinute": 36.84,
+        "errorsPerMinute": 7.74
+      },
+      "performance": {
+        "totalWords": 42,
+        "correctCount": 35,
+        "accuracy": 83.3,
+        "wpm": 44,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 22,
+      "assessmentId": "assessment-1764973691736-awcc3wbhu",
+      "celeration": {
+        "date": "2025-01-22",
+        "timestamp": 1737504000000,
+        "calendarDay": 22,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 35,
+        "errorCount": 4,
+        "correctPerMinute": 38.47,
+        "errorsPerMinute": 4.2
+      },
+      "performance": {
+        "totalWords": 39,
+        "correctCount": 35,
+        "accuracy": 89.7,
+        "wpm": 43,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 23,
+      "assessmentId": "assessment-1764973691736-i3uztkm67",
+      "celeration": {
+        "date": "2025-01-23",
+        "timestamp": 1737590400000,
+        "calendarDay": 23,
+        "countingTimeSec": 69,
+        "countingTimeMin": 1.15,
+        "correctCount": 55,
+        "errorCount": 6,
+        "correctPerMinute": 48.01,
+        "errorsPerMinute": 5.5
+      },
+      "performance": {
+        "totalWords": 61,
+        "correctCount": 55,
+        "accuracy": 90.2,
+        "wpm": 53,
+        "readingTimeSeconds": 69
+      },
+      "prosody": {
+        "score": 2.1,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 6,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 24,
+      "assessmentId": "assessment-1764973691736-gfkc4dhfr",
+      "celeration": {
+        "date": "2025-01-24",
+        "timestamp": 1737676800000,
+        "calendarDay": 24,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 52,
+        "errorCount": 7,
+        "correctPerMinute": 50.77,
+        "errorsPerMinute": 6.71
+      },
+      "performance": {
+        "totalWords": 59,
+        "correctCount": 52,
+        "accuracy": 88.1,
+        "wpm": 58,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 1.9,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 25,
+      "assessmentId": "assessment-1764973691736-axrjmmc85",
+      "celeration": {
+        "date": "2025-01-25",
+        "timestamp": 1737763200000,
+        "calendarDay": 25,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 68,
+        "errorCount": 7,
+        "correctPerMinute": 59.64,
+        "errorsPerMinute": 6.58
+      },
+      "performance": {
+        "totalWords": 75,
+        "correctCount": 68,
+        "accuracy": 90.7,
+        "wpm": 66,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 26,
+      "assessmentId": "assessment-1764973691736-p58gp5uy3",
+      "celeration": {
+        "date": "2025-01-26",
+        "timestamp": 1737849600000,
+        "calendarDay": 26,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 62,
+        "errorCount": 6,
+        "correctPerMinute": 64.38,
+        "errorsPerMinute": 6.46
+      },
+      "performance": {
+        "totalWords": 68,
+        "correctCount": 62,
+        "accuracy": 91.2,
+        "wpm": 70,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 6,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 27,
+      "assessmentId": "assessment-1764973691736-w9eaua0tv",
+      "celeration": {
+        "date": "2025-01-27",
+        "timestamp": 1737936000000,
+        "calendarDay": 27,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 56,
+        "errorCount": 7,
+        "correctPerMinute": 56.06,
+        "errorsPerMinute": 6.54
+      },
+      "performance": {
+        "totalWords": 63,
+        "correctCount": 56,
+        "accuracy": 88.9,
+        "wpm": 63,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 28,
+      "assessmentId": "assessment-1764973691736-i9d831nvt",
+      "celeration": {
+        "date": "2025-01-28",
+        "timestamp": 1738022400000,
+        "calendarDay": 28,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 65,
+        "errorCount": 7,
+        "correctPerMinute": 62.7,
+        "errorsPerMinute": 6.54
+      },
+      "performance": {
+        "totalWords": 72,
+        "correctCount": 65,
+        "accuracy": 90.3,
+        "wpm": 70,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 7,
+        "skipped": 1,
+        "misread": 3,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 29,
+      "assessmentId": "assessment-1764973691736-vggmv6e31",
+      "celeration": {
+        "date": "2025-01-29",
+        "timestamp": 1738108800000,
+        "calendarDay": 29,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 79,
+        "errorCount": 5,
+        "correctPerMinute": 75.98,
+        "errorsPerMinute": 4.84
+      },
+      "performance": {
+        "totalWords": 84,
+        "correctCount": 79,
+        "accuracy": 94,
+        "wpm": 81,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 30,
+      "assessmentId": "assessment-1764973691736-7bxyrhy3p",
+      "celeration": {
+        "date": "2025-01-30",
+        "timestamp": 1738195200000,
+        "calendarDay": 30,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 105,
+        "errorCount": 5,
+        "correctPerMinute": 98.3,
+        "errorsPerMinute": 4.52
+      },
+      "performance": {
+        "totalWords": 110,
+        "correctCount": 105,
+        "accuracy": 95.5,
+        "wpm": 103,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 2.1,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 31,
+      "assessmentId": "assessment-1764973691736-3dfp1r1jy",
+      "celeration": {
+        "date": "2025-01-31",
+        "timestamp": 1738281600000,
+        "calendarDay": 31,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 93,
+        "errorCount": 4,
+        "correctPerMinute": 90.43,
+        "errorsPerMinute": 3.47
+      },
+      "performance": {
+        "totalWords": 97,
+        "correctCount": 93,
+        "accuracy": 95.9,
+        "wpm": 94,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 32,
+      "assessmentId": "assessment-1764973691736-5i8fcv7lh",
+      "celeration": {
+        "date": "2025-02-01",
+        "timestamp": 1738368000000,
+        "calendarDay": 32,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 103,
+        "errorCount": 3,
+        "correctPerMinute": 108.36,
+        "errorsPerMinute": 3.27
+      },
+      "performance": {
+        "totalWords": 106,
+        "correctCount": 103,
+        "accuracy": 97.2,
+        "wpm": 112,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 2.4,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 33,
+      "assessmentId": "assessment-1764973691736-piyt6hda1",
+      "celeration": {
+        "date": "2025-02-02",
+        "timestamp": 1738454400000,
+        "calendarDay": 33,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 105,
+        "errorCount": 5,
+        "correctPerMinute": 104.67,
+        "errorsPerMinute": 5.49
+      },
+      "performance": {
+        "totalWords": 110,
+        "correctCount": 105,
+        "accuracy": 95.5,
+        "wpm": 110,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 34,
+      "assessmentId": "assessment-1764973691736-zk0z07w8t",
+      "celeration": {
+        "date": "2025-02-03",
+        "timestamp": 1738540800000,
+        "calendarDay": 34,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 136,
+        "errorCount": 3,
+        "correctPerMinute": 140.2,
+        "errorsPerMinute": 3.54
+      },
+      "performance": {
+        "totalWords": 139,
+        "correctCount": 136,
+        "accuracy": 97.8,
+        "wpm": 144,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2,
+        "grade": "Needs Support"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 35,
+      "assessmentId": "assessment-1764973691736-fk8esmyr3",
+      "celeration": {
+        "date": "2025-02-04",
+        "timestamp": 1738627200000,
+        "calendarDay": 35,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 149,
+        "errorCount": 4,
+        "correctPerMinute": 153.73,
+        "errorsPerMinute": 3.68
+      },
+      "performance": {
+        "totalWords": 153,
+        "correctCount": 149,
+        "accuracy": 97.4,
+        "wpm": 158,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2.1,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 36,
+      "assessmentId": "assessment-1764973691736-mc6j74gem",
+      "celeration": {
+        "date": "2025-02-05",
+        "timestamp": 1738713600000,
+        "calendarDay": 36,
+        "countingTimeSec": 65,
+        "countingTimeMin": 1.08,
+        "correctCount": 180,
+        "errorCount": 5,
+        "correctPerMinute": 166.27,
+        "errorsPerMinute": 4.34
+      },
+      "performance": {
+        "totalWords": 185,
+        "correctCount": 180,
+        "accuracy": 97.3,
+        "wpm": 171,
+        "readingTimeSeconds": 65
+      },
+      "prosody": {
+        "score": 2.4,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 37,
+      "assessmentId": "assessment-1764973691736-komdsw0i0",
+      "celeration": {
+        "date": "2025-02-06",
+        "timestamp": 1738800000000,
+        "calendarDay": 37,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 158,
+        "errorCount": 4,
+        "correctPerMinute": 163.45,
+        "errorsPerMinute": 3.66
+      },
+      "performance": {
+        "totalWords": 162,
+        "correctCount": 158,
+        "accuracy": 97.5,
+        "wpm": 168,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 38,
+      "assessmentId": "assessment-1764973691736-f2g5w6703",
+      "celeration": {
+        "date": "2025-02-07",
+        "timestamp": 1738886400000,
+        "calendarDay": 38,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 163,
+        "errorCount": 4,
+        "correctPerMinute": 177.93,
+        "errorsPerMinute": 4.72
+      },
+      "performance": {
+        "totalWords": 167,
+        "correctCount": 163,
+        "accuracy": 97.6,
+        "wpm": 182,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 39,
+      "assessmentId": "assessment-1764973691736-b3dx1go06",
+      "celeration": {
+        "date": "2025-02-08",
+        "timestamp": 1738972800000,
+        "calendarDay": 39,
+        "countingTimeSec": 69,
+        "countingTimeMin": 1.15,
+        "correctCount": 208,
+        "errorCount": 6,
+        "correctPerMinute": 180.61,
+        "errorsPerMinute": 4.79
+      },
+      "performance": {
+        "totalWords": 214,
+        "correctCount": 208,
+        "accuracy": 97.2,
+        "wpm": 186,
+        "readingTimeSeconds": 69
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 6,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 40,
+      "assessmentId": "assessment-1764973691736-8dh7224kp",
+      "celeration": {
+        "date": "2025-02-09",
+        "timestamp": 1739059200000,
+        "calendarDay": 40,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 217,
+        "errorCount": 3,
+        "correctPerMinute": 220.77,
+        "errorsPerMinute": 3.41
+      },
+      "performance": {
+        "totalWords": 220,
+        "correctCount": 217,
+        "accuracy": 98.6,
+        "wpm": 224,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 41,
+      "assessmentId": "assessment-1764973691736-3z9wsko1f",
+      "celeration": {
+        "date": "2025-02-10",
+        "timestamp": 1739145600000,
+        "calendarDay": 41,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 223,
+        "errorCount": 5,
+        "correctPerMinute": 215.93,
+        "errorsPerMinute": 4.37
+      },
+      "performance": {
+        "totalWords": 228,
+        "correctCount": 223,
+        "accuracy": 97.8,
+        "wpm": 221,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 42,
+      "assessmentId": "assessment-1764973691736-40hzf0a68",
+      "celeration": {
+        "date": "2025-02-11",
+        "timestamp": 1739232000000,
+        "calendarDay": 42,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 190,
+        "errorCount": 4,
+        "correctPerMinute": 177.99,
+        "errorsPerMinute": 4.12
+      },
+      "performance": {
+        "totalWords": 194,
+        "correctCount": 190,
+        "accuracy": 97.9,
+        "wpm": 182,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 43,
+      "assessmentId": "assessment-1764973691736-xewhjd9u3",
+      "celeration": {
+        "date": "2025-02-12",
+        "timestamp": 1739318400000,
+        "calendarDay": 43,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 249,
+        "errorCount": 3,
+        "correctPerMinute": 219.89,
+        "errorsPerMinute": 2.69
+      },
+      "performance": {
+        "totalWords": 252,
+        "correctCount": 249,
+        "accuracy": 98.8,
+        "wpm": 222,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.2,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 44,
+      "assessmentId": "assessment-1764973691736-sjk58hfll",
+      "celeration": {
+        "date": "2025-02-13",
+        "timestamp": 1739404800000,
+        "calendarDay": 44,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 212,
+        "errorCount": 4,
+        "correctPerMinute": 208.19,
+        "errorsPerMinute": 3.52
+      },
+      "performance": {
+        "totalWords": 216,
+        "correctCount": 212,
+        "accuracy": 98.1,
+        "wpm": 212,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 45,
+      "assessmentId": "assessment-1764973691736-58z8t59dz",
+      "celeration": {
+        "date": "2025-02-14",
+        "timestamp": 1739491200000,
+        "calendarDay": 45,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 233,
+        "errorCount": 5,
+        "correctPerMinute": 205.83,
+        "errorsPerMinute": 4.34
+      },
+      "performance": {
+        "totalWords": 238,
+        "correctCount": 233,
+        "accuracy": 97.9,
+        "wpm": 210,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 5,
+        "skipped": 1,
+        "misread": 2,
+        "substituted": 1,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 46,
+      "assessmentId": "assessment-1764973691736-syjdcoeth",
+      "celeration": {
+        "date": "2025-02-15",
+        "timestamp": 1739577600000,
+        "calendarDay": 46,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 182,
+        "errorCount": 4,
+        "correctPerMinute": 178.75,
+        "errorsPerMinute": 4.11
+      },
+      "performance": {
+        "totalWords": 186,
+        "correctCount": 182,
+        "accuracy": 97.8,
+        "wpm": 183,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 47,
+      "assessmentId": "assessment-1764973691736-vbnl694hm",
+      "celeration": {
+        "date": "2025-02-16",
+        "timestamp": 1739664000000,
+        "calendarDay": 47,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 180,
+        "errorCount": 4,
+        "correctPerMinute": 177.03,
+        "errorsPerMinute": 3.75
+      },
+      "performance": {
+        "totalWords": 184,
+        "correctCount": 180,
+        "accuracy": 97.8,
+        "wpm": 181,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 2.4,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 48,
+      "assessmentId": "assessment-1764973691736-ed1c8mxgf",
+      "celeration": {
+        "date": "2025-02-17",
+        "timestamp": 1739750400000,
+        "calendarDay": 48,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 202,
+        "errorCount": 4,
+        "correctPerMinute": 178.27,
+        "errorsPerMinute": 3.5
+      },
+      "performance": {
+        "totalWords": 206,
+        "correctCount": 202,
+        "accuracy": 98.1,
+        "wpm": 182,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 49,
+      "assessmentId": "assessment-1764973691736-qdovvzxfn",
+      "celeration": {
+        "date": "2025-02-18",
+        "timestamp": 1739836800000,
+        "calendarDay": 49,
+        "countingTimeSec": 56,
+        "countingTimeMin": 0.93,
+        "correctCount": 197,
+        "errorCount": 4,
+        "correctPerMinute": 210.98,
+        "errorsPerMinute": 3.88
+      },
+      "performance": {
+        "totalWords": 201,
+        "correctCount": 197,
+        "accuracy": 98,
+        "wpm": 215,
+        "readingTimeSeconds": 56
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 50,
+      "assessmentId": "assessment-1764973691736-h4drnyc1l",
+      "celeration": {
+        "date": "2025-02-19",
+        "timestamp": 1739923200000,
+        "calendarDay": 50,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 207,
+        "errorCount": 3,
+        "correctPerMinute": 199.96,
+        "errorsPerMinute": 3.01
+      },
+      "performance": {
+        "totalWords": 210,
+        "correctCount": 207,
+        "accuracy": 98.6,
+        "wpm": 203,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 51,
+      "assessmentId": "assessment-1764973691736-yvwleqwsi",
+      "celeration": {
+        "date": "2025-02-20",
+        "timestamp": 1740009600000,
+        "calendarDay": 51,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 215,
+        "errorCount": 3,
+        "correctPerMinute": 201.95,
+        "errorsPerMinute": 3.1
+      },
+      "performance": {
+        "totalWords": 218,
+        "correctCount": 215,
+        "accuracy": 98.6,
+        "wpm": 204,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 52,
+      "assessmentId": "assessment-1764973691736-27w3meu32",
+      "celeration": {
+        "date": "2025-02-21",
+        "timestamp": 1740096000000,
+        "calendarDay": 52,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 197,
+        "errorCount": 4,
+        "correctPerMinute": 200.48,
+        "errorsPerMinute": 3.74
+      },
+      "performance": {
+        "totalWords": 201,
+        "correctCount": 197,
+        "accuracy": 98,
+        "wpm": 204,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 53,
+      "assessmentId": "assessment-1764973691736-abwp59ysq",
+      "celeration": {
+        "date": "2025-02-22",
+        "timestamp": 1740182400000,
+        "calendarDay": 53,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 171,
+        "errorCount": 3,
+        "correctPerMinute": 171,
+        "errorsPerMinute": 2.74
+      },
+      "performance": {
+        "totalWords": 174,
+        "correctCount": 171,
+        "accuracy": 98.3,
+        "wpm": 174,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 54,
+      "assessmentId": "assessment-1764973691736-4f0ladrcg",
+      "celeration": {
+        "date": "2025-02-23",
+        "timestamp": 1740268800000,
+        "calendarDay": 54,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 200,
+        "errorCount": 3,
+        "correctPerMinute": 203.81,
+        "errorsPerMinute": 2.74
+      },
+      "performance": {
+        "totalWords": 203,
+        "correctCount": 200,
+        "accuracy": 98.5,
+        "wpm": 206,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 55,
+      "assessmentId": "assessment-1764973691736-94q0pknus",
+      "celeration": {
+        "date": "2025-02-24",
+        "timestamp": 1740355200000,
+        "calendarDay": 55,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 194,
+        "errorCount": 3,
+        "correctPerMinute": 194.04,
+        "errorsPerMinute": 3.17
+      },
+      "performance": {
+        "totalWords": 197,
+        "correctCount": 194,
+        "accuracy": 98.5,
+        "wpm": 197,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 2.4,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 56,
+      "assessmentId": "assessment-1764973691736-kvrsgnfqb",
+      "celeration": {
+        "date": "2025-02-25",
+        "timestamp": 1740441600000,
+        "calendarDay": 56,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 221,
+        "errorCount": 4,
+        "correctPerMinute": 207.65,
+        "errorsPerMinute": 3.41
+      },
+      "performance": {
+        "totalWords": 225,
+        "correctCount": 221,
+        "accuracy": 98.2,
+        "wpm": 211,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 2.7,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 4,
+        "skipped": 1,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 57,
+      "assessmentId": "assessment-1764973691736-rbkzadn22",
+      "celeration": {
+        "date": "2025-02-26",
+        "timestamp": 1740528000000,
+        "calendarDay": 57,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 190,
+        "errorCount": 3,
+        "correctPerMinute": 184.09,
+        "errorsPerMinute": 2.56
+      },
+      "performance": {
+        "totalWords": 193,
+        "correctCount": 190,
+        "accuracy": 98.4,
+        "wpm": 187,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.7,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 58,
+      "assessmentId": "assessment-1764973691736-9geli9qhz",
+      "celeration": {
+        "date": "2025-02-27",
+        "timestamp": 1740614400000,
+        "calendarDay": 58,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 194,
+        "errorCount": 2,
+        "correctPerMinute": 173.35,
+        "errorsPerMinute": 2.11
+      },
+      "performance": {
+        "totalWords": 196,
+        "correctCount": 194,
+        "accuracy": 99,
+        "wpm": 176,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 59,
+      "assessmentId": "assessment-1764973691736-1ntkb69zl",
+      "celeration": {
+        "date": "2025-02-28",
+        "timestamp": 1740700800000,
+        "calendarDay": 59,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 181,
+        "errorCount": 2,
+        "correctPerMinute": 187.3,
+        "errorsPerMinute": 2.49
+      },
+      "performance": {
+        "totalWords": 183,
+        "correctCount": 181,
+        "accuracy": 98.9,
+        "wpm": 189,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 60,
+      "assessmentId": "assessment-1764973691736-zvpxywt68",
+      "celeration": {
+        "date": "2025-03-01",
+        "timestamp": 1740787200000,
+        "calendarDay": 60,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 194,
+        "errorCount": 3,
+        "correctPerMinute": 197.44,
+        "errorsPerMinute": 3.15
+      },
+      "performance": {
+        "totalWords": 197,
+        "correctCount": 194,
+        "accuracy": 98.5,
+        "wpm": 200,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 2.7,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 61,
+      "assessmentId": "assessment-1764973691736-215k1k7to",
+      "celeration": {
+        "date": "2025-03-02",
+        "timestamp": 1740873600000,
+        "calendarDay": 61,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 218,
+        "errorCount": 3,
+        "correctPerMinute": 207.68,
+        "errorsPerMinute": 3.31
+      },
+      "performance": {
+        "totalWords": 221,
+        "correctCount": 218,
+        "accuracy": 98.6,
+        "wpm": 210,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 2.5,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 62,
+      "assessmentId": "assessment-1764973691736-tltvxu0uv",
+      "celeration": {
+        "date": "2025-03-03",
+        "timestamp": 1740960000000,
+        "calendarDay": 62,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 210,
+        "errorCount": 3,
+        "correctPerMinute": 196.91,
+        "errorsPerMinute": 3.2
+      },
+      "performance": {
+        "totalWords": 213,
+        "correctCount": 210,
+        "accuracy": 98.6,
+        "wpm": 200,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 2.7,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 63,
+      "assessmentId": "assessment-1764973691736-elj524fab",
+      "celeration": {
+        "date": "2025-03-04",
+        "timestamp": 1741046400000,
+        "calendarDay": 63,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 173,
+        "errorCount": 3,
+        "correctPerMinute": 189.1,
+        "errorsPerMinute": 3.13
+      },
+      "performance": {
+        "totalWords": 176,
+        "correctCount": 173,
+        "accuracy": 98.3,
+        "wpm": 192,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 2.6,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 64,
+      "assessmentId": "assessment-1764973691736-xc6k2cjud",
+      "celeration": {
+        "date": "2025-03-05",
+        "timestamp": 1741132800000,
+        "calendarDay": 64,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 202,
+        "errorCount": 3,
+        "correctPerMinute": 195.35,
+        "errorsPerMinute": 2.7
+      },
+      "performance": {
+        "totalWords": 205,
+        "correctCount": 202,
+        "accuracy": 98.5,
+        "wpm": 198,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 65,
+      "assessmentId": "assessment-1764973691736-8d7iyvi8t",
+      "celeration": {
+        "date": "2025-03-06",
+        "timestamp": 1741219200000,
+        "calendarDay": 65,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 202,
+        "errorCount": 3,
+        "correctPerMinute": 195.09,
+        "errorsPerMinute": 2.91
+      },
+      "performance": {
+        "totalWords": 205,
+        "correctCount": 202,
+        "accuracy": 98.5,
+        "wpm": 198,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 66,
+      "assessmentId": "assessment-1764973691736-69zjvkt0y",
+      "celeration": {
+        "date": "2025-03-07",
+        "timestamp": 1741305600000,
+        "calendarDay": 66,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 187,
+        "errorCount": 2,
+        "correctPerMinute": 193.58,
+        "errorsPerMinute": 1.81
+      },
+      "performance": {
+        "totalWords": 189,
+        "correctCount": 187,
+        "accuracy": 98.9,
+        "wpm": 196,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 2.8,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 67,
+      "assessmentId": "assessment-1764973691736-wnri70ecu",
+      "celeration": {
+        "date": "2025-03-08",
+        "timestamp": 1741392000000,
+        "calendarDay": 67,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 243,
+        "errorCount": 3,
+        "correctPerMinute": 214.4,
+        "errorsPerMinute": 2.3
+      },
+      "performance": {
+        "totalWords": 246,
+        "correctCount": 243,
+        "accuracy": 98.8,
+        "wpm": 217,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 68,
+      "assessmentId": "assessment-1764973691736-45txxwep3",
+      "celeration": {
+        "date": "2025-03-09",
+        "timestamp": 1741478400000,
+        "calendarDay": 68,
+        "countingTimeSec": 69,
+        "countingTimeMin": 1.15,
+        "correctCount": 243,
+        "errorCount": 3,
+        "correctPerMinute": 211.72,
+        "errorsPerMinute": 2.66
+      },
+      "performance": {
+        "totalWords": 246,
+        "correctCount": 243,
+        "accuracy": 98.8,
+        "wpm": 214,
+        "readingTimeSeconds": 69
+      },
+      "prosody": {
+        "score": 2.7,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 3,
+        "skipped": 0,
+        "misread": 1,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 69,
+      "assessmentId": "assessment-1764973691736-j2gzjxfwx",
+      "celeration": {
+        "date": "2025-03-09",
+        "timestamp": 1741561200000,
+        "calendarDay": 69,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 228,
+        "errorCount": 2,
+        "correctPerMinute": 224.32,
+        "errorsPerMinute": 2.09
+      },
+      "performance": {
+        "totalWords": 230,
+        "correctCount": 228,
+        "accuracy": 99.1,
+        "wpm": 226,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 2.8,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 70,
+      "assessmentId": "assessment-1764973691736-w386w5m9o",
+      "celeration": {
+        "date": "2025-03-10",
+        "timestamp": 1741647600000,
+        "calendarDay": 70,
+        "countingTimeSec": 56,
+        "countingTimeMin": 0.93,
+        "correctCount": 195,
+        "errorCount": 2,
+        "correctPerMinute": 209.28,
+        "errorsPerMinute": 1.76
+      },
+      "performance": {
+        "totalWords": 197,
+        "correctCount": 195,
+        "accuracy": 99,
+        "wpm": 211,
+        "readingTimeSeconds": 56
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 71,
+      "assessmentId": "assessment-1764973691736-q3epksosa",
+      "celeration": {
+        "date": "2025-03-11",
+        "timestamp": 1741734000000,
+        "calendarDay": 71,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 194,
+        "errorCount": 2,
+        "correctPerMinute": 173.53,
+        "errorsPerMinute": 2.19
+      },
+      "performance": {
+        "totalWords": 196,
+        "correctCount": 194,
+        "accuracy": 99,
+        "wpm": 176,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 72,
+      "assessmentId": "assessment-1764973691736-ddnyjtace",
+      "celeration": {
+        "date": "2025-03-12",
+        "timestamp": 1741820400000,
+        "calendarDay": 72,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 231,
+        "errorCount": 2,
+        "correctPerMinute": 220.12,
+        "errorsPerMinute": 1.71
+      },
+      "performance": {
+        "totalWords": 233,
+        "correctCount": 231,
+        "accuracy": 99.1,
+        "wpm": 222,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 73,
+      "assessmentId": "assessment-1764973691736-e7wj53c3i",
+      "celeration": {
+        "date": "2025-03-13",
+        "timestamp": 1741906800000,
+        "calendarDay": 73,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 195,
+        "errorCount": 2,
+        "correctPerMinute": 188.94,
+        "errorsPerMinute": 1.57
+      },
+      "performance": {
+        "totalWords": 197,
+        "correctCount": 195,
+        "accuracy": 99,
+        "wpm": 191,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 74,
+      "assessmentId": "assessment-1764973691736-ivygtz85s",
+      "celeration": {
+        "date": "2025-03-14",
+        "timestamp": 1741993200000,
+        "calendarDay": 74,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 190,
+        "errorCount": 2,
+        "correctPerMinute": 170.1,
+        "errorsPerMinute": 1.68
+      },
+      "performance": {
+        "totalWords": 192,
+        "correctCount": 190,
+        "accuracy": 99,
+        "wpm": 172,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 75,
+      "assessmentId": "assessment-1764973691736-ta9zjb5p6",
+      "celeration": {
+        "date": "2025-03-15",
+        "timestamp": 1742079600000,
+        "calendarDay": 75,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 218,
+        "errorCount": 2,
+        "correctPerMinute": 192.36,
+        "errorsPerMinute": 1.9
+      },
+      "performance": {
+        "totalWords": 220,
+        "correctCount": 218,
+        "accuracy": 99.1,
+        "wpm": 194,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 76,
+      "assessmentId": "assessment-1764973691736-865nt0iqs",
+      "celeration": {
+        "date": "2025-03-16",
+        "timestamp": 1742166000000,
+        "calendarDay": 76,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 228,
+        "errorCount": 2,
+        "correctPerMinute": 204.6,
+        "errorsPerMinute": 1.98
+      },
+      "performance": {
+        "totalWords": 230,
+        "correctCount": 228,
+        "accuracy": 99.1,
+        "wpm": 206,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 77,
+      "assessmentId": "assessment-1764973691736-9asg75wsy",
+      "celeration": {
+        "date": "2025-03-17",
+        "timestamp": 1742252400000,
+        "calendarDay": 77,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 199,
+        "errorCount": 2,
+        "correctPerMinute": 202.39,
+        "errorsPerMinute": 2.25
+      },
+      "performance": {
+        "totalWords": 201,
+        "correctCount": 199,
+        "accuracy": 99,
+        "wpm": 204,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 2.8,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 78,
+      "assessmentId": "assessment-1764973691736-2qp2wv4q1",
+      "celeration": {
+        "date": "2025-03-18",
+        "timestamp": 1742338800000,
+        "calendarDay": 78,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 215,
+        "errorCount": 2,
+        "correctPerMinute": 218.65,
+        "errorsPerMinute": 1.94
+      },
+      "performance": {
+        "totalWords": 217,
+        "correctCount": 215,
+        "accuracy": 99.1,
+        "wpm": 221,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 79,
+      "assessmentId": "assessment-1764973691736-1txoo5a9j",
+      "celeration": {
+        "date": "2025-03-19",
+        "timestamp": 1742425200000,
+        "calendarDay": 79,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 174,
+        "errorCount": 2,
+        "correctPerMinute": 183.14,
+        "errorsPerMinute": 2.15
+      },
+      "performance": {
+        "totalWords": 176,
+        "correctCount": 174,
+        "accuracy": 98.9,
+        "wpm": 185,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 80,
+      "assessmentId": "assessment-1764973691736-a6utf0vsh",
+      "celeration": {
+        "date": "2025-03-20",
+        "timestamp": 1742511600000,
+        "calendarDay": 80,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 201,
+        "errorCount": 2,
+        "correctPerMinute": 207.64,
+        "errorsPerMinute": 1.7
+      },
+      "performance": {
+        "totalWords": 203,
+        "correctCount": 201,
+        "accuracy": 99,
+        "wpm": 210,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 81,
+      "assessmentId": "assessment-1764973691736-axeob3m15",
+      "celeration": {
+        "date": "2025-03-21",
+        "timestamp": 1742598000000,
+        "calendarDay": 81,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 178,
+        "errorCount": 2,
+        "correctPerMinute": 187.45,
+        "errorsPerMinute": 1.61
+      },
+      "performance": {
+        "totalWords": 180,
+        "correctCount": 178,
+        "accuracy": 98.9,
+        "wpm": 189,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 2.9,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 82,
+      "assessmentId": "assessment-1764973691736-adtz8bhb9",
+      "celeration": {
+        "date": "2025-03-22",
+        "timestamp": 1742684400000,
+        "calendarDay": 82,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 160,
+        "errorCount": 1,
+        "correctPerMinute": 174.12,
+        "errorsPerMinute": 1.41
+      },
+      "performance": {
+        "totalWords": 161,
+        "correctCount": 160,
+        "accuracy": 99.4,
+        "wpm": 176,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 83,
+      "assessmentId": "assessment-1764973691736-to7wdn274",
+      "celeration": {
+        "date": "2025-03-23",
+        "timestamp": 1742770800000,
+        "calendarDay": 83,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 220,
+        "errorCount": 2,
+        "correctPerMinute": 209.43,
+        "errorsPerMinute": 2.2
+      },
+      "performance": {
+        "totalWords": 222,
+        "correctCount": 220,
+        "accuracy": 99.1,
+        "wpm": 211,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 84,
+      "assessmentId": "assessment-1764973691736-8fwqwn5d2",
+      "celeration": {
+        "date": "2025-03-24",
+        "timestamp": 1742857200000,
+        "calendarDay": 84,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 206,
+        "errorCount": 1,
+        "correctPerMinute": 195.94,
+        "errorsPerMinute": 1.35
+      },
+      "performance": {
+        "totalWords": 207,
+        "correctCount": 206,
+        "accuracy": 99.5,
+        "wpm": 197,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 85,
+      "assessmentId": "assessment-1764973691736-rg41vekdt",
+      "celeration": {
+        "date": "2025-03-25",
+        "timestamp": 1742943600000,
+        "calendarDay": 85,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 208,
+        "errorCount": 2,
+        "correctPerMinute": 186.4,
+        "errorsPerMinute": 1.43
+      },
+      "performance": {
+        "totalWords": 210,
+        "correctCount": 208,
+        "accuracy": 99,
+        "wpm": 188,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 86,
+      "assessmentId": "assessment-1764973691736-2sp5w8tdi",
+      "celeration": {
+        "date": "2025-03-26",
+        "timestamp": 1743030000000,
+        "calendarDay": 86,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 186,
+        "errorCount": 2,
+        "correctPerMinute": 179.88,
+        "errorsPerMinute": 1.71
+      },
+      "performance": {
+        "totalWords": 188,
+        "correctCount": 186,
+        "accuracy": 98.9,
+        "wpm": 182,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3.3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 87,
+      "assessmentId": "assessment-1764973691736-48ru3opmf",
+      "celeration": {
+        "date": "2025-03-27",
+        "timestamp": 1743116400000,
+        "calendarDay": 87,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 208,
+        "errorCount": 1,
+        "correctPerMinute": 201.23,
+        "errorsPerMinute": 1.08
+      },
+      "performance": {
+        "totalWords": 209,
+        "correctCount": 208,
+        "accuracy": 99.5,
+        "wpm": 202,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 88,
+      "assessmentId": "assessment-1764973691736-2sm185qnz",
+      "celeration": {
+        "date": "2025-03-28",
+        "timestamp": 1743202800000,
+        "calendarDay": 88,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 197,
+        "errorCount": 1,
+        "correctPerMinute": 179.25,
+        "errorsPerMinute": 1.14
+      },
+      "performance": {
+        "totalWords": 198,
+        "correctCount": 197,
+        "accuracy": 99.5,
+        "wpm": 180,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 3,
+        "grade": "Developing"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 89,
+      "assessmentId": "assessment-1764973691736-qytwfxt1n",
+      "celeration": {
+        "date": "2025-03-29",
+        "timestamp": 1743289200000,
+        "calendarDay": 89,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 203,
+        "errorCount": 2,
+        "correctPerMinute": 209.84,
+        "errorsPerMinute": 1.65
+      },
+      "performance": {
+        "totalWords": 205,
+        "correctCount": 203,
+        "accuracy": 99,
+        "wpm": 212,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 90,
+      "assessmentId": "assessment-1764973691736-66x7pauos",
+      "celeration": {
+        "date": "2025-03-30",
+        "timestamp": 1743375600000,
+        "calendarDay": 90,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 189,
+        "errorCount": 1,
+        "correctPerMinute": 195.36,
+        "errorsPerMinute": 1.37
+      },
+      "performance": {
+        "totalWords": 190,
+        "correctCount": 189,
+        "accuracy": 99.5,
+        "wpm": 197,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 91,
+      "assessmentId": "assessment-1764973691736-ounxfw5fy",
+      "celeration": {
+        "date": "2025-03-31",
+        "timestamp": 1743462000000,
+        "calendarDay": 91,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 180,
+        "errorCount": 1,
+        "correctPerMinute": 179.86,
+        "errorsPerMinute": 1.47
+      },
+      "performance": {
+        "totalWords": 181,
+        "correctCount": 180,
+        "accuracy": 99.4,
+        "wpm": 181,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 92,
+      "assessmentId": "assessment-1764973691736-r4t27t2yf",
+      "celeration": {
+        "date": "2025-04-01",
+        "timestamp": 1743548400000,
+        "calendarDay": 92,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 164,
+        "errorCount": 1,
+        "correctPerMinute": 178.39,
+        "errorsPerMinute": 1.47
+      },
+      "performance": {
+        "totalWords": 165,
+        "correctCount": 164,
+        "accuracy": 99.4,
+        "wpm": 180,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 93,
+      "assessmentId": "assessment-1764973691736-qabovoh83",
+      "celeration": {
+        "date": "2025-04-02",
+        "timestamp": 1743634800000,
+        "calendarDay": 93,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 191,
+        "errorCount": 1,
+        "correctPerMinute": 197.8,
+        "errorsPerMinute": 1.17
+      },
+      "performance": {
+        "totalWords": 192,
+        "correctCount": 191,
+        "accuracy": 99.5,
+        "wpm": 199,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 94,
+      "assessmentId": "assessment-1764973691736-lwme0fmoi",
+      "celeration": {
+        "date": "2025-04-03",
+        "timestamp": 1743721200000,
+        "calendarDay": 94,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 190,
+        "errorCount": 2,
+        "correctPerMinute": 173.12,
+        "errorsPerMinute": 1.51
+      },
+      "performance": {
+        "totalWords": 192,
+        "correctCount": 190,
+        "accuracy": 99,
+        "wpm": 175,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 95,
+      "assessmentId": "assessment-1764973691736-fx78cbfxf",
+      "celeration": {
+        "date": "2025-04-04",
+        "timestamp": 1743807600000,
+        "calendarDay": 95,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 194,
+        "errorCount": 1,
+        "correctPerMinute": 204.44,
+        "errorsPerMinute": 1.53
+      },
+      "performance": {
+        "totalWords": 195,
+        "correctCount": 194,
+        "accuracy": 99.5,
+        "wpm": 205,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 3.1,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 96,
+      "assessmentId": "assessment-1764973691736-mv59et5is",
+      "celeration": {
+        "date": "2025-04-05",
+        "timestamp": 1743894000000,
+        "calendarDay": 96,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 176,
+        "errorCount": 1,
+        "correctPerMinute": 185.29,
+        "errorsPerMinute": 1.23
+      },
+      "performance": {
+        "totalWords": 177,
+        "correctCount": 176,
+        "accuracy": 99.4,
+        "wpm": 186,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 97,
+      "assessmentId": "assessment-1764973691736-i8vab4ftr",
+      "celeration": {
+        "date": "2025-04-06",
+        "timestamp": 1743980400000,
+        "calendarDay": 97,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 212,
+        "errorCount": 2,
+        "correctPerMinute": 198.39,
+        "errorsPerMinute": 1.65
+      },
+      "performance": {
+        "totalWords": 214,
+        "correctCount": 212,
+        "accuracy": 99.1,
+        "wpm": 201,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 3.3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 2,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 98,
+      "assessmentId": "assessment-1764973691736-in3bvx87u",
+      "celeration": {
+        "date": "2025-04-07",
+        "timestamp": 1744066800000,
+        "calendarDay": 98,
+        "countingTimeSec": 69,
+        "countingTimeMin": 1.15,
+        "correctCount": 256,
+        "errorCount": 1,
+        "correctPerMinute": 222.77,
+        "errorsPerMinute": 1.03
+      },
+      "performance": {
+        "totalWords": 257,
+        "correctCount": 256,
+        "accuracy": 99.6,
+        "wpm": 223,
+        "readingTimeSeconds": 69
+      },
+      "prosody": {
+        "score": 3.4,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 99,
+      "assessmentId": "assessment-1764973691736-x6xi0r23z",
+      "celeration": {
+        "date": "2025-04-08",
+        "timestamp": 1744153200000,
+        "calendarDay": 99,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 211,
+        "errorCount": 1,
+        "correctPerMinute": 191.43,
+        "errorsPerMinute": 1.26
+      },
+      "performance": {
+        "totalWords": 212,
+        "correctCount": 211,
+        "accuracy": 99.5,
+        "wpm": 193,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 100,
+      "assessmentId": "assessment-1764973691736-kn6h58vlj",
+      "celeration": {
+        "date": "2025-04-09",
+        "timestamp": 1744239600000,
+        "calendarDay": 100,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 184,
+        "errorCount": 1,
+        "correctPerMinute": 178.46,
+        "errorsPerMinute": 1.04
+      },
+      "performance": {
+        "totalWords": 185,
+        "correctCount": 184,
+        "accuracy": 99.5,
+        "wpm": 179,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 101,
+      "assessmentId": "assessment-1764973691736-5evvd4d0z",
+      "celeration": {
+        "date": "2025-04-10",
+        "timestamp": 1744326000000,
+        "calendarDay": 101,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 241,
+        "errorCount": 1,
+        "correctPerMinute": 216.01,
+        "errorsPerMinute": 1.11
+      },
+      "performance": {
+        "totalWords": 242,
+        "correctCount": 241,
+        "accuracy": 99.6,
+        "wpm": 217,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3.4,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 102,
+      "assessmentId": "assessment-1764973691736-oml548yqg",
+      "celeration": {
+        "date": "2025-04-11",
+        "timestamp": 1744412400000,
+        "calendarDay": 102,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 189,
+        "errorCount": 1,
+        "correctPerMinute": 192.47,
+        "errorsPerMinute": 1.45
+      },
+      "performance": {
+        "totalWords": 190,
+        "correctCount": 189,
+        "accuracy": 99.5,
+        "wpm": 193,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 3.3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 103,
+      "assessmentId": "assessment-1764973691736-mmq65obpg",
+      "celeration": {
+        "date": "2025-04-12",
+        "timestamp": 1744498800000,
+        "calendarDay": 103,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 176,
+        "errorCount": 1,
+        "correctPerMinute": 175.97,
+        "errorsPerMinute": 1.12
+      },
+      "performance": {
+        "totalWords": 177,
+        "correctCount": 176,
+        "accuracy": 99.4,
+        "wpm": 177,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 104,
+      "assessmentId": "assessment-1764973691736-chiomithh",
+      "celeration": {
+        "date": "2025-04-13",
+        "timestamp": 1744585200000,
+        "calendarDay": 104,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 217,
+        "errorCount": 1,
+        "correctPerMinute": 206.41,
+        "errorsPerMinute": 1.35
+      },
+      "performance": {
+        "totalWords": 218,
+        "correctCount": 217,
+        "accuracy": 99.5,
+        "wpm": 208,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 3.2,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 105,
+      "assessmentId": "assessment-1764973691736-js2c8fgq7",
+      "celeration": {
+        "date": "2025-04-14",
+        "timestamp": 1744671600000,
+        "calendarDay": 105,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 208,
+        "errorCount": 1,
+        "correctPerMinute": 211.09,
+        "errorsPerMinute": 1.03
+      },
+      "performance": {
+        "totalWords": 209,
+        "correctCount": 208,
+        "accuracy": 99.5,
+        "wpm": 213,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 3.3,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 106,
+      "assessmentId": "assessment-1764973691736-okv9etw1p",
+      "celeration": {
+        "date": "2025-04-15",
+        "timestamp": 1744758000000,
+        "calendarDay": 106,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 213,
+        "errorCount": 1,
+        "correctPerMinute": 202.52,
+        "errorsPerMinute": 1.25
+      },
+      "performance": {
+        "totalWords": 214,
+        "correctCount": 213,
+        "accuracy": 99.5,
+        "wpm": 204,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 107,
+      "assessmentId": "assessment-1764973691736-ncyamkbkd",
+      "celeration": {
+        "date": "2025-04-16",
+        "timestamp": 1744844400000,
+        "calendarDay": 107,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 189,
+        "errorCount": 1,
+        "correctPerMinute": 177.51,
+        "errorsPerMinute": 0.97
+      },
+      "performance": {
+        "totalWords": 190,
+        "correctCount": 189,
+        "accuracy": 99.5,
+        "wpm": 178,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 108,
+      "assessmentId": "assessment-1764973691736-mvsn2jexf",
+      "celeration": {
+        "date": "2025-04-17",
+        "timestamp": 1744930800000,
+        "calendarDay": 108,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 226,
+        "errorCount": 1,
+        "correctPerMinute": 225.85,
+        "errorsPerMinute": 0.83
+      },
+      "performance": {
+        "totalWords": 227,
+        "correctCount": 226,
+        "accuracy": 99.6,
+        "wpm": 227,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 109,
+      "assessmentId": "assessment-1764973691736-e53raz9ry",
+      "celeration": {
+        "date": "2025-04-18",
+        "timestamp": 1745017200000,
+        "calendarDay": 109,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 220,
+        "errorCount": 1,
+        "correctPerMinute": 206.08,
+        "errorsPerMinute": 1.23
+      },
+      "performance": {
+        "totalWords": 221,
+        "correctCount": 220,
+        "accuracy": 99.5,
+        "wpm": 207,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 110,
+      "assessmentId": "assessment-1764973691736-gvi72ak2c",
+      "celeration": {
+        "date": "2025-04-19",
+        "timestamp": 1745103600000,
+        "calendarDay": 110,
+        "countingTimeSec": 61,
+        "countingTimeMin": 1.02,
+        "correctCount": 180,
+        "errorCount": 1,
+        "correctPerMinute": 176.91,
+        "errorsPerMinute": 1.19
+      },
+      "performance": {
+        "totalWords": 181,
+        "correctCount": 180,
+        "accuracy": 99.4,
+        "wpm": 178,
+        "readingTimeSeconds": 61
+      },
+      "prosody": {
+        "score": 3.4,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 111,
+      "assessmentId": "assessment-1764973691736-74nbl1yzt",
+      "celeration": {
+        "date": "2025-04-20",
+        "timestamp": 1745190000000,
+        "calendarDay": 111,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 195,
+        "errorCount": 1,
+        "correctPerMinute": 182.68,
+        "errorsPerMinute": 0.93
+      },
+      "performance": {
+        "totalWords": 196,
+        "correctCount": 195,
+        "accuracy": 99.5,
+        "wpm": 184,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 112,
+      "assessmentId": "assessment-1764973691736-tsil2pzob",
+      "celeration": {
+        "date": "2025-04-21",
+        "timestamp": 1745276400000,
+        "calendarDay": 112,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 209,
+        "errorCount": 1,
+        "correctPerMinute": 220.34,
+        "errorsPerMinute": 0.86
+      },
+      "performance": {
+        "totalWords": 210,
+        "correctCount": 209,
+        "accuracy": 99.5,
+        "wpm": 221,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 3.4,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 113,
+      "assessmentId": "assessment-1764973691736-evgkd0nmn",
+      "celeration": {
+        "date": "2025-04-22",
+        "timestamp": 1745362800000,
+        "calendarDay": 113,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 182,
+        "errorCount": 1,
+        "correctPerMinute": 181.5,
+        "errorsPerMinute": 0.65
+      },
+      "performance": {
+        "totalWords": 183,
+        "correctCount": 182,
+        "accuracy": 99.5,
+        "wpm": 183,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 114,
+      "assessmentId": "assessment-1764973691736-9id50hikm",
+      "celeration": {
+        "date": "2025-04-23",
+        "timestamp": 1745449200000,
+        "calendarDay": 114,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 207,
+        "errorCount": 1,
+        "correctPerMinute": 213.7,
+        "errorsPerMinute": 0.69
+      },
+      "performance": {
+        "totalWords": 208,
+        "correctCount": 207,
+        "accuracy": 99.5,
+        "wpm": 215,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 115,
+      "assessmentId": "assessment-1764973691736-cm01xfwt0",
+      "celeration": {
+        "date": "2025-04-24",
+        "timestamp": 1745535600000,
+        "calendarDay": 115,
+        "countingTimeSec": 57,
+        "countingTimeMin": 0.95,
+        "correctCount": 190,
+        "errorCount": 1,
+        "correctPerMinute": 200.23,
+        "errorsPerMinute": 1.06
+      },
+      "performance": {
+        "totalWords": 191,
+        "correctCount": 190,
+        "accuracy": 99.5,
+        "wpm": 201,
+        "readingTimeSeconds": 57
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 116,
+      "assessmentId": "assessment-1764973691736-h244zzbau",
+      "celeration": {
+        "date": "2025-04-25",
+        "timestamp": 1745622000000,
+        "calendarDay": 116,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 227,
+        "errorCount": 1,
+        "correctPerMinute": 226.55,
+        "errorsPerMinute": 0.92
+      },
+      "performance": {
+        "totalWords": 228,
+        "correctCount": 227,
+        "accuracy": 99.6,
+        "wpm": 228,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 117,
+      "assessmentId": "assessment-1764973691736-lwfhmm0u9",
+      "celeration": {
+        "date": "2025-04-26",
+        "timestamp": 1745708400000,
+        "calendarDay": 117,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 188,
+        "errorCount": 1,
+        "correctPerMinute": 182.2,
+        "errorsPerMinute": 0.74
+      },
+      "performance": {
+        "totalWords": 189,
+        "correctCount": 188,
+        "accuracy": 99.5,
+        "wpm": 183,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 118,
+      "assessmentId": "assessment-1764973691736-dquppojy4",
+      "celeration": {
+        "date": "2025-04-27",
+        "timestamp": 1745794800000,
+        "calendarDay": 118,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 235,
+        "errorCount": 1,
+        "correctPerMinute": 210.17,
+        "errorsPerMinute": 0.69
+      },
+      "performance": {
+        "totalWords": 236,
+        "correctCount": 235,
+        "accuracy": 99.6,
+        "wpm": 211,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 119,
+      "assessmentId": "assessment-1764973691736-egym024x1",
+      "celeration": {
+        "date": "2025-04-28",
+        "timestamp": 1745881200000,
+        "calendarDay": 119,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 214,
+        "errorCount": 1,
+        "correctPerMinute": 221.34,
+        "errorsPerMinute": 0.86
+      },
+      "performance": {
+        "totalWords": 215,
+        "correctCount": 214,
+        "accuracy": 99.5,
+        "wpm": 222,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.5,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 120,
+      "assessmentId": "assessment-1764973691736-1fv7lgieg",
+      "celeration": {
+        "date": "2025-04-29",
+        "timestamp": 1745967600000,
+        "calendarDay": 120,
+        "countingTimeSec": 59,
+        "countingTimeMin": 0.98,
+        "correctCount": 207,
+        "errorCount": 1,
+        "correctPerMinute": 210.43,
+        "errorsPerMinute": 0.55
+      },
+      "performance": {
+        "totalWords": 208,
+        "correctCount": 207,
+        "accuracy": 99.5,
+        "wpm": 212,
+        "readingTimeSeconds": 59
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 121,
+      "assessmentId": "assessment-1764973691736-lzrujbbfq",
+      "celeration": {
+        "date": "2025-04-30",
+        "timestamp": 1746054000000,
+        "calendarDay": 121,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 218,
+        "errorCount": 1,
+        "correctPerMinute": 217.58,
+        "errorsPerMinute": 0.6
+      },
+      "performance": {
+        "totalWords": 219,
+        "correctCount": 218,
+        "accuracy": 99.5,
+        "wpm": 219,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 122,
+      "assessmentId": "assessment-1764973691736-iv8i3irsu",
+      "celeration": {
+        "date": "2025-05-01",
+        "timestamp": 1746140400000,
+        "calendarDay": 122,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 196,
+        "errorCount": 1,
+        "correctPerMinute": 175.37,
+        "errorsPerMinute": 0.7
+      },
+      "performance": {
+        "totalWords": 197,
+        "correctCount": 196,
+        "accuracy": 99.5,
+        "wpm": 176,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 123,
+      "assessmentId": "assessment-1764973691736-g0okeg3k3",
+      "celeration": {
+        "date": "2025-05-02",
+        "timestamp": 1746226800000,
+        "calendarDay": 123,
+        "countingTimeSec": 62,
+        "countingTimeMin": 1.03,
+        "correctCount": 225,
+        "errorCount": 1,
+        "correctPerMinute": 217.58,
+        "errorsPerMinute": 0.65
+      },
+      "performance": {
+        "totalWords": 226,
+        "correctCount": 225,
+        "accuracy": 99.6,
+        "wpm": 219,
+        "readingTimeSeconds": 62
+      },
+      "prosody": {
+        "score": 3.6,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 124,
+      "assessmentId": "assessment-1764973691736-zwuvohuos",
+      "celeration": {
+        "date": "2025-05-03",
+        "timestamp": 1746313200000,
+        "calendarDay": 124,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 210,
+        "errorCount": 1,
+        "correctPerMinute": 217.66,
+        "errorsPerMinute": 0.8
+      },
+      "performance": {
+        "totalWords": 211,
+        "correctCount": 210,
+        "accuracy": 99.5,
+        "wpm": 218,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 125,
+      "assessmentId": "assessment-1764973691736-v1pv5677k",
+      "celeration": {
+        "date": "2025-05-04",
+        "timestamp": 1746399600000,
+        "calendarDay": 125,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 173,
+        "errorCount": 1,
+        "correctPerMinute": 178.61,
+        "errorsPerMinute": 0.85
+      },
+      "performance": {
+        "totalWords": 174,
+        "correctCount": 173,
+        "accuracy": 99.4,
+        "wpm": 180,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 126,
+      "assessmentId": "assessment-1764973691736-dutizv9wa",
+      "celeration": {
+        "date": "2025-05-05",
+        "timestamp": 1746486000000,
+        "calendarDay": 126,
+        "countingTimeSec": 66,
+        "countingTimeMin": 1.1,
+        "correctCount": 222,
+        "errorCount": 1,
+        "correctPerMinute": 201.91,
+        "errorsPerMinute": 0.79
+      },
+      "performance": {
+        "totalWords": 223,
+        "correctCount": 222,
+        "accuracy": 99.6,
+        "wpm": 203,
+        "readingTimeSeconds": 66
+      },
+      "prosody": {
+        "score": 3.9,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 127,
+      "assessmentId": "assessment-1764973691736-4vghttpq6",
+      "celeration": {
+        "date": "2025-05-06",
+        "timestamp": 1746572400000,
+        "calendarDay": 127,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 215,
+        "errorCount": 1,
+        "correctPerMinute": 222.89,
+        "errorsPerMinute": 0.54
+      },
+      "performance": {
+        "totalWords": 216,
+        "correctCount": 215,
+        "accuracy": 99.5,
+        "wpm": 223,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 4,
+        "grade": "Advanced"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 128,
+      "assessmentId": "assessment-1764973691736-j7x43p89m",
+      "celeration": {
+        "date": "2025-05-07",
+        "timestamp": 1746658800000,
+        "calendarDay": 128,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 240,
+        "errorCount": 1,
+        "correctPerMinute": 215.08,
+        "errorsPerMinute": 0.58
+      },
+      "performance": {
+        "totalWords": 241,
+        "correctCount": 240,
+        "accuracy": 99.6,
+        "wpm": 216,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 4,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 129,
+      "assessmentId": "assessment-1764973691736-5jxc0rczc",
+      "celeration": {
+        "date": "2025-05-08",
+        "timestamp": 1746745200000,
+        "calendarDay": 129,
+        "countingTimeSec": 68,
+        "countingTimeMin": 1.13,
+        "correctCount": 256,
+        "errorCount": 1,
+        "correctPerMinute": 225.5,
+        "errorsPerMinute": 0.57
+      },
+      "performance": {
+        "totalWords": 257,
+        "correctCount": 256,
+        "accuracy": 99.6,
+        "wpm": 227,
+        "readingTimeSeconds": 68
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 130,
+      "assessmentId": "assessment-1764973691736-lms81ug6i",
+      "celeration": {
+        "date": "2025-05-09",
+        "timestamp": 1746831600000,
+        "calendarDay": 130,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 187,
+        "errorCount": 1,
+        "correctPerMinute": 187.29,
+        "errorsPerMinute": 0.75
+      },
+      "performance": {
+        "totalWords": 188,
+        "correctCount": 187,
+        "accuracy": 99.5,
+        "wpm": 188,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.9,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 131,
+      "assessmentId": "assessment-1764973691736-cwnfppxds",
+      "celeration": {
+        "date": "2025-05-10",
+        "timestamp": 1746918000000,
+        "calendarDay": 131,
+        "countingTimeSec": 64,
+        "countingTimeMin": 1.07,
+        "correctCount": 198,
+        "errorCount": 1,
+        "correctPerMinute": 185.75,
+        "errorsPerMinute": 0.51
+      },
+      "performance": {
+        "totalWords": 199,
+        "correctCount": 198,
+        "accuracy": 99.5,
+        "wpm": 187,
+        "readingTimeSeconds": 64
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 132,
+      "assessmentId": "assessment-1764973691736-r9egpxy5h",
+      "celeration": {
+        "date": "2025-05-11",
+        "timestamp": 1747004400000,
+        "calendarDay": 132,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 176,
+        "errorCount": 1,
+        "correctPerMinute": 175.72,
+        "errorsPerMinute": 0.77
+      },
+      "performance": {
+        "totalWords": 177,
+        "correctCount": 176,
+        "accuracy": 99.4,
+        "wpm": 177,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 133,
+      "assessmentId": "assessment-1764973691736-8qear2ry7",
+      "celeration": {
+        "date": "2025-05-12",
+        "timestamp": 1747090800000,
+        "calendarDay": 133,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 194,
+        "errorCount": 1,
+        "correctPerMinute": 173.86,
+        "errorsPerMinute": 0.57
+      },
+      "performance": {
+        "totalWords": 195,
+        "correctCount": 194,
+        "accuracy": 99.5,
+        "wpm": 175,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 3.7,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 134,
+      "assessmentId": "assessment-1764973691736-x3nm2f17q",
+      "celeration": {
+        "date": "2025-05-13",
+        "timestamp": 1747177200000,
+        "calendarDay": 134,
+        "countingTimeSec": 58,
+        "countingTimeMin": 0.97,
+        "correctCount": 208,
+        "errorCount": 1,
+        "correctPerMinute": 215.37,
+        "errorsPerMinute": 0.71
+      },
+      "performance": {
+        "totalWords": 209,
+        "correctCount": 208,
+        "accuracy": 99.5,
+        "wpm": 216,
+        "readingTimeSeconds": 58
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 135,
+      "assessmentId": "assessment-1764973691736-q9y632h8h",
+      "celeration": {
+        "date": "2025-05-14",
+        "timestamp": 1747263600000,
+        "calendarDay": 135,
+        "countingTimeSec": 63,
+        "countingTimeMin": 1.05,
+        "correctCount": 229,
+        "errorCount": 1,
+        "correctPerMinute": 218.11,
+        "errorsPerMinute": 0.5
+      },
+      "performance": {
+        "totalWords": 230,
+        "correctCount": 229,
+        "accuracy": 99.6,
+        "wpm": 219,
+        "readingTimeSeconds": 63
+      },
+      "prosody": {
+        "score": 4.1,
+        "grade": "Advanced"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 136,
+      "assessmentId": "assessment-1764973691736-7lm5tptzy",
+      "celeration": {
+        "date": "2025-05-15",
+        "timestamp": 1747350000000,
+        "calendarDay": 136,
+        "countingTimeSec": 55,
+        "countingTimeMin": 0.92,
+        "correctCount": 167,
+        "errorCount": 0,
+        "correctPerMinute": 182.19,
+        "errorsPerMinute": 0.5
+      },
+      "performance": {
+        "totalWords": 167,
+        "correctCount": 167,
+        "accuracy": 100,
+        "wpm": 182,
+        "readingTimeSeconds": 55
+      },
+      "prosody": {
+        "score": 3.9,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 0,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 137,
+      "assessmentId": "assessment-1764973691736-ud94mf5gw",
+      "celeration": {
+        "date": "2025-05-16",
+        "timestamp": 1747436400000,
+        "calendarDay": 137,
+        "countingTimeSec": 67,
+        "countingTimeMin": 1.12,
+        "correctCount": 234,
+        "errorCount": 1,
+        "correctPerMinute": 209.17,
+        "errorsPerMinute": 0.5
+      },
+      "performance": {
+        "totalWords": 235,
+        "correctCount": 234,
+        "accuracy": 99.6,
+        "wpm": 210,
+        "readingTimeSeconds": 67
+      },
+      "prosody": {
+        "score": 4.2,
+        "grade": "Advanced"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 138,
+      "assessmentId": "assessment-1764973691736-gpl9ga37s",
+      "celeration": {
+        "date": "2025-05-17",
+        "timestamp": 1747522800000,
+        "calendarDay": 138,
+        "countingTimeSec": 60,
+        "countingTimeMin": 1,
+        "correctCount": 184,
+        "errorCount": 1,
+        "correctPerMinute": 184.24,
+        "errorsPerMinute": 0.55
+      },
+      "performance": {
+        "totalWords": 185,
+        "correctCount": 184,
+        "accuracy": 99.5,
+        "wpm": 185,
+        "readingTimeSeconds": 60
+      },
+      "prosody": {
+        "score": 3.9,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 139,
+      "assessmentId": "assessment-1764973691736-8jfwts9io",
+      "celeration": {
+        "date": "2025-05-18",
+        "timestamp": 1747609200000,
+        "calendarDay": 139,
+        "countingTimeSec": 56,
+        "countingTimeMin": 0.93,
+        "correctCount": 175,
+        "errorCount": 1,
+        "correctPerMinute": 187.24,
+        "errorsPerMinute": 0.6
+      },
+      "performance": {
+        "totalWords": 176,
+        "correctCount": 175,
+        "accuracy": 99.4,
+        "wpm": 189,
+        "readingTimeSeconds": 56
+      },
+      "prosody": {
+        "score": 3.8,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    },
+    {
+      "assessmentIndex": 140,
+      "assessmentId": "assessment-1764973691736-o2s1vwm3x",
+      "celeration": {
+        "date": "2025-05-19",
+        "timestamp": 1747695600000,
+        "calendarDay": 140,
+        "countingTimeSec": 65,
+        "countingTimeMin": 1.08,
+        "correctCount": 202,
+        "errorCount": 1,
+        "correctPerMinute": 186.31,
+        "errorsPerMinute": 0.67
+      },
+      "performance": {
+        "totalWords": 203,
+        "correctCount": 202,
+        "accuracy": 99.5,
+        "wpm": 187,
+        "readingTimeSeconds": 65
+      },
+      "prosody": {
+        "score": 3.9,
+        "grade": "Proficient"
+      },
+      "errors": {
+        "total": 1,
+        "skipped": 0,
+        "misread": 0,
+        "substituted": 0,
+        "hesitations": 0,
+        "repeated": 0
+      }
+    }
+  ]
+}

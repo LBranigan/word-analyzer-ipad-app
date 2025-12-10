@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Morningside Academy - Standard Celeration Chart</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <div class="header-brand">Morningside Academy</div>
+                <div class="header-title">Standard Celeration Chart</div>
+            </div>
+            <input type="file" id="fileInput" accept=".json" hidden>
+        </header>
+
+        <!-- Main Content -->
+        <main class="dashboard-main">
+            <!-- Sidebar Controls -->
+            <aside class="sidebar">
+                <!-- Student Selector -->
+                <section class="control-section" data-section="students">
+                    <h3 class="section-header">
+                        <span class="section-title">Students</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div class="section-content">
+                        <div id="studentList" class="student-list">
+                            <p class="empty-state">No data loaded</p>
+                        </div>
+                        <button id="uploadBtn" class="btn btn-import">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Import
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Subject Tree -->
+                <section class="control-section collapsed" data-section="subjects">
+                    <h3 class="section-header">
+                        <span class="section-title">Subjects</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div class="section-content">
+                        <div id="subjectTree" class="subject-tree"></div>
+                    </div>
+                </section>
+
+                <!-- Metric Toggles -->
+                <section class="control-section" data-section="metrics">
+                    <h3 class="section-header">
+                        <span class="section-title">Metrics</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div class="section-content metric-toggles">
+                        <label class="toggle-item" data-metric="correctPerMinute">
+                            <input type="checkbox" checked>
+                            <span class="toggle-color" style="background: #2d6a4f;"></span>
+                            <span class="toggle-label">Correct/Min</span>
+                        </label>
+                        <label class="toggle-item" data-metric="errorsPerMinute">
+                            <input type="checkbox" checked>
+                            <span class="toggle-color" style="background: #9d4444;"></span>
+                            <span class="toggle-label">Errors/Min</span>
+                        </label>
+                        <label class="toggle-item" data-metric="wpm">
+                            <input type="checkbox">
+                            <span class="toggle-color" style="background: #4a6fa5;"></span>
+                            <span class="toggle-label">WPM</span>
+                        </label>
+                        <label class="toggle-item" data-metric="accuracy">
+                            <input type="checkbox">
+                            <span class="toggle-color" style="background: #7b5ea7;"></span>
+                            <span class="toggle-label">Accuracy %</span>
+                        </label>
+                        <label class="toggle-item" data-metric="prosody">
+                            <input type="checkbox">
+                            <span class="toggle-color" style="background: #b07d3d;"></span>
+                            <span class="toggle-label">Prosody Score</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Chart Options -->
+                <section class="control-section collapsed" data-section="options">
+                    <h3 class="section-header">
+                        <span class="section-title">Display Options</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div class="section-content option-toggles">
+                        <label class="toggle-item">
+                            <input type="checkbox" id="showCelerationLines" checked>
+                            <span class="toggle-label">Show Celeration Lines</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="showDataPoints" checked>
+                            <span class="toggle-label">Show Data Points</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="showRecordFloor">
+                            <span class="toggle-label">Show Record Floor</span>
+                        </label>
+                        <label class="toggle-item">
+                            <input type="checkbox" id="connectPoints" checked>
+                            <span class="toggle-label">Connect Points</span>
+                        </label>
+                    </div>
+                </section>
+
+                <!-- Patterns -->
+                <section class="control-section collapsed" data-section="patterns">
+                    <h3 class="section-header">
+                        <span class="section-title">Patterns</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div class="section-content">
+                        <div class="pattern-toggles">
+                            <label class="toggle-item">
+                                <input type="checkbox" id="showDeclinePatterns" checked>
+                                <span class="toggle-label">Show Decline Alerts</span>
+                            </label>
+                        </div>
+                        <div id="patternsPanel" class="patterns-panel">
+                            <p class="empty-state">No patterns detected</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Statistics -->
+                <section class="control-section collapsed" data-section="statistics">
+                    <h3 class="section-header">
+                        <span class="section-title">Statistics</span>
+                        <span class="collapse-icon"></span>
+                    </h3>
+                    <div id="statsPanel" class="section-content stats-panel">
+                        <p class="empty-state">Select a student</p>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Chart Area -->
+            <div class="chart-container">
+                <div class="chart-header">
+                    <div class="chart-info">
+                        <span id="chartTitle">Standard Celeration Chart</span>
+                        <span id="chartSubtitle" class="chart-subtitle"></span>
+                    </div>
+                    <div class="chart-controls">
+                        <div class="zoom-controls">
+                            <span class="zoom-label">Zoom:</span>
+                            <button class="zoom-btn" data-zoom="7">1 Week</button>
+                            <button class="zoom-btn" data-zoom="30">1 Month</button>
+                            <button class="zoom-btn" data-zoom="90">3 Months</button>
+                            <button class="zoom-btn active" data-zoom="140">Full</button>
+                        </div>
+                        <div class="pan-controls">
+                            <button class="pan-btn" id="panLeft" title="Pan left (or use ← arrow key)">◀</button>
+                            <span class="pan-info" id="panInfo">Days 0-140</span>
+                            <button class="pan-btn" id="panRight" title="Pan right (or use → arrow key)">▶</button>
+                        </div>
+                        <div class="chart-legend" id="chartLegend"></div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="sccChart"></canvas>
+                    <div id="tooltip" class="chart-tooltip"></div>
+                </div>
+                <div class="chart-footer">
+                    <div class="axis-label x-label">SUCCESSIVE CALENDAR DAYS</div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <!-- Celeration Info Modal -->
+    <div id="infoModal" class="modal" hidden>
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <h2>Celeration Analysis</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
