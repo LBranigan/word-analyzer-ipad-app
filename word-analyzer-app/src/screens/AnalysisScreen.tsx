@@ -21,16 +21,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Assessment, AlignedWord } from '../types';
 import { createAssessment, subscribeToAssessment } from '../services/assessmentService';
 
-type RootStackParamList = {
-  Home: undefined;
-  Analysis: {
-    nameAudioUri: string | null;
-    readingAudioUri: string | null;
-    imageUri: string | null;
-    studentId: string;
-    studentName: string;
-  };
-};
+import type { RootStackParamList } from '../navigation/AppNavigator';
 
 type AnalysisScreenRouteProp = RouteProp<RootStackParamList, 'Analysis'>;
 

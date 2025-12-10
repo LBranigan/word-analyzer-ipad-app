@@ -29,14 +29,7 @@ import { useAuth } from '../hooks/useAuth';
 import { RecordingDuration, Student } from '../types';
 import StudentSelector from '../components/StudentSelector';
 
-type RootStackParamList = {
-  Home: undefined;
-  Analysis: {
-    nameAudioUri: string | null;
-    readingAudioUri: string | null;
-    imageUri: string | null;
-  };
-};
+import type { RootStackParamList } from '../navigation/AppNavigator';
 
 // Recording phases
 type RecordingPhase =
