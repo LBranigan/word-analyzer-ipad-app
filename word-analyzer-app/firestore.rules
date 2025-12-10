@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Teachers can only access their own document
+    match /teachers/{teacherId} {
+      allow read, write: if request.auth != null && request.auth.uid == teacherId;
+
+      // Students subcollection
+      match /students/{studentId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherId;
+      }
+
+      // Assessments subcollection
+      match /assessments/{assessmentId} {
+        allow read, write: if request.auth != null && request.auth.uid == teacherId;
+      }
+    }
+  }
+}
