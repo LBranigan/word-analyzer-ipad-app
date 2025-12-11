@@ -26,15 +26,23 @@ const beginReadingAudio = require('../assets/audio/begin-reading.mp3');
 const recordingCompleteAudio = require('../assets/audio/recording-complete.mp3');
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuth } from '../hooks/useAuth';
-import { RecordingDuration, Student } from '../types';
-import StudentSelector from '../components/StudentSelector';
-import { startEarlyAudioUpload, EarlyUploadResult } from '../services/assessmentService';
+import { RecordingDuration } from '../types';
 
-import type { RootStackParamList } from '../navigation/AppNavigator';
+type RootStackParamList = {
+  Home: undefined;
+  Analysis: {
+    nameAudioUri: string | null;
+    readingAudioUri: string | null;
+    imageUri: string | null;
+  };
+};
 
-// Recording phases (simplified - no name recording)
+// Recording phases
 type RecordingPhase =
   | 'idle'
+  | 'name_prompt'
+  | 'name_beep'
+  | 'name_recording'
   | 'reading_prompt'
   | 'reading_beep'
   | 'reading_recording'
@@ -47,6 +55,7 @@ type CameraPhase =
   | 'focusing'
   | 'captured';
 
+const NAME_RECORDING_DURATION = 4;
 const BEEP_DURATION_MS = 800;
 const CAMERA_FOCUS_MS = 2000; // Time to focus after camera is ready
 
@@ -54,12 +63,13 @@ export default function HomeScreen() {
   const { teacher, signOut } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [selectedDuration, setSelectedDuration] = useState<RecordingDuration>(60);
-  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
 
-  // Recording state (simplified - only reading recording)
+  // Recording state
   const [recordingPhase, setRecordingPhase] = useState<RecordingPhase>('idle');
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [nameRecording, setNameRecording] = useState<Audio.Recording | null>(null);
   const [readingRecording, setReadingRecording] = useState<Audio.Recording | null>(null);
+  const [nameAudioUri, setNameAudioUri] = useState<string | null>(null);
   const [readingAudioUri, setReadingAudioUri] = useState<string | null>(null);
 
   // Camera state
@@ -83,11 +93,6 @@ export default function HomeScreen() {
 
   const [audioRecorded, setAudioRecorded] = useState(false);
   const [imageCaptured, setImageCaptured] = useState(false);
-
-  // Early upload state - allows audio to be uploaded while user takes picture
-  const [earlyUploadResult, setEarlyUploadResult] = useState<EarlyUploadResult | null>(null);
-  const [isUploadingAudio, setIsUploadingAudio] = useState(false);
-  const [audioUploadError, setAudioUploadError] = useState<string | null>(null);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -149,18 +154,9 @@ export default function HomeScreen() {
         await promptSoundRef.current.unloadAsync();
       }
 
-      // Reset audio mode to playback after recording has stopped
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        playsInSilentModeIOS: true,
-        staysActiveInBackground: false,
-        shouldDuckAndroid: true,
-      });
-
       const { sound } = await Audio.Sound.createAsync(recordingCompleteAudio);
       promptSoundRef.current = sound;
       await sound.playAsync();
-      console.log('Playing recording complete audio');
     } catch (err) {
       console.error('Failed to play recording complete audio:', err);
     }
@@ -247,70 +243,117 @@ export default function HomeScreen() {
       playsInSilentModeIOS: true,
     });
 
-    // Start directly with reading prompt (skip name recording)
-    setRecordingPhase('reading_prompt');
+    setRecordingPhase('name_prompt');
 
     // Play audio prompt file, then beep, then start recording
-    await playPromptAudio('reading');
-    playBeepThenRecord();
+    await playPromptAudio('name');
+    playBeepThenRecord('name');
   };
 
-  const playBeepThenRecord = () => {
+  const playBeepThenRecord = (type: 'name' | 'reading') => {
     const runAsync = async () => {
-      setRecordingPhase('reading_beep');
+      setRecordingPhase(type === 'name' ? 'name_beep' : 'reading_beep');
       await playBeep();
-      startReadingRecording();
+
+      if (type === 'name') {
+        startNameRecording();
+      } else {
+        startReadingRecording();
+      }
     };
     runAsync();
   };
 
-  // Web MediaRecorder refs
-  const webMediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const webAudioChunksRef = useRef<Blob[]>([]);
+  const startNameRecording = async () => {
+    setRecordingPhase('name_recording');
+    setElapsedTime(0);
+
+    // Web fallback - simulate recording with timer only
+    if (Platform.OS === 'web') {
+      console.log('Web fallback: simulating name recording');
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prev) => {
+          if (prev >= NAME_RECORDING_DURATION - 1) {
+            stopNameRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+      return;
+    }
+
+    try {
+      const { recording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+      setNameRecording(recording);
+
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prev) => {
+          if (prev >= NAME_RECORDING_DURATION - 1) {
+            stopNameRecording(recording);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (err) {
+      console.error('Failed to start name recording:', err);
+      // Fallback to timer-only mode
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prev) => {
+          if (prev >= NAME_RECORDING_DURATION - 1) {
+            stopNameRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+  };
+
+  const stopNameRecording = async (recording?: Audio.Recording) => {
+    if (timerRef.current) clearInterval(timerRef.current);
+
+    if (recording) {
+      try {
+        await recording.stopAndUnloadAsync();
+        const uri = recording.getURI();
+        setNameAudioUri(uri);
+        console.log('Name recording saved:', uri);
+      } catch (err) {
+        console.error('Failed to stop name recording:', err);
+      }
+    } else {
+      console.log('Web fallback: name recording simulated');
+    }
+
+    setRecordingPhase('reading_prompt');
+
+    // Small delay, then play audio prompt file, then beep, then start recording
+    setTimeout(async () => {
+      await playPromptAudio('reading');
+      playBeepThenRecord('reading');
+    }, 300);
+  };
 
   const startReadingRecording = async () => {
     setRecordingPhase('reading_recording');
     setElapsedTime(0);
 
-    // Web: Use MediaRecorder API
+    // Web fallback - simulate recording with timer only
     if (Platform.OS === 'web') {
-      console.log('Web: starting real audio recording with MediaRecorder for reading');
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
-        webMediaRecorderRef.current = mediaRecorder;
-        webAudioChunksRef.current = [];
-
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            webAudioChunksRef.current.push(event.data);
+      console.log('Web fallback: simulating reading recording');
+      timerRef.current = setInterval(() => {
+        setElapsedTime((prev) => {
+          if (prev >= selectedDuration - 1) {
+            stopReadingRecording();
+            return prev;
           }
-        };
-
-        mediaRecorder.start();
-        console.log('Web MediaRecorder started for reading');
-
-        timerRef.current = setInterval(() => {
-          setElapsedTime((prev) => {
-            if (prev >= selectedDuration - 1) {
-              stopReadingRecording();
-              return prev;
-            }
-            return prev + 1;
-          });
-        }, 1000);
-      } catch (err) {
-        console.error('Web MediaRecorder error:', err);
-        timerRef.current = setInterval(() => {
-          setElapsedTime((prev) => {
-            if (prev >= selectedDuration - 1) {
-              stopReadingRecording();
-              return prev;
-            }
-            return prev + 1;
-          });
-        }, 1000);
-      }
+          return prev + 1;
+        });
+      }, 1000);
       return;
     }
 
@@ -347,36 +390,15 @@ export default function HomeScreen() {
   const stopReadingRecording = async (recording?: Audio.Recording) => {
     if (timerRef.current) clearInterval(timerRef.current);
 
-    // Web: Stop MediaRecorder and create blob URL
-    if (Platform.OS === 'web' && webMediaRecorderRef.current) {
-      const mediaRecorder = webMediaRecorderRef.current;
-
-      await new Promise<void>((resolve) => {
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(webAudioChunksRef.current, { type: 'audio/webm' });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          setReadingAudioUri(audioUrl);
-          console.log('Web reading recording saved:', audioUrl, 'size:', audioBlob.size);
-
-          // Stop all tracks
-          mediaRecorder.stream.getTracks().forEach(track => track.stop());
-          webMediaRecorderRef.current = null;
-          webAudioChunksRef.current = [];
-          resolve();
-        };
-        mediaRecorder.stop();
-      });
-    } else {
-      const rec = recording || readingRecording;
-      if (rec) {
-        try {
-          await rec.stopAndUnloadAsync();
-          const uri = rec.getURI();
-          setReadingAudioUri(uri);
-          console.log('Reading recording saved:', uri);
-        } catch (err) {
-          console.error('Failed to stop reading recording:', err);
-        }
+    const rec = recording || readingRecording;
+    if (rec) {
+      try {
+        await rec.stopAndUnloadAsync();
+        const uri = rec.getURI();
+        setReadingAudioUri(uri);
+        console.log('Reading recording saved:', uri);
+      } catch (err) {
+        console.error('Failed to stop reading recording:', err);
       }
     }
 
@@ -389,42 +411,6 @@ export default function HomeScreen() {
     // Animate the progress bar shrinking and checkmark appearing
     animateRecordingComplete();
   };
-
-  // Start early audio upload in background after recording completes
-  const startEarlyUpload = async (audioUri: string) => {
-    if (!teacher?.uid || !selectedStudent) {
-      console.log('Cannot start early upload - missing teacher or student');
-      return;
-    }
-
-    setIsUploadingAudio(true);
-    setAudioUploadError(null);
-
-    try {
-      console.log('Starting early audio upload...');
-      const result = await startEarlyAudioUpload(
-        teacher.uid,
-        selectedStudent.id,
-        selectedStudent.name,
-        audioUri
-      );
-      setEarlyUploadResult(result);
-      console.log('Early audio upload complete, assessmentId:', result.assessmentId);
-    } catch (error) {
-      console.error('Early upload error:', error);
-      setAudioUploadError(error instanceof Error ? error.message : 'Upload failed');
-      // Don't clear the audio URI - we can still use the fallback upload path
-    } finally {
-      setIsUploadingAudio(false);
-    }
-  };
-
-  // Effect to trigger early upload when audio is recorded
-  useEffect(() => {
-    if (readingAudioUri && audioRecorded && !earlyUploadResult && !isUploadingAudio) {
-      startEarlyUpload(readingAudioUri);
-    }
-  }, [readingAudioUri, audioRecorded]);
 
   // Animate recording complete - shrink progress bar and show checkmark
   const animateRecordingComplete = () => {
@@ -445,8 +431,8 @@ export default function HomeScreen() {
         Animated.spring(recordingCheckmarkAnim, {
           toValue: 1,
           useNativeDriver: true,
-          tension: 60,
-          friction: 8,
+          tension: 100,
+          friction: 6,
         }),
       ]),
     ]).start(() => {
@@ -500,8 +486,8 @@ export default function HomeScreen() {
         Animated.spring(checkmarkScaleAnim, {
           toValue: 1,
           useNativeDriver: true,
-          tension: 60,
-          friction: 8,
+          tension: 100,
+          friction: 6,
         }),
       ]),
     ]).start(() => {
@@ -560,9 +546,8 @@ export default function HomeScreen() {
       try {
         console.log('Taking picture now...');
         const photo = await cameraRef.current.takePictureAsync({
-          quality: 1.0,  // Maximum quality for iPad camera
+          quality: 0.8,
           base64: false,
-          skipProcessing: false,  // Enable camera processing for best results
         });
 
         if (photo?.uri) {
@@ -583,58 +568,24 @@ export default function HomeScreen() {
         console.error('Failed to take picture:', err);
         setCameraPhase('idle');
       }
-    } else if (Platform.OS === 'web') {
-      // Web: Use HTML5 video/canvas to capture image
-      console.log('Web: capturing image from video stream');
-      try {
-        const video = document.querySelector('video');
-        if (video) {
-          const canvas = document.createElement('canvas');
-          canvas.width = video.videoWidth || 640;
-          canvas.height = video.videoHeight || 480;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(video, 0, 0);
-            canvas.toBlob((blob) => {
-              if (blob) {
-                const imageUrl = URL.createObjectURL(blob);
-                setCapturedImageUri(imageUrl);
-                setImageCaptured(true);
-                setCameraPhase('captured');
-                console.log('Web image captured:', imageUrl, 'size:', blob.size);
-
-                setTimeout(() => {
-                  animateCameraOut();
-                }, 500);
-              } else {
-                console.error('Failed to create image blob');
-                setCameraPhase('idle');
-              }
-            }, 'image/jpeg', 1.0);  // Maximum quality
-          }
-        } else {
-          console.error('No video element found for web capture');
-          setCameraPhase('idle');
-        }
-      } catch (err) {
-        console.error('Web camera capture error:', err);
-        setCameraPhase('idle');
-      }
     } else {
-      console.error('No camera ref available');
-      setCameraPhase('idle');
+      // Web fallback - simulate capture
+      console.log('Web fallback: simulating capture');
+      setImageCaptured(true);
+      setCameraPhase('captured');
+      // Animate out after brief display
+      setTimeout(() => {
+        animateCameraOut();
+      }, 500);
     }
   };
 
   const handleStartNew = () => {
     setAudioRecorded(false);
     setImageCaptured(false);
+    setNameAudioUri(null);
     setReadingAudioUri(null);
     setCapturedImageUri(null);
-    // Reset early upload state
-    setEarlyUploadResult(null);
-    setIsUploadingAudio(false);
-    setAudioUploadError(null);
   };
 
   const formatTime = (seconds: number) => {
@@ -650,11 +601,15 @@ export default function HomeScreen() {
   // Get status text for below the red button
   const getRecordingStatusText = () => {
     switch (recordingPhase) {
+      case 'name_prompt':
+      case 'name_beep':
+      case 'name_recording':
+        return 'Please state your name...';
       case 'reading_prompt':
       case 'reading_beep':
         return 'Begin reading passage...';
       case 'reading_recording':
-        return 'Recording...';
+        return 'Reading passage...';
       case 'complete':
         return 'Recording complete';
       default:
@@ -677,6 +632,9 @@ export default function HomeScreen() {
   };
 
   const getProgress = () => {
+    if (recordingPhase === 'name_recording') {
+      return (elapsedTime + 1) / NAME_RECORDING_DURATION;
+    }
     if (recordingPhase === 'reading_recording') {
       return (elapsedTime + 1) / selectedDuration;
     }
@@ -695,27 +653,9 @@ export default function HomeScreen() {
           <MaterialIcons name="person" size={20} color="#718096" />
           <Text style={styles.teacherEmail}>{teacher?.email}</Text>
         </View>
-        <View style={styles.headerActions}>
-          <TouchableOpacity
-            style={styles.historyButton}
-            onPress={() => navigation.navigate('History')}
-          >
-            <MaterialIcons name="history" size={20} color="#4299E1" />
-            <Text style={styles.historyButtonText}>History</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* Student Selector */}
-      <View style={styles.studentSelectorContainer}>
-        <StudentSelector
-          teacherId={teacher?.uid || ''}
-          selectedStudent={selectedStudent}
-          onSelectStudent={setSelectedStudent}
-        />
+        <TouchableOpacity style={styles.signOutButton} onPress={signOut}>
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Main Content */}
@@ -730,7 +670,7 @@ export default function HomeScreen() {
             ]}
             onPress={handleRecordAudio}
             activeOpacity={0.8}
-            disabled={isAnyActive || !selectedStudent}
+            disabled={isAnyActive}
           >
             <View style={styles.buttonIconContainer}>
               <MaterialIcons name="mic" size={80} color="#FFFFFF" />
@@ -787,15 +727,17 @@ export default function HomeScreen() {
             {recordingStatusText && recordingPhase !== 'complete' && (
               <>
                 <Text style={styles.statusLabel}>{recordingStatusText}</Text>
-                {recordingPhase === 'reading_recording' && (
+                {(recordingPhase === 'name_recording' || recordingPhase === 'reading_recording') && (
                   <>
                     <View style={styles.progressBarInline}>
                       <View style={[styles.progressFillInline, { width: `${progress * 100}%` }]} />
                     </View>
                     <Text style={styles.timerText}>{formatTime(elapsedTime + 1)}</Text>
-                    <TouchableOpacity style={styles.stopButton} onPress={handleStopEarly}>
-                      <Text style={styles.stopButtonText}>Stop</Text>
-                    </TouchableOpacity>
+                    {recordingPhase === 'reading_recording' && (
+                      <TouchableOpacity style={styles.stopButton} onPress={handleStopEarly}>
+                        <Text style={styles.stopButtonText}>Stop</Text>
+                      </TouchableOpacity>
+                    )}
                   </>
                 )}
               </>
@@ -845,7 +787,7 @@ export default function HomeScreen() {
             ]}
             onPress={handleCaptureImage}
             activeOpacity={0.8}
-            disabled={isAnyActive || !selectedStudent}
+            disabled={isAnyActive}
           >
             <View style={styles.buttonIconContainer}>
               <MaterialIcons name="photo-camera" size={80} color="#FFFFFF" />
@@ -917,31 +859,16 @@ export default function HomeScreen() {
       {audioRecorded && imageCaptured && (
         <View style={styles.viewAnalysisContainer}>
           <TouchableOpacity
-            style={[
-              styles.viewAnalysisButton,
-              isUploadingAudio && styles.viewAnalysisButtonDisabled,
-            ]}
-            disabled={isUploadingAudio}
+            style={styles.viewAnalysisButton}
             onPress={() => navigation.navigate('Analysis', {
-              nameAudioUri: null,
+              nameAudioUri,
               readingAudioUri,
               imageUri: capturedImageUri,
-              studentId: selectedStudent?.id || '',
-              studentName: selectedStudent?.name || '',
-              earlyUploadAssessmentId: earlyUploadResult?.assessmentId || null,
             })}
           >
-            <MaterialIcons name="analytics" size={36} color="#FFFFFF" />
-            <Text style={styles.viewAnalysisText}>
-              {isUploadingAudio ? 'Uploading Audio...' : 'View Analysis'}
-            </Text>
+            <MaterialIcons name="analytics" size={30} color="#FFFFFF" />
+            <Text style={styles.viewAnalysisText}>View Analysis</Text>
           </TouchableOpacity>
-          {earlyUploadResult && (
-            <View style={styles.earlyUploadIndicator}>
-              <MaterialIcons name="cloud-done" size={16} color="#48BB78" />
-              <Text style={styles.earlyUploadText}>Audio pre-uploaded</Text>
-            </View>
-          )}
         </View>
       )}
 
@@ -1000,25 +927,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#718096',
   },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  historyButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    backgroundColor: '#EBF8FF',
-    borderRadius: 8,
-  },
-  historyButtonText: {
-    fontSize: 14,
-    color: '#4299E1',
-    fontWeight: '500',
-  },
   signOutButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
@@ -1028,18 +936,12 @@ const styles = StyleSheet.create({
     color: '#4299E1',
     fontWeight: '500',
   },
-  studentSelectorContainer: {
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
-  },
   mainContent: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 48,
+    paddingHorizontal: 40,
     gap: 60,
   },
   buttonSection: {
@@ -1253,8 +1155,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    paddingVertical: 22,
-    paddingHorizontal: 48,
+    paddingVertical: 18,
+    paddingHorizontal: 40,
     backgroundColor: '#4299E1',
     borderRadius: 14,
     shadowColor: '#4299E1',
@@ -1264,24 +1166,9 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   viewAnalysisText: {
-    fontSize: 26,
+    fontSize: 22,
     fontWeight: '600',
     color: '#FFFFFF',
-  },
-  viewAnalysisButtonDisabled: {
-    backgroundColor: '#A0AEC0',
-    shadowColor: '#A0AEC0',
-  },
-  earlyUploadIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
-  },
-  earlyUploadText: {
-    fontSize: 13,
-    color: '#48BB78',
-    fontWeight: '500',
   },
   startNewButton: {
     flexDirection: 'row',

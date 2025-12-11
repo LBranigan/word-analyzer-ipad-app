@@ -8,6 +8,7 @@ import {
   TextInput,
   StyleSheet,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Student } from '../types';
@@ -55,8 +56,9 @@ export default function StudentSelector({ teacherId, selectedStudent, onSelectSt
       setNewStudentGrade('');
       setAddModalOpen(false);
       onSelectStudent(student);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to add student:', error);
+      Alert.alert('Error', error?.message || 'Failed to add student. Please try again.');
     } finally {
       setAdding(false);
     }
@@ -92,7 +94,7 @@ export default function StudentSelector({ teacherId, selectedStudent, onSelectSt
       {/* Dropdown Modal */}
       <Modal
         visible={dropdownOpen}
-        transparent
+        transparent={true}
         animationType="fade"
         onRequestClose={() => setDropdownOpen(false)}
       >
@@ -142,7 +144,7 @@ export default function StudentSelector({ teacherId, selectedStudent, onSelectSt
       {/* Add Student Modal */}
       <Modal
         visible={addModalOpen}
-        transparent
+        transparent={true}
         animationType="slide"
         onRequestClose={() => setAddModalOpen(false)}
       >
@@ -156,7 +158,7 @@ export default function StudentSelector({ teacherId, selectedStudent, onSelectSt
               value={newStudentName}
               onChangeText={setNewStudentName}
               placeholder="Enter student name"
-              autoFocus
+              autoFocus={true}
             />
 
             <Text style={styles.inputLabel}>Grade (optional)</Text>

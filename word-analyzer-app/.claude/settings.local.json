@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(superpowers:brainstorming)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Bash(git rev-parse:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(cd:*)",
+      "Bash(git reset:*)",
+      "Bash(firebase deploy:*)",
+      "Bash(where:*)",
+      "Bash(npx firebase:*)",
+      "Bash(npm install:*)",
+      "Bash(firebase --version:*)",
+      "Bash(firebase projects:list:*)",
+      "Bash(firebase login:*)",
+      "Bash(firebase functions:log:*)",
+      "Bash(firebase functions:artifacts:setpolicy:*)",
+      "Bash(npm start)",
+      "Bash(npx expo start:*)",
+      "Bash(taskkill:*)",
+      "Bash(curl:*)",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}

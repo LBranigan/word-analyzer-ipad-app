@@ -1,9 +1,15 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
+import { v4 as uuidv4 } from 'uuid';
+import * as path from 'path';
+import * as os from 'os';
+import * as fs from 'fs';
 import { transcribeAudio } from './services/speechToText';
 import { extractTextFromImage } from './services/visionOcr';
 import { matchWords } from './services/wordMatching';
 import { calculateMetrics, analyzeErrorPatterns } from './services/metricsCalculator';
+import { generateVideo } from './services/videoGenerator';
+import { generatePdfReport } from './services/pdfGenerator';
 
 admin.initializeApp();
 
@@ -57,23 +63,81 @@ export const processAssessment = functions
 
     console.log('Both files present, starting processing...');
 
+    // Use Firestore transaction to prevent race condition
+    // Only one function instance should process the assessment
+    const lockAcquired = await db.runTransaction(async (transaction) => {
+      const doc = await transaction.get(assessmentRef);
+      if (!doc.exists) {
+        console.log('Assessment document does not exist');
+        return false;
+      }
+
+      const data = doc.data();
+      // Only proceed if status is 'uploading' (initial status from client)
+      // Skip if already 'processing' or 'complete' to prevent race conditions
+      if (data?.status !== 'uploading') {
+        console.log(`Assessment status is ${data?.status}, skipping...`);
+        return false;
+      }
+
+      // Set status to processing atomically
+      transaction.update(assessmentRef, { status: 'processing' });
+      return true;
+    });
+
+    if (!lockAcquired) {
+      console.log('Lock not acquired, another instance is processing');
+      return;
+    }
+
+    console.log('Lock acquired, proceeding with processing...');
+
     try {
-      // Update status to processing
-      await assessmentRef.update({ status: 'processing' });
+      // Re-fetch files to ensure they still exist (in case of race condition)
+      const [currentFiles] = await bucket.getFiles({ prefix: uploadsPrefix });
+      const audioFile = currentFiles.find(f => f.name.includes('audio'));
+      const imageFile = currentFiles.find(f => f.name.includes('image'));
 
-      // Download files
-      const audioFile = files.find(f => f.name.includes('audio'))!;
-      const imageFile = files.find(f => f.name.includes('image'))!;
+      if (!audioFile || !imageFile) {
+        console.error('Files no longer exist after acquiring lock');
+        await assessmentRef.update({
+          status: 'error',
+          errorMessage: 'Upload files were not found. Please try again.',
+        });
+        return;
+      }
 
-      const [audioBuffer] = await audioFile.download();
+      // Verify files exist by checking their existence
+      const [audioExists] = await audioFile.exists();
+      const [imageExists] = await imageFile.exists();
+
+      if (!audioExists || !imageExists) {
+        console.error('Files do not exist after verification');
+        await assessmentRef.update({
+          status: 'error',
+          errorMessage: 'Upload files could not be verified. Please try again.',
+        });
+        return;
+      }
+
+      // Get the actual audio file's metadata for content type
+      const [audioMetadata] = await audioFile.getMetadata();
+      const audioContentType = audioMetadata.contentType || 'audio/webm';
+      console.log(`Audio content type: ${audioContentType}`);
+
+      // Download image for Vision OCR (it uses buffer)
       const [imageBuffer] = await imageFile.download();
 
-      console.log('Files downloaded, calling APIs...');
+      // Build GCS URI for Speech-to-Text (uses URI for long audio)
+      const gcsUri = `gs://${bucket.name}/${audioFile.name}`;
+      console.log(`Audio GCS URI: ${gcsUri}`);
 
-      // Call Speech-to-Text
+      console.log('Calling Speech-to-Text API...');
+
+      // Call Speech-to-Text with GCS URI (handles long audio)
       const transcription = await transcribeAudio(
-        audioBuffer,
-        object.contentType || 'audio/webm'
+        gcsUri,
+        audioContentType
       );
       console.log(`Transcription: "${transcription.transcript.substring(0, 100)}..."`);
 
@@ -102,18 +166,43 @@ export const processAssessment = functions
 
       // Move audio to temp bucket for playback (24h TTL handled by lifecycle rule)
       const tempAudioPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
+      const audioDownloadToken = uuidv4();
+
+      // Copy audio file
       await bucket.file(audioFile.name).copy(bucket.file(tempAudioPath));
 
-      // Generate signed URL for audio (expires in 24h)
-      const [audioUrl] = await bucket.file(tempAudioPath).getSignedUrl({
-        action: 'read',
-        expires: Date.now() + 24 * 60 * 60 * 1000,
+      // Set download token metadata for public access
+      await bucket.file(tempAudioPath).setMetadata({
+        metadata: {
+          firebaseStorageDownloadTokens: audioDownloadToken,
+        },
       });
+
+      // Generate public download URL for audio
+      const audioUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(tempAudioPath)}?alt=media&token=${audioDownloadToken}`;
+
+      // Move image to temp bucket for display
+      const tempImagePath = `images-temp/${teacherId}/${assessmentId}/image.jpg`;
+      const imageDownloadToken = uuidv4();
+
+      // Copy image file
+      await bucket.file(imageFile.name).copy(bucket.file(tempImagePath));
+
+      // Set download token metadata for public access
+      await bucket.file(tempImagePath).setMetadata({
+        metadata: {
+          firebaseStorageDownloadTokens: imageDownloadToken,
+        },
+      });
+
+      // Generate public download URL for image
+      const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(tempImagePath)}?alt=media&token=${imageDownloadToken}`;
 
       // Save results to Firestore
       await assessmentRef.update({
         status: 'complete',
         audioUrl,
+        imageUrl,
         audioDuration,
         ocrText: ocrResult.fullText,
         transcript: transcription.transcript,
@@ -126,6 +215,9 @@ export const processAssessment = functions
           correctCount: metrics.correctCount,
           errorCount: metrics.errorCount,
           skipCount: metrics.skipCount,
+          hesitationCount: metrics.hesitationCount,
+          fillerWordCount: metrics.fillerWordCount,
+          repeatCount: metrics.repeatCount,
         },
         words: matchingResult.words,
         errorPatterns,
@@ -146,5 +238,210 @@ export const processAssessment = functions
         status: 'error',
         errorMessage: error instanceof Error ? error.message : 'Unknown error',
       });
+    }
+  });
+
+/**
+ * Callable function to generate a video for an assessment
+ * Called on-demand when user requests video download
+ */
+export const generateAssessmentVideo = functions
+  .runWith({
+    timeoutSeconds: 540,
+    memory: '2GB',
+  })
+  .https
+  .onCall(async (data, context) => {
+    // Verify authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    const { teacherId, assessmentId } = data;
+    const userId = context.auth.uid;
+
+    // Verify the user owns this assessment
+    if (teacherId !== userId) {
+      throw new functions.https.HttpsError('permission-denied', 'You can only generate videos for your own assessments');
+    }
+
+    // Get the assessment data
+    const assessmentRef = db.collection('teachers').doc(teacherId)
+      .collection('assessments').doc(assessmentId);
+    const assessmentDoc = await assessmentRef.get();
+
+    if (!assessmentDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Assessment not found');
+    }
+
+    const assessmentData = assessmentDoc.data()!;
+
+    // Check if video already exists
+    if (assessmentData.videoUrl) {
+      return { videoUrl: assessmentData.videoUrl };
+    }
+
+    // Check if assessment is complete
+    if (assessmentData.status !== 'complete') {
+      throw new functions.https.HttpsError('failed-precondition', 'Assessment must be complete before generating video');
+    }
+
+    // Update status to indicate video is being generated
+    await assessmentRef.update({ videoStatus: 'generating' });
+
+    try {
+      const bucket = storage.bucket();
+
+      // Download the audio file
+      const audioPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
+      const tempAudioPath = path.join(os.tmpdir(), `audio-${assessmentId}.webm`);
+      await bucket.file(audioPath).download({ destination: tempAudioPath });
+
+      // Generate video
+      const tempVideoPath = path.join(os.tmpdir(), `video-${assessmentId}.mp4`);
+
+      await generateVideo(
+        {
+          words: assessmentData.words,
+          audioDuration: assessmentData.audioDuration,
+          studentName: assessmentData.studentName || 'Unknown Student',
+          wpm: assessmentData.metrics?.wordsPerMinute || 0,
+        },
+        tempAudioPath,
+        tempVideoPath
+      );
+
+      // Upload video to storage
+      const videoStoragePath = `videos/${teacherId}/${assessmentId}/video.mp4`;
+      const downloadToken = uuidv4();
+
+      await bucket.upload(tempVideoPath, {
+        destination: videoStoragePath,
+        metadata: {
+          contentType: 'video/mp4',
+          metadata: {
+            firebaseStorageDownloadTokens: downloadToken,
+          },
+        },
+      });
+
+      // Generate download URL
+      const videoUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(videoStoragePath)}?alt=media&token=${downloadToken}`;
+
+      // Update assessment with video URL
+      await assessmentRef.update({
+        videoUrl,
+        videoStatus: 'complete',
+        videoGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      // Clean up temp files
+      fs.unlinkSync(tempAudioPath);
+      fs.unlinkSync(tempVideoPath);
+
+      console.log(`Video generated successfully for assessment ${assessmentId}`);
+      return { videoUrl };
+
+    } catch (error) {
+      console.error('Video generation error:', error);
+
+      await assessmentRef.update({
+        videoStatus: 'error',
+        videoError: error instanceof Error ? error.message : 'Unknown error',
+      });
+
+      throw new functions.https.HttpsError('internal', 'Failed to generate video');
+    }
+  });
+
+/**
+ * Callable function to generate a PDF report for an assessment
+ */
+export const generateAssessmentPdf = functions
+  .runWith({
+    timeoutSeconds: 120,
+    memory: '512MB',
+  })
+  .https
+  .onCall(async (data, context) => {
+    // Verify authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    const { teacherId, assessmentId } = data;
+    const userId = context.auth.uid;
+
+    // Verify the user owns this assessment
+    if (teacherId !== userId) {
+      throw new functions.https.HttpsError('permission-denied', 'You can only generate PDFs for your own assessments');
+    }
+
+    // Get the assessment data
+    const assessmentRef = db.collection('teachers').doc(teacherId)
+      .collection('assessments').doc(assessmentId);
+    const assessmentDoc = await assessmentRef.get();
+
+    if (!assessmentDoc.exists) {
+      throw new functions.https.HttpsError('not-found', 'Assessment not found');
+    }
+
+    const assessmentData = assessmentDoc.data()!;
+
+    // Check if assessment is complete
+    if (assessmentData.status !== 'complete') {
+      throw new functions.https.HttpsError('failed-precondition', 'Assessment must be complete before generating PDF');
+    }
+
+    try {
+      const bucket = storage.bucket();
+
+      // Generate PDF
+      const pdfBuffer = await generatePdfReport({
+        studentName: assessmentData.studentName,
+        assessmentDate: assessmentData.createdAt?.toDate() || new Date(),
+        metrics: assessmentData.metrics || {
+          accuracy: 0,
+          wordsPerMinute: 0,
+          prosodyScore: 0,
+          prosodyGrade: '',
+          totalWords: 0,
+          correctCount: 0,
+          errorCount: 0,
+          skipCount: 0,
+        },
+        words: assessmentData.words || [],
+        errorPatterns: assessmentData.errorPatterns || [],
+      });
+
+      // Upload PDF to storage
+      const pdfStoragePath = `pdfs/${teacherId}/${assessmentId}/report.pdf`;
+      const downloadToken = uuidv4();
+
+      const pdfFile = bucket.file(pdfStoragePath);
+      await pdfFile.save(pdfBuffer, {
+        metadata: {
+          contentType: 'application/pdf',
+          metadata: {
+            firebaseStorageDownloadTokens: downloadToken,
+          },
+        },
+      });
+
+      // Generate download URL
+      const pdfUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(pdfStoragePath)}?alt=media&token=${downloadToken}`;
+
+      // Update assessment with PDF URL
+      await assessmentRef.update({
+        pdfUrl,
+        pdfGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      console.log(`PDF generated successfully for assessment ${assessmentId}`);
+      return { pdfUrl };
+
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      throw new functions.https.HttpsError('internal', 'Failed to generate PDF');
     }
   });

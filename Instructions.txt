@@ -1,0 +1,31 @@
+Hardware:
+1) ipad USB C version
+2) ipad stand to hold it steady
+3) book stand to hold source material
+4) wired USB-c lavalier microphone
+5) (optional later addition) jetson nano + speaker for near real time corrective feedback. this would require audio streamed from the ipad to the jetson box in real time.
+
+
+UI / UX (student, on the ipad):
+1) The main screen on the ipad has the student presented with two large buttons, a red one on the left and a green  one on the right. Under the red button are the words "Record Audio" and under the green button are the words "Capture Image". Under "record audio" is a simple menu or visual icon with 3 options: 30 seconds, 1 minute, 2 minutes (default set to 1 minute). These two buttons and a bit of text take up the entire ipad screen (landscape).
+2) The student presses either button first: the red button to record audio, the green button to capture a high quality image of the book or text on the stand.
+3) after both sets of data are captured the student is prompted to submit the data. After submitting the data, the backend handles the autocapture of OCR text, the Speech to text analysis - everything that happens on the word-analyzer-v2 app happens in the background.
+4) The student is then presented with a new page on the ipad, this is the "Results" page. This will have most of the same data as from the "Analysis Results" page in the "word-analyzer-v2" app, but formatted differently. There will be a left sidebar and a main view. The sidebar has the following options: "Summary", "Video", 
+5) The "Summary" is the default selected view, on this page the student sees their high level stats at the top of the page, "correct", "errors", "accuracy %", "WPM", "Prosody". Below those stats is a short AI generated summary that can be read aloud describing how the student performed and what they can work on. Below that is the "text with error highlighting" section with all of the same features, color coding, button press mechanics, audio snippets, etc. Below that is the "error breakdown" section just as it is on the word-analyzer-v2 app. 
+6) next down below on the sidebar is "Video". when the student clicks video they are shown the generated Mp4 video, just as it is on word-analyzer-v2 app.
+7) next down below on the sidebar is "Image". this shows the image with brackets and quick stats, just as is shown on the word-analyzer-v2 app 
+8) The last item on the sidebar is Patterns, which shows the students their detailed pronunciation / phoenetic patterns just like on word-analyzer-app-v2.
+9) There will be a "start new assessment" button somewhere to restart the app for the next student.
+
+
+UI / UX (teacher):
+1) The teacher sets up the student with the ipad setup and lets them assess themselves.
+2) After the student has completed the audio capture and image capture and submitted the data, the results are sent immediately to the Standard Celeration chart dashboard
+3) The teacher can log in at any time to a web browser on their network to view the dashboard. The dashboard will see that new student data has been sent to it, and the teacher can open the data.
+4) The teacher is shown the students chart, with the latest data entry point, they can click the dot in the celeration chart and be prompted to open that specific assessment.
+5) the teacher opens the assessment and sees a dashboard formatted similarly to the ipad "Results" page, but with additional features. The teacher can slightly edit data if needed: tweak the OCR (simialr to word-analyzer-v2 where words can be selected / deselected by clicking), and get more insights into the data.
+6) The idea is that the teacher should not have to do anything, and the logging is done automatically.
+
+
+
+reference this "C:\Users\brani\Desktop\word-analyzer-v2\docs\concept-maps.html" to understand how this app can be adapted from the word-analyzer-v2 app. I want the same privacy protections (FERPA and COPPA compliant).

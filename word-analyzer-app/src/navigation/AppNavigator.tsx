@@ -11,6 +11,8 @@ import {
   LoginScreen,
   HomeScreen,
   AnalysisScreen,
+  HistoryScreen,
+  AssessmentDetailScreen,
 } from '../screens';
 
 export type RootStackParamList = {
@@ -22,6 +24,11 @@ export type RootStackParamList = {
     imageUri: string | null;
     studentId: string;
     studentName: string;
+    earlyUploadAssessmentId?: string | null;  // If audio was pre-uploaded, this is the assessment ID
+  };
+  History: undefined;
+  AssessmentDetail: {
+    assessmentId: string;
   };
 };
 
@@ -39,13 +46,14 @@ export default function AppNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
         }}
       >
         {isAuthenticated ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Analysis" component={AnalysisScreen} />
+            <Stack.Screen name="History" component={HistoryScreen} />
+            <Stack.Screen name="AssessmentDetail" component={AssessmentDetailScreen} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />

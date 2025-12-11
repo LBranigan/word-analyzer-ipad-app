@@ -102,6 +102,9 @@ export interface AssessmentMetrics {
   correctCount: number;
   errorCount: number;
   skipCount: number;
+  hesitationCount?: number;   // Number of significant pauses (> 0.5s)
+  fillerWordCount?: number;   // Number of filler words (um, uh, etc)
+  repeatCount?: number;       // Number of repeated words
 }
 
 export interface AlignedWord {
@@ -111,6 +114,9 @@ export interface AlignedWord {
   startTime: number;
   endTime: number;
   confidence: number;
+  hesitation?: boolean;       // True if there was a significant pause before this word
+  pauseDuration?: number;     // Duration of pause before this word in seconds
+  isRepeat?: boolean;         // True if this word was repeated
 }
 
 export interface DashboardErrorPattern {
@@ -124,14 +130,16 @@ export interface DashboardAssessment {
   id: string;
   studentId: string;
   studentName: string;
-  status: 'processing' | 'complete' | 'error';
+  status: 'uploading' | 'processing' | 'complete' | 'error';
   errorMessage?: string;
   createdAt: Date;
   processedAt?: Date;
 
   // Media URLs (temporary, 24h)
   audioUrl?: string;
+  imageUrl?: string;
   videoUrl?: string;
+  pdfUrl?: string;
   audioDuration?: number;
 
   // Results

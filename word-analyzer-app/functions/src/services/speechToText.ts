@@ -1,5 +1,6 @@
 import { SpeechClient, protos } from '@google-cloud/speech';
 
+// Speech-to-Text service - uses longRunningRecognize for longer audio
 const speechClient = new SpeechClient();
 
 export interface WordTiming {
@@ -15,38 +16,55 @@ export interface TranscriptionResult {
   confidence: number;
 }
 
+/**
+ * Transcribe audio using Google Cloud Speech-to-Text
+ * Uses longRunningRecognize with GCS URI to handle longer audio files
+ */
 export async function transcribeAudio(
-  audioBuffer: Buffer,
+  gcsUri: string,
   mimeType: string
 ): Promise<TranscriptionResult> {
   // Determine encoding from mime type
   let encoding: protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding;
-  let sampleRateHertz = 16000;
 
   if (mimeType.includes('webm')) {
     encoding = protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.WEBM_OPUS;
-    sampleRateHertz = 48000;
   } else if (mimeType.includes('mp4') || mimeType.includes('m4a')) {
     encoding = protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.MP3;
   } else {
     encoding = protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.LINEAR16;
   }
 
-  const request: protos.google.cloud.speech.v1.IRecognizeRequest = {
-    audio: {
-      content: audioBuffer.toString('base64'),
-    },
-    config: {
-      encoding,
-      sampleRateHertz,
-      languageCode: 'en-US',
-      enableWordTimeOffsets: true,
-      enableAutomaticPunctuation: true,
-      model: 'latest_long',
-    },
+  // Config for speech recognition
+  const config: protos.google.cloud.speech.v1.IRecognitionConfig = {
+    encoding,
+    languageCode: 'en-US',
+    enableWordTimeOffsets: true,
+    enableAutomaticPunctuation: true,
+    model: 'latest_long',
   };
 
-  const [response] = await speechClient.recognize(request);
+  // Only set sample rate for non-WEBM formats (WEBM_OPUS auto-detects)
+  if (encoding !== protos.google.cloud.speech.v1.RecognitionConfig.AudioEncoding.WEBM_OPUS) {
+    config.sampleRateHertz = 16000;
+  }
+
+  const request: protos.google.cloud.speech.v1.ILongRunningRecognizeRequest = {
+    audio: {
+      uri: gcsUri,
+    },
+    config,
+  };
+
+  console.log(`Starting longRunningRecognize for: ${gcsUri}`);
+
+  // Start the long-running operation
+  const [operation] = await speechClient.longRunningRecognize(request);
+
+  // Wait for the operation to complete
+  const [response] = await operation.promise();
+
+  console.log('Speech recognition completed');
 
   const words: WordTiming[] = [];
   let fullTranscript = '';

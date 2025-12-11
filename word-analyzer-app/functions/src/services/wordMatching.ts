@@ -2,6 +2,7 @@
  * Word Matching Algorithm
  * Ported from word-analyzer-v2 app.js
  * Key functions: calculateWordSimilarity, findBestAlignment, analyzePronunciation
+ * Includes auto-detection of passage boundaries (first/last intended words)
  */
 
 import { arePhoneticEquivalents } from '../data/phoneticEquivalences';
@@ -16,6 +17,10 @@ export interface AlignedWord {
   startTime: number;
   endTime: number;
   confidence: number;
+  hesitation?: boolean;  // True if there was a significant pause before this word
+  pauseDuration?: number; // Duration of pause before this word in seconds
+  isRepeat?: boolean;     // True if this word was repeated
+  isFillerWord?: boolean; // True if a filler word was detected near this position
 }
 
 export interface MatchingResult {
@@ -25,6 +30,9 @@ export interface MatchingResult {
   skipCount: number;
   substitutionCount: number;
   misreadCount: number;
+  hesitationCount: number;  // Number of significant pauses detected
+  fillerWordCount: number;  // Number of filler words (um, uh, etc)
+  repeatCount: number;      // Number of repeated words
 }
 
 /**
@@ -119,22 +127,233 @@ function calculateWordSimilarity(word1: string, word2: string): number {
  * Check if word is a filler word
  */
 function isFillerWord(word: string): boolean {
-  const fillers = ['um', 'uh', 'er', 'ah', 'like', 'so', 'well'];
+  const fillers = ['um', 'uh', 'er', 'ah', 'like', 'so', 'well', 'hmm', 'mm', 'erm'];
   return fillers.includes(normalizeWord(word));
+}
+
+/**
+ * Hesitation threshold in seconds
+ * Based on word-analyzer-v2 detectHesitation function
+ * A pause > 0.5 seconds between words indicates hesitation
+ */
+const HESITATION_THRESHOLD = 0.5;
+
+/**
+ * Detect if there's a hesitation (significant pause) before a word
+ * Based on word-analyzer-v2 detectHesitation (lines 2004-2012)
+ *
+ * @param currentWord Current word timing info
+ * @param previousWord Previous word timing info
+ * @returns Object with hesitation detected flag and pause duration
+ */
+function detectHesitation(
+  currentWord: WordTiming,
+  previousWord: WordTiming | null
+): { hesitation: boolean; pauseDuration: number } {
+  if (!previousWord) {
+    return { hesitation: false, pauseDuration: 0 };
+  }
+
+  const currentStart = currentWord.startTime;
+  const previousEnd = previousWord.endTime;
+
+  const pauseDuration = currentStart - previousEnd;
+  const hesitation = pauseDuration > HESITATION_THRESHOLD;
+
+  return { hesitation, pauseDuration };
+}
+
+/**
+ * Detect repeated words in the spoken word sequence
+ * A word is considered repeated if the same or very similar word appears consecutively
+ *
+ * @param spokenWords Array of spoken word timings
+ * @returns Set of indices that are repeated words
+ */
+function detectRepeatedWords(spokenWords: WordTiming[]): Set<number> {
+  const repeatedIndices = new Set<number>();
+
+  for (let i = 1; i < spokenWords.length; i++) {
+    const current = normalizeWord(spokenWords[i].word);
+    const previous = normalizeWord(spokenWords[i - 1].word);
+
+    // Check if current word is a repeat of the previous word
+    if (current === previous) {
+      repeatedIndices.add(i);
+    }
+    // Also check for very similar words (partial repeats/stutters)
+    else if (current.length >= 2 && previous.length >= 2) {
+      // If they share the same first 2+ characters and one is a prefix of the other
+      const minLen = Math.min(current.length, previous.length);
+      const prefix = current.substring(0, Math.min(3, minLen));
+      if (previous.startsWith(prefix) || current.startsWith(previous.substring(0, Math.min(3, minLen)))) {
+        const similarity = calculateWordSimilarity(current, previous);
+        if (similarity >= 0.85) {
+          repeatedIndices.add(i);
+        }
+      }
+    }
+  }
+
+  return repeatedIndices;
+}
+
+/**
+ * Build similarity matrix between spoken and OCR words
+ */
+function buildSimilarityMatrix(spoken: string[], ocr: string[]): number[][] {
+  const matrix: number[][] = [];
+  for (let s = 0; s < spoken.length; s++) {
+    matrix[s] = [];
+    for (let o = 0; o < ocr.length; o++) {
+      matrix[s][o] = calculateWordSimilarity(spoken[s], ocr[o]);
+    }
+  }
+  return matrix;
+}
+
+/**
+ * Find where in the OCR text the student started and stopped reading
+ * Uses dynamic programming alignment to find best matching range
+ * Based on word-analyzer-v2 findSpokenRangeInOCR and findBestAlignment
+ */
+function findSpokenRangeInOCR(
+  spokenWords: string[],
+  ocrWords: string[]
+): { firstIndex: number; lastIndex: number; matchedCount: number } {
+  // Clean spoken words
+  const cleanSpoken = spokenWords
+    .filter(w => w && !isFillerWord(w))
+    .map(w => normalizeWord(w))
+    .filter(w => w.length > 0);
+
+  // Clean OCR words
+  const cleanOCR = ocrWords.map(w => normalizeWord(w));
+
+  if (cleanSpoken.length === 0 || cleanOCR.length === 0) {
+    return { firstIndex: 0, lastIndex: ocrWords.length - 1, matchedCount: 0 };
+  }
+
+  const similarityMatrix = buildSimilarityMatrix(cleanSpoken, cleanOCR);
+
+  const m = cleanSpoken.length;
+  const n = cleanOCR.length;
+
+  const MATCH_THRESHOLD = 0.55;
+  const SKIP_PENALTY = 0.3;
+  const GAP_PENALTY = 0.4;
+
+  let bestScore = 0;
+  let bestEndOCR = -1;
+  let bestStartOCR = -1;
+  let bestMatchCount = 0;
+
+  // Try different starting positions in OCR
+  for (let startOCR = 0; startOCR < n; startOCR++) {
+    interface DPState {
+      score: number;
+      matchCount: number;
+      lastOCR: number;
+      firstOCR: number;
+    }
+
+    const dp: DPState[] = new Array(m + 1).fill(null).map(() => ({
+      score: 0,
+      matchCount: 0,
+      lastOCR: startOCR - 1,
+      firstOCR: -1
+    }));
+
+    for (let s = 0; s < m; s++) {
+      const prevState = dp[s];
+
+      for (let o = prevState.lastOCR + 1; o < n; o++) {
+        const sim = similarityMatrix[s][o];
+
+        if (sim >= MATCH_THRESHOLD) {
+          const skippedOCR = o - prevState.lastOCR - 1;
+          const skipPenalty = skippedOCR * SKIP_PENALTY;
+          const newScore = prevState.score + sim - skipPenalty;
+
+          if (newScore > dp[s + 1].score) {
+            dp[s + 1] = {
+              score: newScore,
+              matchCount: prevState.matchCount + 1,
+              lastOCR: o,
+              firstOCR: prevState.firstOCR === -1 ? o : prevState.firstOCR
+            };
+          }
+        }
+      }
+
+      // Allow skipping spoken words
+      if (dp[s].score - GAP_PENALTY > dp[s + 1].score) {
+        dp[s + 1] = {
+          score: dp[s].score - GAP_PENALTY,
+          matchCount: dp[s].matchCount,
+          lastOCR: dp[s].lastOCR,
+          firstOCR: dp[s].firstOCR
+        };
+      }
+    }
+
+    const finalState = dp[m];
+    if (finalState.matchCount >= 2 && finalState.score > bestScore) {
+      bestScore = finalState.score;
+      bestEndOCR = finalState.lastOCR;
+      bestStartOCR = finalState.firstOCR;
+      bestMatchCount = finalState.matchCount;
+    }
+  }
+
+  // If no good alignment found, use fallback: full OCR range
+  if (bestStartOCR === -1 || bestEndOCR === -1) {
+    console.log('Passage detection: No clear match found, using full OCR text');
+    return { firstIndex: 0, lastIndex: ocrWords.length - 1, matchedCount: 0 };
+  }
+
+  console.log(`Passage detection: words ${bestStartOCR} to ${bestEndOCR} (${bestMatchCount} matched)`);
+  return {
+    firstIndex: bestStartOCR,
+    lastIndex: bestEndOCR,
+    matchedCount: bestMatchCount
+  };
 }
 
 /**
  * Main word matching function using dynamic programming alignment
  * Based on word-analyzer-v2 analyzePronunciation (lines 2015-2137)
+ *
+ * First detects passage boundaries (which OCR words the student was trying to read)
+ * Then matches spoken words to expected words within that range
+ * Includes hesitation detection, filler word tracking, and repeated word detection
  */
 export function matchWords(
-  expectedWords: string[],
+  ocrWords: string[],
   spokenWords: WordTiming[]
 ): MatchingResult {
-  // Filter out filler words from spoken
+  // Count filler words BEFORE filtering
+  const fillerWordCount = spokenWords.filter(w => isFillerWord(w.word)).length;
+  console.log(`Detected ${fillerWordCount} filler words`);
+
+  // Filter out filler words from spoken for matching
   const cleanSpoken = spokenWords.filter(w => !isFillerWord(w.word));
 
-  if (expectedWords.length === 0) {
+  // Detect repeated words in clean spoken words
+  const repeatedIndices = detectRepeatedWords(cleanSpoken);
+  const repeatCount = repeatedIndices.size;
+  console.log(`Detected ${repeatCount} repeated words`);
+
+  // Build hesitation map for clean spoken words
+  const hesitationMap = new Map<number, { hesitation: boolean; pauseDuration: number }>();
+  for (let i = 0; i < cleanSpoken.length; i++) {
+    const prevWord = i > 0 ? cleanSpoken[i - 1] : null;
+    hesitationMap.set(i, detectHesitation(cleanSpoken[i], prevWord));
+  }
+  const hesitationCount = Array.from(hesitationMap.values()).filter(h => h.hesitation).length;
+  console.log(`Detected ${hesitationCount} hesitations`);
+
+  if (ocrWords.length === 0) {
     return {
       words: [],
       correctCount: 0,
@@ -142,27 +361,38 @@ export function matchWords(
       skipCount: 0,
       substitutionCount: 0,
       misreadCount: 0,
+      hesitationCount: 0,
+      fillerWordCount,
+      repeatCount: 0,
     };
   }
 
   if (cleanSpoken.length === 0) {
-    // All words skipped
+    // All words skipped - but we don't know which ones were intended
+    // Return empty since we can't determine passage without spoken words
     return {
-      words: expectedWords.map(word => ({
-        expected: word,
-        spoken: null,
-        status: 'skipped' as WordStatus,
-        startTime: 0,
-        endTime: 0,
-        confidence: 0,
-      })),
+      words: [],
       correctCount: 0,
-      errorCount: expectedWords.length,
-      skipCount: expectedWords.length,
+      errorCount: 0,
+      skipCount: 0,
       substitutionCount: 0,
       misreadCount: 0,
+      hesitationCount: 0,
+      fillerWordCount,
+      repeatCount: 0,
     };
   }
+
+  // STEP 1: Auto-detect passage boundaries
+  // Find which OCR words the student was trying to read
+  const spokenWordStrings = cleanSpoken.map(w => w.word);
+  const passageRange = findSpokenRangeInOCR(spokenWordStrings, ocrWords);
+
+  // Extract the expected words (the passage the student was reading)
+  const expectedWords = ocrWords.slice(passageRange.firstIndex, passageRange.lastIndex + 1);
+
+  console.log(`Detected passage: ${expectedWords.length} words (OCR indices ${passageRange.firstIndex}-${passageRange.lastIndex})`);
+  console.log(`First expected: "${expectedWords[0]}", Last expected: "${expectedWords[expectedWords.length - 1]}"`);
 
   const m = expectedWords.length;
   const n = cleanSpoken.length;
@@ -236,6 +466,10 @@ export function matchWords(
     if (pi === -1 && pj === -1) break;
 
     if (status === 'correct' || status === 'misread' || status === 'substituted') {
+      // Get hesitation info for this spoken word
+      const hesitationInfo = hesitationMap.get(pj) || { hesitation: false, pauseDuration: 0 };
+      const isRepeat = repeatedIndices.has(pj);
+
       alignment.unshift({
         expected: expectedWords[pi],
         spoken: cleanSpoken[pj].word,
@@ -243,6 +477,9 @@ export function matchWords(
         startTime: cleanSpoken[pj].startTime,
         endTime: cleanSpoken[pj].endTime,
         confidence: cleanSpoken[pj].confidence,
+        hesitation: hesitationInfo.hesitation,
+        pauseDuration: hesitationInfo.pauseDuration,
+        isRepeat,
       });
       i = pi;
       j = pj;
@@ -254,6 +491,9 @@ export function matchWords(
         startTime: 0,
         endTime: 0,
         confidence: 0,
+        hesitation: false,
+        pauseDuration: 0,
+        isRepeat: false,
       });
       i = pi;
     } else if (status === 'extra') {
@@ -287,6 +527,10 @@ export function matchWords(
     }
   }
 
+  // Count hesitations in the final alignment
+  const alignmentHesitationCount = alignment.filter(w => w.hesitation).length;
+  const alignmentRepeatCount = alignment.filter(w => w.isRepeat).length;
+
   return {
     words: alignment,
     correctCount,
@@ -294,5 +538,8 @@ export function matchWords(
     skipCount,
     substitutionCount,
     misreadCount,
+    hesitationCount: alignmentHesitationCount,
+    fillerWordCount,
+    repeatCount: alignmentRepeatCount,
   };
 }
