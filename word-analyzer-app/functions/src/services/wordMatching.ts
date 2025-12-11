@@ -10,6 +10,20 @@ import { WordTiming } from './speechToText';
 
 export type WordStatus = 'correct' | 'misread' | 'substituted' | 'skipped';
 
+// Bounding box for word position on the image
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// OCR word with text and position
+export interface OcrWordWithBox {
+  text: string;
+  boundingBox: BoundingBox;
+}
+
 export interface AlignedWord {
   expected: string;
   spoken: string | null;
@@ -21,6 +35,7 @@ export interface AlignedWord {
   pauseDuration?: number; // Duration of pause before this word in seconds
   isRepeat?: boolean;     // True if this word was repeated
   isFillerWord?: boolean; // True if a filler word was detected near this position
+  boundingBox?: BoundingBox; // Position of word on the image
 }
 
 export interface MatchingResult {
@@ -219,7 +234,7 @@ function buildSimilarityMatrix(spoken: string[], ocr: string[]): number[][] {
  */
 function findSpokenRangeInOCR(
   spokenWords: string[],
-  ocrWords: string[]
+  ocrWords: OcrWordWithBox[]
 ): { firstIndex: number; lastIndex: number; matchedCount: number } {
   // Clean spoken words
   const cleanSpoken = spokenWords
@@ -227,8 +242,8 @@ function findSpokenRangeInOCR(
     .map(w => normalizeWord(w))
     .filter(w => w.length > 0);
 
-  // Clean OCR words
-  const cleanOCR = ocrWords.map(w => normalizeWord(w));
+  // Clean OCR words (extract text)
+  const cleanOCR = ocrWords.map(w => normalizeWord(w.text));
 
   if (cleanSpoken.length === 0 || cleanOCR.length === 0) {
     return { firstIndex: 0, lastIndex: ocrWords.length - 1, matchedCount: 0 };
@@ -329,7 +344,7 @@ function findSpokenRangeInOCR(
  * Includes hesitation detection, filler word tracking, and repeated word detection
  */
 export function matchWords(
-  ocrWords: string[],
+  ocrWords: OcrWordWithBox[],
   spokenWords: WordTiming[]
 ): MatchingResult {
   // Count filler words BEFORE filtering
@@ -388,11 +403,11 @@ export function matchWords(
   const spokenWordStrings = cleanSpoken.map(w => w.word);
   const passageRange = findSpokenRangeInOCR(spokenWordStrings, ocrWords);
 
-  // Extract the expected words (the passage the student was reading)
+  // Extract the expected words with bounding boxes (the passage the student was reading)
   const expectedWords = ocrWords.slice(passageRange.firstIndex, passageRange.lastIndex + 1);
 
   console.log(`Detected passage: ${expectedWords.length} words (OCR indices ${passageRange.firstIndex}-${passageRange.lastIndex})`);
-  console.log(`First expected: "${expectedWords[0]}", Last expected: "${expectedWords[expectedWords.length - 1]}"`);
+  console.log(`First expected: "${expectedWords[0]?.text}", Last expected: "${expectedWords[expectedWords.length - 1]?.text}"`);
 
   const m = expectedWords.length;
   const n = cleanSpoken.length;
@@ -412,7 +427,7 @@ export function matchWords(
 
       // Option 1: Match expected[i] with spoken[j]
       if (i < m && j < n) {
-        const similarity = calculateWordSimilarity(expectedWords[i], cleanSpoken[j].word);
+        const similarity = calculateWordSimilarity(expectedWords[i].text, cleanSpoken[j].word);
         let score: number;
         let status: string;
 
@@ -471,7 +486,7 @@ export function matchWords(
       const isRepeat = repeatedIndices.has(pj);
 
       alignment.unshift({
-        expected: expectedWords[pi],
+        expected: expectedWords[pi].text,
         spoken: cleanSpoken[pj].word,
         status: status as WordStatus,
         startTime: cleanSpoken[pj].startTime,
@@ -480,12 +495,13 @@ export function matchWords(
         hesitation: hesitationInfo.hesitation,
         pauseDuration: hesitationInfo.pauseDuration,
         isRepeat,
+        boundingBox: expectedWords[pi].boundingBox,
       });
       i = pi;
       j = pj;
     } else if (status === 'skipped') {
       alignment.unshift({
-        expected: expectedWords[pi],
+        expected: expectedWords[pi].text,
         spoken: null,
         status: 'skipped',
         startTime: 0,
@@ -494,6 +510,7 @@ export function matchWords(
         hesitation: false,
         pauseDuration: 0,
         isRepeat: false,
+        boundingBox: expectedWords[pi].boundingBox,
       });
       i = pi;
     } else if (status === 'extra') {

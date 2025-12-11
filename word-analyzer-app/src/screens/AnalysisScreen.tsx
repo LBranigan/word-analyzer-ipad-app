@@ -903,108 +903,148 @@ function ExportTab({ assessment, teacherId, assessmentId, pdfStatus, pdfUrl, pdf
 
 function ImageTab({ assessment }: { assessment: Assessment }) {
   const words = assessment.words || [];
-  const correctCount = words.filter(w => w.status === 'correct').length;
-  const errorCount = words.filter(w => w.status !== 'correct').length;
+  const [imageLayout, setImageLayout] = useState({ width: 0, height: 0 });
+  const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Get first and last word that were actually read (have spoken values)
-  const spokenWords = words.filter(w => w.spoken);
-  const firstWord = spokenWords.length > 0 ? spokenWords[0] : null;
-  const lastWord = spokenWords.length > 0 ? spokenWords[spokenWords.length - 1] : null;
+  // Original image dimensions from OCR processing
+  const originalWidth = assessment.imageWidth || 0;
+  const originalHeight = assessment.imageHeight || 0;
 
-  // Also get the expected first/last from the passage (OCR-detected range)
-  const expectedFirst = words.length > 0 ? words[0] : null;
-  const expectedLast = words.length > 0 ? words[words.length - 1] : null;
+  // Calculate scale factor to map bounding boxes to displayed image
+  const scaleX = imageLayout.width > 0 && originalWidth > 0 ? imageLayout.width / originalWidth : 1;
+  const scaleY = imageLayout.height > 0 && originalHeight > 0 ? imageLayout.height / originalHeight : 1;
+
+  // Get words with bounding boxes for overlay
+  const wordsWithBoxes = words.filter(w => w.boundingBox);
+
+  // Calculate the bounding region of all spoken words to auto-frame
+  const spokenWords = wordsWithBoxes.filter(w => w.spoken);
+  let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+
+  for (const word of spokenWords) {
+    if (word.boundingBox) {
+      minX = Math.min(minX, word.boundingBox.x);
+      minY = Math.min(minY, word.boundingBox.y);
+      maxX = Math.max(maxX, word.boundingBox.x + word.boundingBox.width);
+      maxY = Math.max(maxY, word.boundingBox.y + word.boundingBox.height);
+    }
+  }
+
+  // Get color for word status
+  const getWordOverlayColor = (status: string) => {
+    switch (status) {
+      case 'correct': return 'rgba(72, 187, 120, 0.4)'; // Green
+      case 'misread': return 'rgba(237, 137, 54, 0.5)'; // Orange
+      case 'substituted': return 'rgba(229, 62, 62, 0.5)'; // Red
+      case 'skipped': return 'rgba(160, 174, 192, 0.4)'; // Gray
+      default: return 'rgba(66, 153, 225, 0.3)'; // Blue
+    }
+  };
+
+  const getBorderColor = (status: string) => {
+    switch (status) {
+      case 'correct': return '#48BB78';
+      case 'misread': return '#ED8936';
+      case 'substituted': return '#E53E3E';
+      case 'skipped': return '#A0AEC0';
+      default: return '#4299E1';
+    }
+  };
+
+  if (!assessment.imageUrl) {
+    return (
+      <View style={styles.tabPlaceholder}>
+        <MaterialIcons name="image" size={64} color="#CBD5E0" />
+        <Text style={styles.placeholderText}>Image not available</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.imageTabContainer}>
-      {/* Stats Header - Simplified */}
-      <View style={styles.imageStatsHeader}>
-        <View style={styles.imageStatRow}>
-          <Text style={styles.imageStatLabel}>Total Words:</Text>
-          <Text style={styles.imageStatValue}>{words.length}</Text>
-          <Text style={styles.imageStatDivider}>|</Text>
-          <Text style={styles.imageStatLabel}>Correct:</Text>
-          <Text style={[styles.imageStatValue, { color: '#48BB78' }]}>{correctCount}</Text>
-          <Text style={styles.imageStatDivider}>/</Text>
-          <Text style={styles.imageStatLabel}>Errors:</Text>
-          <Text style={[styles.imageStatValue, { color: '#E53E3E' }]}>{errorCount}</Text>
+      {/* Legend */}
+      <View style={styles.imageLegendRow}>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#48BB78' }]} />
+          <Text style={styles.legendText}>Correct</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#ED8936' }]} />
+          <Text style={styles.legendText}>Misread</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#E53E3E' }]} />
+          <Text style={styles.legendText}>Substituted</Text>
+        </View>
+        <View style={styles.legendItem}>
+          <View style={[styles.legendDot, { backgroundColor: '#A0AEC0' }]} />
+          <Text style={styles.legendText}>Skipped</Text>
         </View>
       </View>
 
-      {/* Passage Range Indicators */}
-      {(firstWord || lastWord) && (
-        <View style={styles.passageRangeContainer}>
-          <View style={styles.passageRangeHeader}>
-            <MaterialIcons name="format-quote" size={20} color="#48BB78" />
-            <Text style={styles.passageRangeTitle}>Reading Range Detected</Text>
-          </View>
-          <View style={styles.passageRangeRow}>
-            <View style={styles.passageRangeItem}>
-              <Text style={styles.passageRangeLabel}>Started at:</Text>
-              <View style={styles.bracketBadge}>
-                <Text style={styles.bracketSymbolSmall}>[</Text>
-                <Text style={styles.passageRangeWord}>{expectedFirst?.expected || '—'}</Text>
-              </View>
-            </View>
-            <View style={styles.passageRangeDivider}>
-              <MaterialIcons name="arrow-forward" size={20} color="#A0AEC0" />
-            </View>
-            <View style={styles.passageRangeItem}>
-              <Text style={styles.passageRangeLabel}>Ended at:</Text>
-              <View style={styles.bracketBadge}>
-                <Text style={styles.passageRangeWord}>{expectedLast?.expected || '—'}</Text>
-                <Text style={styles.bracketSymbolSmall}>]</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      )}
+      {/* Full Resolution Image with Word Overlays */}
+      <ScrollView
+        style={styles.imageFullResScrollView}
+        contentContainerStyle={styles.imageFullResContent}
+        maximumZoomScale={5}
+        minimumZoomScale={1}
+        showsVerticalScrollIndicator={true}
+        showsHorizontalScrollIndicator={true}
+        bouncesZoom={true}
+      >
+        <View
+          style={styles.imageOverlayContainer}
+          onLayout={(e) => {
+            // We need the image dimensions first
+          }}
+        >
+          <Image
+            source={{ uri: assessment.imageUrl }}
+            style={styles.fullResImage}
+            resizeMode="contain"
+            onLoad={(e) => {
+              // Get the actual displayed size
+              const { width, height } = e.nativeEvent.source;
+              setImageLayout({ width, height });
+              setImageLoaded(true);
+            }}
+          />
 
-      {/* Image Container - Full resolution display with bracket overlay */}
-      {assessment.imageUrl ? (
-        <View style={styles.imageContainerWithOverlay}>
-          <ScrollView
-            style={styles.imageScrollContainer}
-            maximumZoomScale={3}
-            minimumZoomScale={1}
-            showsVerticalScrollIndicator={true}
-            showsHorizontalScrollIndicator={true}
-          >
-            <Image
-              source={{ uri: assessment.imageUrl }}
-              style={styles.capturedImageFullRes}
-              resizeMode="contain"
-            />
-          </ScrollView>
+          {/* Word bounding box overlays */}
+          {imageLoaded && wordsWithBoxes.map((word, index) => {
+            if (!word.boundingBox) return null;
 
-          {/* Green bracket overlays - positioned at corners */}
-          {expectedFirst && (
-            <View style={styles.bracketOverlayTopLeft}>
-              <Text style={styles.bracketSymbol}>[</Text>
-              <Text style={styles.bracketWordText}>{expectedFirst.expected}</Text>
-              <MaterialIcons name="play-arrow" size={16} color="#FFFFFF" />
-            </View>
-          )}
-          {expectedLast && (
-            <View style={styles.bracketOverlayBottomRight}>
-              <MaterialIcons name="stop" size={16} color="#FFFFFF" />
-              <Text style={styles.bracketWordText}>{expectedLast.expected}</Text>
-              <Text style={styles.bracketSymbol}>]</Text>
-            </View>
-          )}
-        </View>
-      ) : (
-        <View style={styles.tabPlaceholder}>
-          <MaterialIcons name="image" size={64} color="#CBD5E0" />
-          <Text style={styles.placeholderText}>Image not available</Text>
-        </View>
-      )}
+            const box = word.boundingBox;
+            const scaledX = box.x * scaleX;
+            const scaledY = box.y * scaleY;
+            const scaledWidth = box.width * scaleX;
+            const scaledHeight = box.height * scaleY;
 
-      {/* Image Quality Info */}
+            return (
+              <View
+                key={index}
+                style={[
+                  styles.wordOverlayBox,
+                  {
+                    left: scaledX,
+                    top: scaledY,
+                    width: scaledWidth,
+                    height: scaledHeight,
+                    backgroundColor: getWordOverlayColor(word.status),
+                    borderColor: getBorderColor(word.status),
+                  },
+                ]}
+              />
+            );
+          })}
+        </View>
+      </ScrollView>
+
+      {/* Info footer */}
       <View style={styles.imageQualityInfo}>
-        <MaterialIcons name="info-outline" size={16} color="#718096" />
+        <MaterialIcons name="touch-app" size={16} color="#718096" />
         <Text style={styles.imageQualityText}>
-          Pinch to zoom. Green brackets show detected reading range (first and last word).
+          Pinch to zoom • Words highlighted by reading accuracy
         </Text>
       </View>
     </View>
@@ -2017,7 +2057,56 @@ const styles = StyleSheet.create({
     color: '#718096',
     flex: 1,
   },
-  // Image container with overlay
+  // New full-resolution image styles with word overlays
+  imageLegendRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+    backgroundColor: '#FFFFFF',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  legendDot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+  },
+  legendText: {
+    fontSize: 12,
+    color: '#4A5568',
+    fontWeight: '500',
+  },
+  imageFullResScrollView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+  },
+  imageFullResContent: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  imageOverlayContainer: {
+    position: 'relative',
+  },
+  fullResImage: {
+    width: '100%',
+    height: undefined,
+    aspectRatio: 4 / 3, // Default aspect ratio, will be overridden by actual image
+    minHeight: 500,
+  },
+  wordOverlayBox: {
+    position: 'absolute',
+    borderWidth: 2,
+    borderRadius: 3,
+  },
+  // Legacy styles (kept for compatibility)
   imageContainerWithOverlay: {
     flex: 1,
     position: 'relative',
@@ -2025,7 +2114,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
   },
-  // Passage range indicators
+  // Passage range indicators (legacy - no longer used)
   passageRangeContainer: {
     backgroundColor: '#FFFFFF',
     padding: 16,

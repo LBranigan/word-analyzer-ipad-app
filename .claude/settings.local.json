@@ -43,7 +43,9 @@
       "WebFetch(domain:github.com)",
       "WebFetch(domain:docs.expo.dev)",
       "Bash(npx eas:*)",
-      "Bash(eas:*)"
+      "Bash(eas:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx firebase deploy:*)"
     ]
   }
 }

@@ -15,17 +15,36 @@ export interface OcrWord {
 export interface OcrResult {
   fullText: string;
   words: OcrWord[];
+  imageWidth: number;
+  imageHeight: number;
 }
 
 export async function extractTextFromImage(imageBuffer: Buffer): Promise<OcrResult> {
-  const [result] = await visionClient.textDetection({
+  // Get text detection
+  const [textResult] = await visionClient.textDetection({
     image: { content: imageBuffer },
   });
 
+  const result = textResult;
   const textAnnotations = result.textAnnotations || [];
 
+  // Get image dimensions from the full text bounding box (covers entire image text area)
+  // Or use a default if not available
+  let imageWidth = 0;
+  let imageHeight = 0;
+
+  // Try to get dimensions from the first annotation (full text) bounding box
+  if (textAnnotations.length > 0) {
+    const vertices = textAnnotations[0].boundingPoly?.vertices || [];
+    if (vertices.length >= 4) {
+      // Get max x and y from all vertices to approximate image size
+      imageWidth = Math.max(...vertices.map(v => v.x || 0));
+      imageHeight = Math.max(...vertices.map(v => v.y || 0));
+    }
+  }
+
   if (textAnnotations.length === 0) {
-    return { fullText: '', words: [] };
+    return { fullText: '', words: [], imageWidth: 0, imageHeight: 0 };
   }
 
   // First annotation is the full text
@@ -51,5 +70,5 @@ export async function extractTextFromImage(imageBuffer: Buffer): Promise<OcrResu
     });
   }
 
-  return { fullText, words };
+  return { fullText, words, imageWidth, imageHeight };
 }

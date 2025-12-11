@@ -145,14 +145,9 @@ export const processAssessment = functions
       const ocrResult = await extractTextFromImage(imageBuffer);
       console.log(`OCR extracted ${ocrResult.words.length} words`);
 
-      // Parse OCR text into word array
-      const expectedWords = ocrResult.fullText
-        .split(/\s+/)
-        .map(w => w.replace(/[^a-zA-Z0-9']/g, ''))
-        .filter(w => w.length > 0);
-
-      // Match words
-      const matchingResult = matchWords(expectedWords, transcription.words);
+      // Use OCR words with bounding boxes directly (no need to re-parse)
+      // The matchWords function now accepts OcrWordWithBox[] which includes position data
+      const matchingResult = matchWords(ocrResult.words, transcription.words);
       console.log(`Matching complete: ${matchingResult.correctCount} correct, ${matchingResult.errorCount} errors`);
 
       // Calculate metrics
@@ -206,6 +201,8 @@ export const processAssessment = functions
         audioDuration,
         ocrText: ocrResult.fullText,
         transcript: transcription.transcript,
+        imageWidth: ocrResult.imageWidth,
+        imageHeight: ocrResult.imageHeight,
         metrics: {
           accuracy: metrics.accuracy,
           wordsPerMinute: metrics.wordsPerMinute,

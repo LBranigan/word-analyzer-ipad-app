@@ -172,8 +172,8 @@ function findSpokenRangeInOCR(spokenWords, ocrWords) {
         .filter(w => w && !isFillerWord(w))
         .map(w => normalizeWord(w))
         .filter(w => w.length > 0);
-    // Clean OCR words
-    const cleanOCR = ocrWords.map(w => normalizeWord(w));
+    // Clean OCR words (extract text)
+    const cleanOCR = ocrWords.map(w => normalizeWord(w.text));
     if (cleanSpoken.length === 0 || cleanOCR.length === 0) {
         return { firstIndex: 0, lastIndex: ocrWords.length - 1, matchedCount: 0 };
     }
@@ -252,6 +252,7 @@ function findSpokenRangeInOCR(spokenWords, ocrWords) {
  * Includes hesitation detection, filler word tracking, and repeated word detection
  */
 function matchWords(ocrWords, spokenWords) {
+    var _a, _b;
     // Count filler words BEFORE filtering
     const fillerWordCount = spokenWords.filter(w => isFillerWord(w.word)).length;
     console.log(`Detected ${fillerWordCount} filler words`);
@@ -301,10 +302,10 @@ function matchWords(ocrWords, spokenWords) {
     // Find which OCR words the student was trying to read
     const spokenWordStrings = cleanSpoken.map(w => w.word);
     const passageRange = findSpokenRangeInOCR(spokenWordStrings, ocrWords);
-    // Extract the expected words (the passage the student was reading)
+    // Extract the expected words with bounding boxes (the passage the student was reading)
     const expectedWords = ocrWords.slice(passageRange.firstIndex, passageRange.lastIndex + 1);
     console.log(`Detected passage: ${expectedWords.length} words (OCR indices ${passageRange.firstIndex}-${passageRange.lastIndex})`);
-    console.log(`First expected: "${expectedWords[0]}", Last expected: "${expectedWords[expectedWords.length - 1]}"`);
+    console.log(`First expected: "${(_a = expectedWords[0]) === null || _a === void 0 ? void 0 : _a.text}", Last expected: "${(_b = expectedWords[expectedWords.length - 1]) === null || _b === void 0 ? void 0 : _b.text}"`);
     const m = expectedWords.length;
     const n = cleanSpoken.length;
     // DP table: dp[i][j] = best score aligning expected[0..i-1] with spoken[0..j-1]
@@ -318,7 +319,7 @@ function matchWords(ocrWords, spokenWords) {
                 continue;
             // Option 1: Match expected[i] with spoken[j]
             if (i < m && j < n) {
-                const similarity = calculateWordSimilarity(expectedWords[i], cleanSpoken[j].word);
+                const similarity = calculateWordSimilarity(expectedWords[i].text, cleanSpoken[j].word);
                 let score;
                 let status;
                 if (similarity >= 0.95) {
@@ -372,7 +373,7 @@ function matchWords(ocrWords, spokenWords) {
             const hesitationInfo = hesitationMap.get(pj) || { hesitation: false, pauseDuration: 0 };
             const isRepeat = repeatedIndices.has(pj);
             alignment.unshift({
-                expected: expectedWords[pi],
+                expected: expectedWords[pi].text,
                 spoken: cleanSpoken[pj].word,
                 status: status,
                 startTime: cleanSpoken[pj].startTime,
@@ -381,13 +382,14 @@ function matchWords(ocrWords, spokenWords) {
                 hesitation: hesitationInfo.hesitation,
                 pauseDuration: hesitationInfo.pauseDuration,
                 isRepeat,
+                boundingBox: expectedWords[pi].boundingBox,
             });
             i = pi;
             j = pj;
         }
         else if (status === 'skipped') {
             alignment.unshift({
-                expected: expectedWords[pi],
+                expected: expectedWords[pi].text,
                 spoken: null,
                 status: 'skipped',
                 startTime: 0,
@@ -396,6 +398,7 @@ function matchWords(ocrWords, spokenWords) {
                 hesitation: false,
                 pauseDuration: 0,
                 isRepeat: false,
+                boundingBox: expectedWords[pi].boundingBox,
             });
             i = pi;
         }

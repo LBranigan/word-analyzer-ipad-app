@@ -107,6 +107,13 @@ export interface AssessmentMetrics {
   repeatCount?: number;       // Number of repeated words
 }
 
+export interface BoundingBox {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface AlignedWord {
   expected: string;
   spoken: string | null;
@@ -117,6 +124,7 @@ export interface AlignedWord {
   hesitation?: boolean;       // True if there was a significant pause before this word
   pauseDuration?: number;     // Duration of pause before this word in seconds
   isRepeat?: boolean;         // True if this word was repeated
+  boundingBox?: BoundingBox;  // Position of word on the original image
 }
 
 export interface DashboardErrorPattern {
@@ -141,6 +149,10 @@ export interface DashboardAssessment {
   videoUrl?: string;
   pdfUrl?: string;
   audioDuration?: number;
+
+  // Image dimensions (for scaling bounding boxes)
+  imageWidth?: number;
+  imageHeight?: number;
 
   // Results
   ocrText?: string;
