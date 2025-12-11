@@ -246,12 +246,12 @@ export default function AnalysisScreen() {
       setIsPlayingAudio(true);
 
       // Calculate timing with buffer for better audio capture
-      // Add 200ms before and 300ms after for context
-      const startMs = Math.max(0, (word.startTime * 1000) - 200);
-      const endMs = (word.endTime * 1000) + 300;
+      // Add 1 second before and 1 second after for context
+      const startMs = Math.max(0, (word.startTime * 1000) - 1000);
+      const endMs = (word.endTime * 1000) + 1000;
 
-      // Ensure minimum duration of 500ms for very short words
-      const duration = Math.max(500, endMs - startMs);
+      // Ensure minimum duration of 1 second for very short words
+      const duration = Math.max(1000, endMs - startMs);
 
       console.log(`Playing audio: ${word.expected} from ${startMs}ms, duration ${duration}ms`);
 
