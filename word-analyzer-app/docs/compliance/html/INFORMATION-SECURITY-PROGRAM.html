@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - Information Security Program</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+            color: white;
+            padding: 40px 50px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; opacity: 0.9; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .meta-header {
+            background: #fef2f2;
+            padding: 20px 50px;
+            border-bottom: 1px solid #fecaca;
+            display: flex;
+            gap: 40px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-label {
+            color: #64748b;
+            font-size: 13px;
+        }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #dc2626;
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #fecaca;
+        }
+        h2:first-child { margin-top: 0; }
+        h3 { color: #b91c1c; font-size: 16px; margin-top: 25px; margin-bottom: 10px; }
+        h4 { color: #991b1b; font-size: 14px; margin-top: 20px; margin-bottom: 8px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-bottom: 15px; padding-left: 25px; }
+        li { margin-bottom: 8px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #dc2626;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background: #fef2f2; }
+        .architecture-diagram {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .code-block .comment { color: #94a3b8; }
+        .code-block .keyword { color: #f472b6; }
+        .code-block .string { color: #a5f3fc; }
+        .security-section {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .security-section h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .security-icon {
+            width: 32px;
+            height: 32px;
+            background: #dc2626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .info-box {
+            background: #fef2f2;
+            border-left: 4px solid #dc2626;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.success {
+            background: #dcfce7;
+            border-left-color: #16a34a;
+        }
+        .info-box.warning {
+            background: #fef3c7;
+            border-left-color: #d97706;
+        }
+        .severity-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .severity-badge.critical { background: #dc2626; color: white; }
+        .severity-badge.high { background: #f97316; color: white; }
+        .severity-badge.medium { background: #eab308; color: #1f2937; }
+        .severity-badge.low { background: #22c55e; color: white; }
+        .cert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .cert-badge {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        .cert-badge .name {
+            font-weight: 600;
+            color: #dc2626;
+            font-size: 14px;
+        }
+        .cert-badge .desc {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 15px;
+        }
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: #dc2626;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .contact-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #7f1d1d;
+            color: white;
+            padding: 25px 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { page-break-after: avoid; }
+            .security-section, table { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>Information Security Program</h1>
+            <div class="subtitle">Word Analyzer</div>
+            <div class="badge">COPPA Compliant - Written Security Program Required</div>
+        </div>
+
+        <div class="meta-header">
+            <div class="meta-item">
+                <span class="meta-label">Effective:</span>
+                <span class="placeholder">[EFFECTIVE_DATE]</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Updated:</span>
+                <span class="placeholder">[LAST_UPDATED]</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Owner:</span>
+                <span class="placeholder">[OPERATOR_NAME]</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Purpose</h2>
+            <p>This Information Security Program establishes policies and procedures to protect the confidentiality, integrity, and availability of personal information collected from children through Word Analyzer. This program is maintained in compliance with:</p>
+            <ul>
+                <li><strong>FERPA</strong> - Family Educational Rights and Privacy Act requirements for data security</li>
+                <li><strong>COPPA</strong> - Children's Online Privacy Protection Act (16 CFR Part 312.8)</li>
+                <li><strong>2025 COPPA Rule Updates</strong> - Requiring written information security programs</li>
+                <li><strong>Washington SUPER Act</strong> - RCW 28A.604</li>
+            </ul>
+
+            <h2>Scope</h2>
+            <p>This program covers all personal information collected from or about students through Word Analyzer, including:</p>
+            <ul>
+                <li>Student names and grade levels</li>
+                <li>Audio recordings</li>
+                <li>Images of reading materials</li>
+                <li>Assessment results and metrics</li>
+                <li>AI-generated summaries</li>
+            </ul>
+
+            <h2>Security Architecture</h2>
+            <h3>Infrastructure Overview</h3>
+            <div class="architecture-diagram">+------------------+      HTTPS/TLS      +------------------+
+|   iPad App       | &lt;=================&gt; |   Firebase       |
+|   (Client)       |                     |   (Google Cloud) |
++------------------+                     +------------------+
+                                                  |
+                                                  | Internal Google Network
+                                                  v
+                                         +------------------+
+                                         | Google Cloud APIs|
+                                         | - Speech-to-Text |
+                                         | - Vision OCR     |
+                                         | - Text-to-Speech |
+                                         | - Gemini AI      |
+                                         +------------------+</div>
+
+            <h3>Cloud Provider</h3>
+            <p>Word Analyzer uses <strong>Google Cloud Platform</strong> exclusively for all data processing and storage.</p>
+
+            <div class="cert-grid">
+                <div class="cert-badge">
+                    <div class="name">SOC 1/2/3</div>
+                    <div class="desc">Security Controls</div>
+                </div>
+                <div class="cert-badge">
+                    <div class="name">ISO 27001</div>
+                    <div class="desc">Info Security</div>
+                </div>
+                <div class="cert-badge">
+                    <div class="name">ISO 27018</div>
+                    <div class="desc">Cloud Privacy</div>
+                </div>
+                <div class="cert-badge">
+                    <div class="name">FedRAMP</div>
+                    <div class="desc">US Gov Standards</div>
+                </div>
+            </div>
+
+            <h2>Security Controls</h2>
+
+            <div class="security-section">
+                <h3><span class="security-icon">1</span> Data Encryption</h3>
+
+                <h4>In Transit</h4>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th></tr>
+                    <tr><td>Protocol</td><td>TLS 1.3 (minimum TLS 1.2)</td></tr>
+                    <tr><td>Certificate</td><td>Google-managed SSL certificates</td></tr>
+                    <tr><td>API Calls</td><td>All Google Cloud APIs use HTTPS</td></tr>
+                    <tr><td>Firebase</td><td>SDK uses secure WebSocket connections</td></tr>
+                </table>
+
+                <h4>At Rest</h4>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th></tr>
+                    <tr><td>Firestore</td><td>AES-256 encryption (Google-managed keys)</td></tr>
+                    <tr><td>Storage</td><td>AES-256 encryption (Google-managed keys)</td></tr>
+                    <tr><td>Backups</td><td>Encrypted with same standards</td></tr>
+                </table>
+            </div>
+
+            <div class="security-section">
+                <h3><span class="security-icon">2</span> Access Control</h3>
+
+                <h4>Authentication</h4>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th></tr>
+                    <tr><td>Method</td><td>Firebase Authentication</td></tr>
+                    <tr><td>Options</td><td>Email/password, Google OAuth</td></tr>
+                    <tr><td>Session</td><td>Secure tokens with expiration</td></tr>
+                    <tr><td>Password</td><td>Minimum 6 characters (Firebase default)</td></tr>
+                </table>
+
+                <h4>Authorization</h4>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th></tr>
+                    <tr><td>Data Isolation</td><td>Each teacher account isolated by Firebase UID</td></tr>
+                    <tr><td>Firestore Rules</td><td>Security rules enforce data ownership</td></tr>
+                    <tr><td>Cross-Account</td><td>No access to other teachers' data possible</td></tr>
+                </table>
+
+                <h4>Firestore Security Rules</h4>
+                <div class="code-block"><span class="keyword">rules_version</span> = <span class="string">'2'</span>;
+<span class="keyword">service</span> cloud.firestore {
+  <span class="keyword">match</span> /databases/{database}/documents {
+    <span class="keyword">match</span> /teachers/{teacherId}/{document=**} {
+      <span class="keyword">allow</span> read, write: <span class="keyword">if</span> request.auth != <span class="keyword">null</span>
+                         && request.auth.uid == teacherId;
+    }
+  }
+}</div>
+            </div>
+
+            <div class="security-section">
+                <h3><span class="security-icon">3</span> Data Minimization</h3>
+                <table>
+                    <tr><th>Principle</th><th>Implementation</th></tr>
+                    <tr><td>Collection</td><td>Only data necessary for assessment</td></tr>
+                    <tr><td>Retention</td><td>Media files auto-delete after 24 hours</td></tr>
+                    <tr><td>AI Services</td><td>Only first name sent (not full name)</td></tr>
+                    <tr><td>No Tracking</td><td>No device IDs, location, or advertising data</td></tr>
+                </table>
+            </div>
+
+            <div class="security-section">
+                <h3><span class="security-icon">4</span> Secure Development</h3>
+                <table>
+                    <tr><th>Practice</th><th>Implementation</th></tr>
+                    <tr><td>Code Review</td><td>All changes reviewed before deployment</td></tr>
+                    <tr><td>Dependencies</td><td>Regular npm audit for vulnerabilities</td></tr>
+                    <tr><td>Secrets</td><td>Firebase secrets management (not in code)</td></tr>
+                    <tr><td>TypeScript</td><td>Strong typing reduces runtime errors</td></tr>
+                </table>
+            </div>
+
+            <div class="security-section">
+                <h3><span class="security-icon">5</span> Monitoring and Logging</h3>
+                <table>
+                    <tr><th>Control</th><th>Implementation</th></tr>
+                    <tr><td>Function Logs</td><td>Firebase Functions logging enabled</td></tr>
+                    <tr><td>Error Tracking</td><td>Console errors captured for debugging</td></tr>
+                    <tr><td>Access Logs</td><td>Firebase maintains access logs</td></tr>
+                    <tr><td>Audit Trail</td><td>Assessment creation/deletion tracked</td></tr>
+                </table>
+            </div>
+
+            <h2>Incident Response</h2>
+
+            <h3>Incident Classification</h3>
+            <table>
+                <tr>
+                    <th>Severity</th>
+                    <th>Description</th>
+                    <th>Response Time</th>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge critical">Critical</span></td>
+                    <td>Data breach, unauthorized access</td>
+                    <td><strong>Immediate</strong></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge high">High</span></td>
+                    <td>Service outage, data loss</td>
+                    <td><strong>4 hours</strong></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge medium">Medium</span></td>
+                    <td>Security vulnerability discovered</td>
+                    <td><strong>24 hours</strong></td>
+                </tr>
+                <tr>
+                    <td><span class="severity-badge low">Low</span></td>
+                    <td>Minor security improvement needed</td>
+                    <td><strong>1 week</strong></td>
+                </tr>
+            </table>
+
+            <h3>Response Procedures</h3>
+            <ol class="step-list">
+                <li><strong>Detection</strong> - Monitor Firebase console for anomalies, review function logs for errors, respond to user reports</li>
+                <li><strong>Containment</strong> - Disable affected accounts if necessary, revoke compromised credentials, isolate affected data</li>
+                <li><strong>Notification</strong> - Schools within 72 hours of confirmed breach, parents via school notification, authorities as required by law</li>
+                <li><strong>Recovery</strong> - Restore from backups if needed, reset affected credentials, document lessons learned</li>
+                <li><strong>Post-Incident</strong> - Root cause analysis, security improvements, updated documentation</li>
+            </ol>
+
+            <h2>Third-Party Security</h2>
+
+            <h3>Google Cloud Services</h3>
+            <p>All third-party services are provided by Google Cloud, which maintains industry-leading certifications.</p>
+
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>Data Handling</th>
+                </tr>
+                <tr>
+                    <td>Speech-to-Text</td>
+                    <td>Processed in memory, not stored</td>
+                </tr>
+                <tr>
+                    <td>Vision API</td>
+                    <td>Processed in memory, not stored</td>
+                </tr>
+                <tr>
+                    <td>Text-to-Speech</td>
+                    <td>Processed in memory, not stored</td>
+                </tr>
+                <tr>
+                    <td>Gemini AI</td>
+                    <td>API calls not used for training</td>
+                </tr>
+                <tr>
+                    <td>Firebase</td>
+                    <td>Encrypted storage with access control</td>
+                </tr>
+            </table>
+
+            <h3>Subprocessor Agreements</h3>
+            <div class="info-box success">
+                <p>Google Cloud's Data Processing Terms apply to all services:</p>
+                <ul style="margin: 10px 0 0 0;">
+                    <li><a href="https://cloud.google.com/terms/data-processing-terms">Google Cloud DPA</a></li>
+                    <li><a href="https://firebase.google.com/terms/data-processing-terms">Firebase DPA</a></li>
+                </ul>
+            </div>
+
+            <h2>Personnel Security</h2>
+            <h3>Access Management</h3>
+            <table>
+                <tr><th>Role</th><th>Access Level</th></tr>
+                <tr><td>Developer</td><td>Firebase console, code repository</td></tr>
+                <tr><td>Administrator</td><td>Firebase console, user management</td></tr>
+                <tr><td>Support</td><td>Limited read access for troubleshooting</td></tr>
+            </table>
+
+            <h3>Training</h3>
+            <p>All personnel with data access receive training on:</p>
+            <ul>
+                <li>FERPA requirements</li>
+                <li>COPPA requirements</li>
+                <li>Data handling procedures</li>
+                <li>Incident reporting</li>
+            </ul>
+
+            <h2>Physical Security</h2>
+            <p>Word Analyzer does not maintain physical servers. All infrastructure is hosted on Google Cloud, which provides:</p>
+            <ul>
+                <li>24/7 security monitoring</li>
+                <li>Biometric access controls</li>
+                <li>Video surveillance</li>
+                <li>Environmental controls</li>
+            </ul>
+            <p>See: <a href="https://cloud.google.com/security/infrastructure">Google Data Center Security</a></p>
+
+            <h2>Business Continuity</h2>
+            <h3>Data Backup</h3>
+            <table>
+                <tr><th>Data Type</th><th>Backup Frequency</th><th>Retention</th></tr>
+                <tr><td>Firestore</td><td>Continuous (Google-managed)</td><td>Point-in-time recovery</td></tr>
+                <tr><td>Storage</td><td>N/A (temporary files)</td><td>24-hour TTL</td></tr>
+            </table>
+
+            <h3>Disaster Recovery</h3>
+            <table>
+                <tr><th>Scenario</th><th>Recovery</th></tr>
+                <tr><td>Region Outage</td><td>Firestore multi-region replication</td></tr>
+                <tr><td>Data Corruption</td><td>Point-in-time recovery</td></tr>
+                <tr><td>Account Compromise</td><td>Credential reset, data restore</td></tr>
+            </table>
+
+            <h2>Compliance Verification</h2>
+            <h3>Annual Review</h3>
+            <p>This security program is reviewed annually to ensure:</p>
+            <ul>
+                <li>Continued compliance with FERPA, COPPA, and state laws</li>
+                <li>Effectiveness of security controls</li>
+                <li>Updates for new threats or vulnerabilities</li>
+            </ul>
+
+            <h3>Security Testing</h3>
+            <table>
+                <tr><th>Test Type</th><th>Frequency</th></tr>
+                <tr><td>Dependency Audit</td><td>Monthly (npm audit)</td></tr>
+                <tr><td>Security Rules Review</td><td>Quarterly</td></tr>
+                <tr><td>Access Review</td><td>Annually</td></tr>
+            </table>
+
+            <h2>Policy Updates</h2>
+            <p>Material changes to this security program will be:</p>
+            <ol>
+                <li>Documented with new effective date</li>
+                <li>Communicated to schools</li>
+                <li>Reflected in updated compliance documents</li>
+            </ol>
+
+            <h2>Contact</h2>
+            <div class="contact-box">
+                <p>For security questions or to report a security issue:</p>
+                <p style="margin-top: 15px;">
+                    <strong><span class="placeholder">[OPERATOR_NAME]</span></strong><br>
+                    Email: <span class="placeholder">[OPERATOR_EMAIL]</span><br>
+                    Phone: <span class="placeholder">[OPERATOR_PHONE]</span>
+                </p>
+                <div class="info-box warning" style="margin-top: 15px;">
+                    <strong>For urgent security issues, contact immediately via phone.</strong>
+                </div>
+            </div>
+
+            <p style="text-align: center; color: #64748b; margin-top: 30px;"><em>This program was last reviewed on <span class="placeholder">[LAST_UPDATED]</span></em></p>
+        </div>
+
+        <div class="footer">
+            <p>Word Analyzer - Information Security Program</p>
+            <p>COPPA requires operators to maintain written information security programs.</p>
+        </div>
+    </div>
+</body>
+</html>

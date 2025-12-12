@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - Direct Notice to Schools</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: white;
+            padding: 40px 50px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; opacity: 0.9; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .memo-header {
+            background: #f1f5f9;
+            padding: 25px 50px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .memo-header table { width: 100%; }
+        .memo-header td { padding: 8px 0; vertical-align: top; }
+        .memo-header .label { font-weight: 600; color: #64748b; width: 80px; }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #059669;
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #d1fae5;
+        }
+        h3 { color: #047857; font-size: 16px; margin-top: 25px; margin-bottom: 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-bottom: 15px; padding-left: 25px; }
+        li { margin-bottom: 8px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #059669;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background: #f8fafc; }
+        .info-box {
+            background: #d1fae5;
+            border-left: 4px solid #059669;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.warning {
+            background: #fef3c7;
+            border-left-color: #d97706;
+        }
+        .info-box.important {
+            background: #dbeafe;
+            border-left-color: #1e40af;
+        }
+        .checklist {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .checklist h3 { margin-top: 0; }
+        .checklist li { list-style: none; padding-left: 30px; position: relative; margin-bottom: 12px; }
+        .checklist li::before {
+            content: "☐";
+            position: absolute;
+            left: 0;
+            font-size: 18px;
+        }
+        .contact-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .footer {
+            background: #064e3b;
+            color: white;
+            padding: 25px 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { page-break-after: avoid; }
+            table, .info-box { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>Direct Notice to Schools</h1>
+            <div class="subtitle">FERPA and COPPA Disclosure</div>
+            <div class="badge">Required Before Student Data Collection</div>
+        </div>
+
+        <div class="memo-header">
+            <table>
+                <tr>
+                    <td class="label">From:</td>
+                    <td><span class="placeholder">[OPERATOR_NAME]</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Date:</td>
+                    <td><span class="placeholder">[EFFECTIVE_DATE]</span></td>
+                </tr>
+                <tr>
+                    <td class="label">Re:</td>
+                    <td><strong>Word Analyzer - Collection of Student Personal Information</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="content">
+            <h2>Purpose of This Notice</h2>
+            <p>This notice is provided to your school in compliance with:</p>
+            <ul>
+                <li><strong>FERPA</strong> - Family Educational Rights and Privacy Act</li>
+                <li><strong>COPPA</strong> - Children's Online Privacy Protection Act</li>
+            </ul>
+            <p>Before Word Analyzer can collect personal information from students, we must provide you with this notice and, for students under 13, obtain consent.</p>
+
+            <div class="info-box important">
+                <strong>Your school may consent on behalf of parents</strong> for the collection of student information when used solely for educational purposes. By signing the accompanying School Consent Form, your school agrees to act as an agent for parents in providing this consent.
+            </div>
+
+            <h2>About Word Analyzer</h2>
+            <p>Word Analyzer is an iPad-based reading assessment tool that helps educators:</p>
+            <ul>
+                <li>Record students reading aloud</li>
+                <li>Capture text from reading materials</li>
+                <li>Analyze pronunciation accuracy and fluency</li>
+                <li>Track student reading progress over time</li>
+                <li>Generate assessment reports and videos</li>
+                <li>Provide personalized AI-generated feedback with voice playback</li>
+            </ul>
+
+            <h2>Personal Information We Collect</h2>
+
+            <h3>From Students Directly</h3>
+            <table>
+                <tr>
+                    <th>Information</th>
+                    <th>Collection Method</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><strong>Audio Recording</strong></td>
+                    <td>Device microphone</td>
+                    <td>Analyze reading accuracy and fluency</td>
+                </tr>
+                <tr>
+                    <td><strong>Images of Text</strong></td>
+                    <td>Device camera</td>
+                    <td>Extract text for comparison</td>
+                </tr>
+            </table>
+
+            <h3>Entered by Teachers/School Staff</h3>
+            <table>
+                <tr>
+                    <th>Information</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><strong>Student Name</strong></td>
+                    <td>Identify student for progress tracking</td>
+                </tr>
+                <tr>
+                    <td><strong>Grade Level</strong></td>
+                    <td>Contextualize assessment results</td>
+                </tr>
+            </table>
+
+            <h3>Generated by the App</h3>
+            <table>
+                <tr>
+                    <th>Information</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><strong>Assessment Scores</strong></td>
+                    <td>Measure reading accuracy</td>
+                </tr>
+                <tr>
+                    <td><strong>Error Patterns</strong></td>
+                    <td>Identify areas for improvement</td>
+                </tr>
+                <tr>
+                    <td><strong>Reading Speed (WPM)</strong></td>
+                    <td>Measure fluency</td>
+                </tr>
+                <tr>
+                    <td><strong>Prosody Score</strong></td>
+                    <td>Assess reading expression</td>
+                </tr>
+                <tr>
+                    <td><strong>AI Summary</strong></td>
+                    <td>Personalized feedback for student</td>
+                </tr>
+            </table>
+
+            <h2>How Information Is Used</h2>
+            <p>Student information is used <strong>exclusively</strong> for:</p>
+            <ol>
+                <li>Analyzing reading pronunciation and accuracy</li>
+                <li>Tracking reading progress over time</li>
+                <li>Generating assessment reports for educators</li>
+                <li>Identifying reading error patterns</li>
+                <li>Providing personalized AI feedback to encourage students</li>
+            </ol>
+
+            <div class="info-box warning">
+                <strong>We do NOT use student information for:</strong>
+                <ul>
+                    <li>Advertising or marketing of any kind</li>
+                    <li>Creating behavioral or commercial profiles</li>
+                    <li>Selling or renting to any third party</li>
+                    <li>Training AI models</li>
+                    <li>Any purpose unrelated to educational assessment</li>
+                </ul>
+            </div>
+
+            <h2>Third Parties Who Receive Information</h2>
+            <p>To provide the App's functionality, we share limited information with <strong>Google Cloud services only</strong>. Using a single vendor simplifies compliance as most schools already have Google Cloud Data Processing Agreements in place.</p>
+
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>What is Shared</th>
+                    <th>Why</th>
+                    <th>Retention</th>
+                </tr>
+                <tr>
+                    <td>Google Cloud Speech-to-Text</td>
+                    <td>Audio recordings</td>
+                    <td>Transcribe speech</td>
+                    <td>Not stored</td>
+                </tr>
+                <tr>
+                    <td>Google Cloud Vision</td>
+                    <td>Images of text</td>
+                    <td>Extract text (OCR)</td>
+                    <td>Not stored</td>
+                </tr>
+                <tr>
+                    <td>Google Cloud Text-to-Speech</td>
+                    <td>AI summary (incl. first name)</td>
+                    <td>Generate voice feedback</td>
+                    <td>Not stored</td>
+                </tr>
+                <tr>
+                    <td>Google Gemini AI</td>
+                    <td>First name + metrics</td>
+                    <td>Generate personalized summary</td>
+                    <td>Not used for training</td>
+                </tr>
+                <tr>
+                    <td>Firebase (Google)</td>
+                    <td>All assessment data</td>
+                    <td>Secure storage</td>
+                    <td>Until deletion requested</td>
+                </tr>
+            </table>
+
+            <div class="info-box">
+                <strong>Important Notes:</strong>
+                <ul>
+                    <li>All services are provided by Google Cloud (single vendor)</li>
+                    <li>Audio recordings and images are stored only <strong>24 hours</strong>, then automatically deleted</li>
+                    <li>Only text-based assessment results are retained long-term</li>
+                    <li>All data transmission uses HTTPS encryption</li>
+                </ul>
+            </div>
+
+            <h2>Data Retention</h2>
+            <table>
+                <tr>
+                    <th>Data Type</th>
+                    <th>How Long We Keep It</th>
+                </tr>
+                <tr>
+                    <td>Audio Recordings</td>
+                    <td><strong>24 hours</strong> then automatically deleted</td>
+                </tr>
+                <tr>
+                    <td>Captured Images</td>
+                    <td><strong>24 hours</strong> then automatically deleted</td>
+                </tr>
+                <tr>
+                    <td>Generated Videos</td>
+                    <td><strong>24 hours</strong> then automatically deleted</td>
+                </tr>
+                <tr>
+                    <td>Assessment Results</td>
+                    <td>Until school or parent requests deletion</td>
+                </tr>
+                <tr>
+                    <td>Student Profiles</td>
+                    <td>Until school or parent requests deletion</td>
+                </tr>
+            </table>
+
+            <h2>School's Responsibilities</h2>
+            <div class="checklist">
+                <h3>If your school consents on behalf of parents, you agree to:</h3>
+                <ul>
+                    <li><strong>Notify Parents</strong> - Inform parents that the school has authorized the use of Word Analyzer</li>
+                    <li><strong>Provide Information</strong> - Make this notice and our Privacy Policy available to parents upon request</li>
+                    <li><strong>Honor Parent Requests</strong> - Forward any parent requests to access, review, or delete their child's information to us</li>
+                    <li><strong>Limit Use</strong> - Ensure the App is used only for educational purposes</li>
+                </ul>
+            </div>
+
+            <h2>Parent Rights</h2>
+            <p>Parents of students using Word Analyzer have the right to:</p>
+            <table>
+                <tr>
+                    <th>Right</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td><strong>Review</strong></td>
+                    <td>Request to see what information has been collected about their child</td>
+                </tr>
+                <tr>
+                    <td><strong>Delete</strong></td>
+                    <td>Request deletion of their child's information</td>
+                </tr>
+                <tr>
+                    <td><strong>Refuse</strong></td>
+                    <td>Refuse further collection (child may be unable to use the App)</td>
+                </tr>
+                <tr>
+                    <td><strong>Withdraw</strong></td>
+                    <td>Withdraw consent at any time</td>
+                </tr>
+            </table>
+            <p>To exercise these rights, parents should contact their child's school, or us directly at: <span class="placeholder">[OPERATOR_EMAIL]</span></p>
+
+            <h2>Google Cloud DPA</h2>
+            <div class="info-box">
+                <p>Most schools already have a Google Cloud or Google Workspace Data Processing Agreement in place. Word Analyzer uses exclusively Google Cloud services, which means:</p>
+                <ul>
+                    <li>Your existing Google DPA likely covers Word Analyzer's data processing</li>
+                    <li>No additional third-party agreements are needed</li>
+                    <li>Data stays within Google's infrastructure</li>
+                </ul>
+                <p><strong>Please verify your school's Google Cloud DPA coverage with your IT administrator.</strong></p>
+            </div>
+
+            <h2>How to Provide Consent</h2>
+            <div class="checklist">
+                <h3>To authorize the use of Word Analyzer at your school:</h3>
+                <ul>
+                    <li>Review this Direct Notice</li>
+                    <li>Review our Privacy Policy</li>
+                    <li>Verify your Google Cloud DPA is in place</li>
+                    <li>Complete and sign the School Consent Form</li>
+                    <li>Return the signed form to: <span class="placeholder">[OPERATOR_EMAIL]</span></li>
+                </ul>
+            </div>
+
+            <h2>How to Withdraw Consent</h2>
+            <p>Your school may withdraw consent at any time by:</p>
+            <ol>
+                <li>Sending written notice to <span class="placeholder">[OPERATOR_EMAIL]</span></li>
+                <li>Upon withdrawal, we will delete all student information associated with your school within <strong>30 days</strong></li>
+            </ol>
+
+            <h2>Contact Us</h2>
+            <div class="contact-box">
+                <p>If you have questions about this notice or our data practices:</p>
+                <p><strong><span class="placeholder">[OPERATOR_NAME]</span></strong></p>
+                <p><span class="placeholder">[OPERATOR_ADDRESS]</span></p>
+                <p>Email: <span class="placeholder">[OPERATOR_EMAIL]</span></p>
+                <p>Phone: <span class="placeholder">[OPERATOR_PHONE]</span></p>
+            </div>
+
+            <h2>Legal Compliance</h2>
+            <p>This notice is provided in compliance with:</p>
+            <ul>
+                <li><strong>FERPA</strong> - Family Educational Rights and Privacy Act (20 U.S.C. 1232g)</li>
+                <li><strong>COPPA</strong> - Children's Online Privacy Protection Act (16 CFR Part 312)</li>
+                <li><strong>Washington SUPER Act</strong> - RCW 28A.604</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Word Analyzer - Direct Notice to Schools</p>
+            <p>This notice must be provided to schools before collecting student data.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - Data Retention Policy</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            color: white;
+            padding: 40px 50px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; opacity: 0.9; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .meta-header {
+            background: #ecfeff;
+            padding: 20px 50px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            gap: 40px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .meta-label {
+            color: #64748b;
+            font-size: 13px;
+        }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #0891b2;
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #cffafe;
+        }
+        h2:first-child { margin-top: 0; }
+        h3 { color: #0e7490; font-size: 16px; margin-top: 25px; margin-bottom: 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-bottom: 15px; padding-left: 25px; }
+        li { margin-bottom: 8px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #0891b2;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background: #f0fdfa; }
+        .data-card {
+            background: #f0fdfa;
+            border: 1px solid #99f6e4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .data-card h3 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .data-card h3::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #0891b2;
+            border-radius: 50%;
+        }
+        .data-card table {
+            margin: 15px 0 10px 0;
+        }
+        .data-card .rationale {
+            background: white;
+            border-left: 3px solid #0891b2;
+            padding: 10px 15px;
+            margin-top: 15px;
+            font-style: italic;
+            font-size: 14px;
+        }
+        .retention-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .retention-badge.auto {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .retention-badge.request {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .info-box {
+            background: #cffafe;
+            border-left: 4px solid #0891b2;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.warning {
+            background: #fef3c7;
+            border-left-color: #d97706;
+        }
+        .info-box.important {
+            background: #dbeafe;
+            border-left-color: #1e40af;
+        }
+        .summary-table {
+            margin: 20px 0;
+        }
+        .summary-table th {
+            background: #155e75;
+        }
+        .summary-table .retention-cell {
+            font-weight: 600;
+        }
+        .contact-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            padding-left: 0;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 40px;
+            margin-bottom: 12px;
+        }
+        .step-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 28px;
+            height: 28px;
+            background: #0891b2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .footer {
+            background: #164e63;
+            color: white;
+            padding: 25px 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { page-break-after: avoid; }
+            .data-card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>Data Retention Policy</h1>
+            <div class="subtitle">Word Analyzer</div>
+            <div class="badge">COPPA Compliant - Written Policy Required</div>
+        </div>
+
+        <div class="meta-header">
+            <div class="meta-item">
+                <span class="meta-label">Effective:</span>
+                <span class="placeholder">[EFFECTIVE_DATE]</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Updated:</span>
+                <span class="placeholder">[LAST_UPDATED]</span>
+            </div>
+            <div class="meta-item">
+                <span class="meta-label">Owner:</span>
+                <span class="placeholder">[OPERATOR_NAME]</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>Purpose</h2>
+            <p>This Data Retention Policy establishes guidelines for retaining and deleting personal information collected from children through Word Analyzer. This policy is maintained in compliance with:</p>
+            <ul>
+                <li><strong>FERPA</strong> - Family Educational Rights and Privacy Act (20 U.S.C. 1232g)</li>
+                <li><strong>COPPA</strong> - Children's Online Privacy Protection Act (16 CFR Part 312.10)</li>
+                <li><strong>2025 COPPA Rule Updates</strong> - Requiring written data retention policies</li>
+                <li><strong>Washington SUPER Act</strong> - RCW 28A.604.040</li>
+            </ul>
+
+            <h2>Scope</h2>
+            <p>This policy applies to all personal information collected from or about students through the Word Analyzer application.</p>
+
+            <h2>Data Categories and Retention Periods</h2>
+
+            <div class="data-card">
+                <h3>Audio Recordings</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>Recordings of students reading aloud</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Transcribe speech and analyze reading fluency</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge auto">24 hours - Auto-deleted</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Storage (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Automatic expiration via Firebase TTL</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Audio recordings are needed for transcription processing and for video generation (audio track). After 24 hours, all processing is complete and the audio is automatically deleted.</div>
+            </div>
+
+            <div class="data-card">
+                <h3>Captured Images</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>Images of reading materials (books, worksheets)</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Extract text via optical character recognition (OCR)</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge auto">24 hours - Auto-deleted</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Storage (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Automatic expiration via Firebase TTL</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Images are needed for OCR processing. After text extraction and video generation, the original images are automatically deleted.</div>
+            </div>
+
+            <div class="data-card">
+                <h3>Generated Videos</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>MP4 videos showing word-by-word highlighting</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Provide visual assessment playback</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge auto">24 hours - Auto-deleted</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Storage (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Automatic expiration via Firebase TTL</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Videos can be regenerated on demand from assessment data. Temporary storage reduces storage costs and privacy exposure.</div>
+            </div>
+
+            <div class="data-card">
+                <h3>AI Summary Audio</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>MP3 audio of AI-generated feedback</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Provide spoken feedback to students</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge auto">24 hours - Auto-deleted</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Storage (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Automatic expiration via Firebase TTL</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Audio can be regenerated from the stored text summary. Temporary storage is sufficient for immediate playback needs.</div>
+            </div>
+
+            <div class="data-card">
+                <h3>Student Profile Information</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>Student name and grade level</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Identify student and contextualize assessments</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge request">Until deletion requested</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Firestore (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Manual deletion upon request</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Student profile information is needed to associate assessments with the correct student and track progress over time. This information is retained as long as the school or parent finds it useful for educational purposes.</div>
+            </div>
+
+            <div class="data-card">
+                <h3>Assessment Results</h3>
+                <table>
+                    <tr><td style="width:200px;"><strong>Description</strong></td><td>Accuracy scores, error patterns, prosody metrics, word lists, AI summary text</td></tr>
+                    <tr><td><strong>Collection Purpose</strong></td><td>Measure reading proficiency and track progress</td></tr>
+                    <tr><td><strong>Retention Period</strong></td><td><span class="retention-badge request">Until deletion requested</span></td></tr>
+                    <tr><td><strong>Storage Location</strong></td><td>Firebase Firestore (encrypted)</td></tr>
+                    <tr><td><strong>Deletion Method</strong></td><td>Manual deletion upon request</td></tr>
+                </table>
+                <div class="rationale"><strong>Rationale:</strong> Assessment results are the core educational value of the application. They are retained to allow educators to track student progress over time and identify patterns in reading development.</div>
+            </div>
+
+            <h2>Retention Schedule Summary</h2>
+            <table class="summary-table">
+                <tr>
+                    <th>Data Type</th>
+                    <th>Retention Period</th>
+                    <th>Deletion Trigger</th>
+                </tr>
+                <tr>
+                    <td>Audio Recordings</td>
+                    <td class="retention-cell" style="color:#166534;">24 hours</td>
+                    <td>Automatic TTL expiration</td>
+                </tr>
+                <tr>
+                    <td>Captured Images</td>
+                    <td class="retention-cell" style="color:#166534;">24 hours</td>
+                    <td>Automatic TTL expiration</td>
+                </tr>
+                <tr>
+                    <td>Generated Videos</td>
+                    <td class="retention-cell" style="color:#166534;">24 hours</td>
+                    <td>Automatic TTL expiration</td>
+                </tr>
+                <tr>
+                    <td>AI Summary Audio</td>
+                    <td class="retention-cell" style="color:#166534;">24 hours</td>
+                    <td>Automatic TTL expiration</td>
+                </tr>
+                <tr>
+                    <td>Student Profiles</td>
+                    <td class="retention-cell" style="color:#92400e;">Until request</td>
+                    <td>School/parent request</td>
+                </tr>
+                <tr>
+                    <td>Assessment Results</td>
+                    <td class="retention-cell" style="color:#92400e;">Until request</td>
+                    <td>School/parent request</td>
+                </tr>
+                <tr>
+                    <td>Transcribed Text</td>
+                    <td class="retention-cell" style="color:#92400e;">Until request</td>
+                    <td>Deleted with assessment</td>
+                </tr>
+            </table>
+
+            <h2>Deletion Procedures</h2>
+
+            <h3>Automatic Deletion</h3>
+            <p>The following data is automatically deleted without any action required:</p>
+            <div class="info-box">
+                <ul style="margin: 0;">
+                    <li><strong>Audio Recordings</strong> - Firebase Storage TTL automatically deletes after 24 hours</li>
+                    <li><strong>Captured Images</strong> - Firebase Storage TTL automatically deletes after 24 hours</li>
+                    <li><strong>Generated Videos</strong> - Firebase Storage TTL automatically deletes after 24 hours</li>
+                    <li><strong>AI Summary Audio</strong> - Firebase Storage TTL automatically deletes after 24 hours</li>
+                </ul>
+            </div>
+
+            <h3>Deletion Upon Request</h3>
+            <p>Schools or parents may request deletion of:</p>
+            <ul>
+                <li>Individual student profiles</li>
+                <li>Individual assessments</li>
+                <li>All data associated with a school</li>
+                <li>All data associated with a student</li>
+            </ul>
+
+            <h3>How to Request Deletion</h3>
+            <ol class="step-list">
+                <li>Send request to <span class="placeholder">[OPERATOR_EMAIL]</span></li>
+                <li>Include: School name, Student name (if applicable), Specific data to be deleted</li>
+                <li>Include: Requestor's relationship to student (parent, school administrator)</li>
+                <li>We will confirm deletion within <strong>30 days</strong></li>
+            </ol>
+
+            <h3>Deletion Process</h3>
+            <p>When deletion is requested:</p>
+            <ol class="step-list">
+                <li>Verify requestor's identity and authority</li>
+                <li>Locate all data matching the request</li>
+                <li>Delete data from Firebase Firestore</li>
+                <li>Delete any associated files from Firebase Storage (if within TTL)</li>
+                <li>Confirm deletion to requestor</li>
+                <li>Log deletion for compliance records</li>
+            </ol>
+
+            <h2>Third-Party Data Handling</h2>
+            <h3>Google Cloud APIs</h3>
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>Data Sent</th>
+                    <th>Retention by Google</th>
+                </tr>
+                <tr>
+                    <td>Speech-to-Text API</td>
+                    <td>Audio</td>
+                    <td>Processed and discarded (not stored)</td>
+                </tr>
+                <tr>
+                    <td>Vision API</td>
+                    <td>Images</td>
+                    <td>Processed and discarded (not stored)</td>
+                </tr>
+                <tr>
+                    <td>Text-to-Speech API</td>
+                    <td>Summary text</td>
+                    <td>Processed and discarded (not stored)</td>
+                </tr>
+                <tr>
+                    <td>Gemini AI</td>
+                    <td>Metrics + first name</td>
+                    <td>API calls not used for training</td>
+                </tr>
+            </table>
+
+            <div class="info-box important">
+                <p>We use Google Cloud APIs with settings that do not retain data for model training. Per Google Cloud's Data Processing Terms, customer data is processed only to provide the service and is not retained after processing.</p>
+            </div>
+
+            <h3>Firebase</h3>
+            <p>Assessment results and student profiles are stored in Firebase Firestore. Firebase retains data until we delete it. Data is encrypted at rest and in transit.</p>
+
+            <h2>Policy Review</h2>
+            <p>This Data Retention Policy is reviewed annually and updated as needed to reflect:</p>
+            <ul>
+                <li>Changes in applicable law</li>
+                <li>Changes in our data practices</li>
+                <li>Feedback from schools or parents</li>
+            </ul>
+
+            <h2>Contact</h2>
+            <div class="contact-box">
+                <p>For questions about this policy or to request data deletion:</p>
+                <p style="margin-top: 15px;">
+                    <strong><span class="placeholder">[OPERATOR_NAME]</span></strong><br>
+                    <span class="placeholder">[OPERATOR_ADDRESS]</span><br>
+                    Email: <span class="placeholder">[OPERATOR_EMAIL]</span><br>
+                    Phone: <span class="placeholder">[OPERATOR_PHONE]</span>
+                </p>
+            </div>
+
+            <p style="text-align: center; color: #64748b; margin-top: 30px;"><em>This policy was last reviewed on <span class="placeholder">[LAST_UPDATED]</span></em></p>
+        </div>
+
+        <div class="footer">
+            <p>Word Analyzer - Data Retention Policy</p>
+            <p>COPPA requires operators to maintain written data retention policies.</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - School Consent Form</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: white;
+            padding: 40px 50px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; opacity: 0.9; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .form-header {
+            background: #f5f3ff;
+            padding: 25px 50px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-header .app-info {
+            font-weight: 600;
+        }
+        .form-header .date-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .form-header input[type="date"] {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #7c3aed;
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ede9fe;
+        }
+        h2:first-child { margin-top: 0; }
+        h3 { color: #6d28d9; font-size: 16px; margin-top: 25px; margin-bottom: 10px; }
+        p { margin-bottom: 15px; }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #374151;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"] {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .form-section {
+            background: #faf5ff;
+            border: 1px solid #e9d5ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .form-section h3 {
+            margin-top: 0;
+            color: #7c3aed;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin: 12px 0;
+            padding: 10px 15px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-top: 2px;
+            accent-color: #7c3aed;
+            cursor: pointer;
+        }
+        .checkbox-group label {
+            flex: 1;
+            cursor: pointer;
+        }
+        .consent-list {
+            list-style: none;
+            padding: 0;
+        }
+        .consent-list li {
+            padding: 8px 0;
+            padding-left: 10px;
+            border-left: 3px solid #e9d5ff;
+            margin-bottom: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th {
+            background: #7c3aed;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        tr:nth-child(even) { background: #faf5ff; }
+        .auth-table td:last-child {
+            text-align: center;
+            width: 100px;
+        }
+        .auth-table input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #7c3aed;
+            cursor: pointer;
+        }
+        .signature-section {
+            background: #f8fafc;
+            border: 2px solid #7c3aed;
+            border-radius: 8px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        .signature-section h2 {
+            margin-top: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .signature-box {
+            border: 1px dashed #9ca3af;
+            height: 80px;
+            margin: 15px 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-style: italic;
+            background: white;
+        }
+        .info-box {
+            background: #ede9fe;
+            border-left: 4px solid #7c3aed;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.warning {
+            background: #fef3c7;
+            border-left-color: #d97706;
+        }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .operator-section {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        .operator-section h3 {
+            margin-top: 0;
+            color: #64748b;
+        }
+        .footer {
+            background: #4c1d95;
+            color: white;
+            padding: 25px 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .required::after {
+            content: " *";
+            color: #dc2626;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .form-group input, .checkbox-group input {
+                border: 1px solid #000 !important;
+            }
+            .signature-box {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>School Consent Form</h1>
+            <div class="subtitle">Authorization to Collect Student Information</div>
+            <div class="badge">FERPA & COPPA Compliant</div>
+        </div>
+
+        <div class="form-header">
+            <div class="app-info">
+                <div><strong>Application:</strong> Word Analyzer</div>
+                <div><strong>Operator:</strong> <span class="placeholder">[OPERATOR_NAME]</span></div>
+            </div>
+            <div class="date-field">
+                <label for="form-date"><strong>Date:</strong></label>
+                <input type="date" id="form-date" name="form-date">
+            </div>
+        </div>
+
+        <div class="content">
+            <h2>School Information</h2>
+            <div class="form-section">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="school-name" class="required">School Name</label>
+                        <input type="text" id="school-name" name="school-name" placeholder="Enter school name">
+                    </div>
+                    <div class="form-group">
+                        <label for="school-district" class="required">School District</label>
+                        <input type="text" id="school-district" name="school-district" placeholder="Enter district name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="school-address" class="required">Street Address</label>
+                    <input type="text" id="school-address" name="school-address" placeholder="Enter street address">
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="school-city" class="required">City, State, ZIP</label>
+                        <input type="text" id="school-city" name="school-city" placeholder="City, ST 00000">
+                    </div>
+                    <div class="form-group">
+                        <label for="school-phone">Phone</label>
+                        <input type="tel" id="school-phone" name="school-phone" placeholder="(000) 000-0000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="school-email" class="required">Email</label>
+                    <input type="email" id="school-email" name="school-email" placeholder="contact@school.edu">
+                </div>
+            </div>
+
+            <h2>Authorized Representative</h2>
+            <div class="form-section">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="rep-name" class="required">Full Name</label>
+                        <input type="text" id="rep-name" name="rep-name" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="rep-title" class="required">Title/Position</label>
+                        <input type="text" id="rep-title" name="rep-title" placeholder="e.g., Principal, IT Director">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="rep-email" class="required">Email</label>
+                        <input type="email" id="rep-email" name="rep-email" placeholder="name@school.edu">
+                    </div>
+                    <div class="form-group">
+                        <label for="rep-phone">Phone</label>
+                        <input type="tel" id="rep-phone" name="rep-phone" placeholder="(000) 000-0000">
+                    </div>
+                </div>
+            </div>
+
+            <h2>Consent Certifications</h2>
+            <p>By completing this form, the authorized representative certifies the following:</p>
+
+            <h3>1. Authority to Consent</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="auth-consent" name="auth-consent">
+                <label for="auth-consent">I am authorized to act on behalf of the above-named school and to consent to the collection of student personal information for students under 13 years of age, as permitted under COPPA (16 CFR Part 312.5(b)(1)).</label>
+            </div>
+
+            <h3>2. Review of Notices</h3>
+            <p>I have reviewed and understand the following documents:</p>
+            <div class="checkbox-group">
+                <input type="checkbox" id="review-direct" name="review-direct">
+                <label for="review-direct">Direct Notice to Schools</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="review-privacy" name="review-privacy">
+                <label for="review-privacy">Privacy Policy</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="review-retention" name="review-retention">
+                <label for="review-retention">Data Retention Policy</label>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="review-security" name="review-security">
+                <label for="review-security">Information Security Program (if requested)</label>
+            </div>
+
+            <h3>3. Educational Purpose</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="edu-purpose" name="edu-purpose">
+                <label for="edu-purpose">I confirm that Word Analyzer will be used solely for legitimate educational purposes at our school, specifically for assessing and improving student reading proficiency.</label>
+            </div>
+
+            <h3>4. Google Cloud DPA</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="google-dpa" name="google-dpa">
+                <label for="google-dpa">Our school/district has a Google Cloud or Google Workspace Data Processing Agreement in place</label>
+            </div>
+            <div style="text-align: center; margin: 10px 0; color: #6b7280;">— OR —</div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="google-accept" name="google-accept">
+                <label for="google-accept">We understand that Word Analyzer uses only Google Cloud services and accept Google's standard data processing terms</label>
+            </div>
+
+            <h3>5. Parent Notification</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="parent-notify" name="parent-notify">
+                <label for="parent-notify">I agree that our school will:</label>
+            </div>
+            <ul class="consent-list" style="margin-left: 45px;">
+                <li>Notify parents that Word Analyzer is being used</li>
+                <li>Inform parents that student information may be collected</li>
+                <li>Make the Privacy Policy available to parents upon request</li>
+                <li>Forward parent requests regarding their child's information to the operator</li>
+            </ul>
+
+            <h3>6. Data Collection Authorization</h3>
+            <p>I authorize Word Analyzer to collect the following student information:</p>
+            <table class="auth-table">
+                <tr>
+                    <th>Data Type</th>
+                    <th>Authorized</th>
+                </tr>
+                <tr>
+                    <td>Student names (entered by teachers)</td>
+                    <td><input type="checkbox" name="auth-names"></td>
+                </tr>
+                <tr>
+                    <td>Audio recordings of students reading</td>
+                    <td><input type="checkbox" name="auth-audio"></td>
+                </tr>
+                <tr>
+                    <td>Images of reading materials</td>
+                    <td><input type="checkbox" name="auth-images"></td>
+                </tr>
+                <tr>
+                    <td>Assessment results and metrics</td>
+                    <td><input type="checkbox" name="auth-metrics"></td>
+                </tr>
+            </table>
+
+            <h3>7. Third-Party Sharing Authorization</h3>
+            <p>I authorize Word Analyzer to share student information with the following Google Cloud services:</p>
+            <table class="auth-table">
+                <tr>
+                    <th>Service</th>
+                    <th>Purpose</th>
+                    <th>Authorized</th>
+                </tr>
+                <tr>
+                    <td>Google Cloud Speech-to-Text</td>
+                    <td>Transcribe audio</td>
+                    <td><input type="checkbox" name="auth-stt"></td>
+                </tr>
+                <tr>
+                    <td>Google Cloud Vision</td>
+                    <td>Extract text from images</td>
+                    <td><input type="checkbox" name="auth-vision"></td>
+                </tr>
+                <tr>
+                    <td>Google Cloud Text-to-Speech</td>
+                    <td>Generate voice feedback</td>
+                    <td><input type="checkbox" name="auth-tts"></td>
+                </tr>
+                <tr>
+                    <td>Google Gemini AI</td>
+                    <td>Generate personalized summaries</td>
+                    <td><input type="checkbox" name="auth-gemini"></td>
+                </tr>
+                <tr>
+                    <td>Firebase (Google)</td>
+                    <td>Data storage</td>
+                    <td><input type="checkbox" name="auth-firebase"></td>
+                </tr>
+            </table>
+
+            <h3>8. FERPA Designation</h3>
+            <div class="checkbox-group">
+                <input type="checkbox" id="ferpa-designation" name="ferpa-designation">
+                <label for="ferpa-designation">I designate Word Analyzer as a "school official" under FERPA with legitimate educational interest, authorizing disclosure of education records to Word Analyzer for the purpose of providing reading assessment services.</label>
+            </div>
+
+            <div class="signature-section">
+                <h2>Signature</h2>
+                <p>By signing below, I consent to the collection, use, and disclosure of student information as described in the Direct Notice and Privacy Policy.</p>
+
+                <div class="form-group">
+                    <label>Signature</label>
+                    <div class="signature-box">Sign here or attach electronic signature</div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="sig-name" class="required">Printed Name</label>
+                        <input type="text" id="sig-name" name="sig-name" placeholder="Enter full name">
+                    </div>
+                    <div class="form-group">
+                        <label for="sig-title" class="required">Title</label>
+                        <input type="text" id="sig-title" name="sig-title" placeholder="Enter title">
+                    </div>
+                </div>
+                <div class="form-group" style="max-width: 300px;">
+                    <label for="sig-date" class="required">Date</label>
+                    <input type="date" id="sig-date" name="sig-date">
+                </div>
+            </div>
+
+            <h2>Duration and Withdrawal</h2>
+            <div class="info-box">
+                <p><strong>This consent remains in effect until:</strong></p>
+                <ul style="margin: 10px 0 0 20px;">
+                    <li>The school withdraws consent in writing, OR</li>
+                    <li>The operator terminates the service, OR</li>
+                    <li>The school year ends (consent should be renewed annually)</li>
+                </ul>
+            </div>
+            <p>To withdraw consent, send written notice to:</p>
+            <ul style="margin-left: 20px;">
+                <li>Email: <span class="placeholder">[OPERATOR_EMAIL]</span></li>
+                <li>Mail: <span class="placeholder">[OPERATOR_ADDRESS]</span></li>
+            </ul>
+            <p><strong>Upon withdrawal, all student data will be deleted within 30 days.</strong></p>
+
+            <h2>Return Instructions</h2>
+            <div class="info-box">
+                <p>Please return the signed form to:</p>
+                <p style="margin-top: 10px;"><strong><span class="placeholder">[OPERATOR_NAME]</span></strong><br>
+                <span class="placeholder">[OPERATOR_ADDRESS]</span><br>
+                Email: <span class="placeholder">[OPERATOR_EMAIL]</span></p>
+            </div>
+
+            <div class="operator-section">
+                <h3>For Operator Use Only</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="op-received">Date Received</label>
+                        <input type="date" id="op-received" name="op-received">
+                    </div>
+                    <div class="form-group">
+                        <label for="op-by">Received By</label>
+                        <input type="text" id="op-by" name="op-by" placeholder="Staff name">
+                    </div>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="op-school-id">School ID</label>
+                        <input type="text" id="op-school-id" name="op-school-id" placeholder="Assigned ID">
+                    </div>
+                    <div class="checkbox-group" style="margin: 0; background: transparent; border: none; padding: 5px 0;">
+                        <input type="checkbox" id="op-account" name="op-account">
+                        <label for="op-account">Account Created</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="op-notes">Notes</label>
+                    <input type="text" id="op-notes" name="op-notes" placeholder="Additional notes">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Word Analyzer - School Consent Form</p>
+            <p>This form authorizes collection of student data under FERPA and COPPA.</p>
+        </div>
+    </div>
+</body>
+</html>

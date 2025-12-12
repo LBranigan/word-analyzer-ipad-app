@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - Data Flow Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 950px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px 50px;
+        }
+        .header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 16px; opacity: 0.9; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+        .meta-header {
+            background: #eef2ff;
+            padding: 15px 50px;
+            border-bottom: 1px solid #c7d2fe;
+            text-align: center;
+            font-size: 14px;
+        }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #4f46e5;
+            font-size: 20px;
+            margin-top: 35px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e0e7ff;
+        }
+        h2:first-child { margin-top: 0; }
+        h3 { color: #5b21b6; font-size: 16px; margin-top: 25px; margin-bottom: 10px; }
+        p { margin-bottom: 15px; }
+        ul, ol { margin-bottom: 15px; padding-left: 25px; }
+        li { margin-bottom: 8px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th {
+            background: #4f46e5;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background: #f5f3ff; }
+        .architecture-overview {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+            color: #e2e8f0;
+        }
+        .arch-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        .arch-box {
+            background: #334155;
+            border: 2px solid #475569;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+        }
+        .arch-box.primary {
+            background: #4f46e5;
+            border-color: #6366f1;
+        }
+        .arch-box h4 {
+            color: white;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .arch-box ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 12px;
+            color: #cbd5e1;
+            text-align: left;
+        }
+        .arch-box ul li {
+            margin-bottom: 4px;
+        }
+        .arch-arrow {
+            color: #22c55e;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stage-card {
+            background: #f5f3ff;
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+            margin: 25px 0;
+            overflow: hidden;
+        }
+        .stage-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .stage-number {
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .stage-content {
+            padding: 25px;
+        }
+        .flow-diagram {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #e2e8f0;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 15px 0;
+        }
+        .data-sent-box {
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .data-sent-box h4 {
+            color: #166534;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .data-returned-box {
+            background: #dbeafe;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .data-returned-box h4 {
+            color: #1e40af;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .google-handling {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 10px 15px;
+            margin: 15px 0;
+            font-size: 13px;
+        }
+        .json-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        .json-block .key { color: #f472b6; }
+        .json-block .string { color: #a5f3fc; }
+        .json-block .number { color: #fbbf24; }
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .service-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .service-card h4 {
+            color: #4f46e5;
+            font-size: 15px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .service-card h4::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            background: #4f46e5;
+            border-radius: 50%;
+        }
+        .info-box {
+            background: #e0e7ff;
+            border-left: 4px solid #4f46e5;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .info-box.success {
+            background: #dcfce7;
+            border-left-color: #22c55e;
+        }
+        .info-box.warning {
+            background: #fef3c7;
+            border-left-color: #f59e0b;
+        }
+        .not-sent {
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .not-sent h3 {
+            color: #dc2626;
+            margin-top: 0;
+        }
+        .compliance-table {
+            margin: 20px 0;
+        }
+        .compliance-table th {
+            background: #5b21b6;
+        }
+        .contact-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .footer {
+            background: #312e81;
+            color: white;
+            padding: 25px 50px;
+            text-align: center;
+            font-size: 13px;
+        }
+        .badge-yes {
+            background: #dcfce7;
+            color: #166534;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .badge-no {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            h2 { page-break-after: avoid; }
+            .stage-card { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>Data Flow Documentation</h1>
+            <div class="subtitle">Word Analyzer - Technical Overview</div>
+            <div class="badge">Google Cloud Only Architecture</div>
+        </div>
+
+        <div class="meta-header">
+            <strong>Last Updated:</strong> <span class="placeholder">[LAST_UPDATED]</span>
+        </div>
+
+        <div class="content">
+            <h2>Overview</h2>
+            <p>This document provides a detailed technical overview of how student data flows through the Word Analyzer application, including what data is sent to third-party services and how it is processed.</p>
+
+            <div class="info-box success">
+                <strong>Key Point:</strong> Word Analyzer uses <strong>exclusively Google Cloud services</strong> for all data processing. No student data is sent to non-Google third parties.
+            </div>
+
+            <div class="architecture-overview">
+                <div class="arch-flow">
+                    <div class="arch-box primary">
+                        <h4>iPad App (Frontend)</h4>
+                        <ul>
+                            <li>Audio recording</li>
+                            <li>Image capture</li>
+                            <li>Student info input</li>
+                        </ul>
+                    </div>
+                    <div class="arch-arrow">--></div>
+                    <div class="arch-box">
+                        <h4>Firebase Cloud Functions</h4>
+                        <ul>
+                            <li>Word Matching</li>
+                            <li>Metrics Calculation</li>
+                            <li>Video Generation</li>
+                        </ul>
+                    </div>
+                    <div class="arch-arrow">--></div>
+                    <div class="arch-box primary">
+                        <h4>Google Cloud APIs</h4>
+                        <ul>
+                            <li>Speech-to-Text</li>
+                            <li>Vision OCR</li>
+                            <li>Text-to-Speech</li>
+                            <li>Gemini AI</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h2>Data Collection Points</h2>
+
+            <h3>1. Student Information (Entered by Teacher)</h3>
+            <table>
+                <tr>
+                    <th>Field</th>
+                    <th>Example</th>
+                    <th>Storage</th>
+                    <th>Sent to Google APIs</th>
+                </tr>
+                <tr>
+                    <td>Student Name</td>
+                    <td>"Emma Johnson"</td>
+                    <td>Firebase Firestore</td>
+                    <td><span class="badge-yes">First name only</span> (to Gemini/TTS)</td>
+                </tr>
+                <tr>
+                    <td>Grade Level</td>
+                    <td>"6th Grade"</td>
+                    <td>Firebase Firestore</td>
+                    <td><span class="badge-no">No</span></td>
+                </tr>
+            </table>
+
+            <div class="info-box warning">
+                <strong>Privacy Note:</strong> Only the student's first name is sent to AI services for personalized feedback. Full name is stored only in Firebase.
+            </div>
+
+            <h3>2. Audio Recording (From Student)</h3>
+            <table>
+                <tr><th>Attribute</th><th>Details</th></tr>
+                <tr><td>Format</td><td>WebM/Opus or M4A</td></tr>
+                <tr><td>Duration</td><td>30 or 60 seconds</td></tr>
+                <tr><td>Content</td><td>Student reading passage aloud</td></tr>
+                <tr><td>Temporary Storage</td><td>Firebase Storage (24h TTL)</td></tr>
+                <tr><td>Sent To</td><td>Google Cloud Speech-to-Text</td></tr>
+            </table>
+
+            <h3>3. Image Capture (From Student/Teacher)</h3>
+            <table>
+                <tr><th>Attribute</th><th>Details</th></tr>
+                <tr><td>Format</td><td>JPEG/PNG</td></tr>
+                <tr><td>Content</td><td>Photo of reading passage (text only)</td></tr>
+                <tr><td>Temporary Storage</td><td>Firebase Storage (24h TTL)</td></tr>
+                <tr><td>Sent To</td><td>Google Cloud Vision OCR</td></tr>
+            </table>
+
+            <h2>Detailed Data Flow</h2>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">1</span>
+                    <span>Recording and Upload</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">iPad App                          Firebase Storage
+   |                                    |
+   |  1. Record audio (30-60s)          |
+   |  2. Capture image of text          |
+   |                                    |
+   +----- Upload audio.webm ----------->|  (24h TTL)
+   +----- Upload image.jpg ------------>|  (24h TTL)
+   |                                    |
+   |  3. Trigger processAssessment      |</div>
+                    <div class="data-sent-box">
+                        <h4>Data at this stage:</h4>
+                        <ul>
+                            <li>Audio file (student's voice reading)</li>
+                            <li>Image file (photo of text passage)</li>
+                            <li>Student name, grade (metadata)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">2</span>
+                    <span>Speech-to-Text Processing</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Cloud Function              Google Speech-to-Text API
+        |                                      |
+        |  Send: audio file (WebM/M4A)         |
+        +------------------------------------->|
+        |                                      |
+        |  Receive: transcript + word timing   |
+        |<-------------------------------------+</div>
+                    <div class="data-sent-box">
+                        <h4>Data sent to Google Speech-to-Text:</h4>
+                        <ul>
+                            <li>Audio recording of student reading</li>
+                            <li><strong>No</strong> student name or identifying information</li>
+                        </ul>
+                    </div>
+                    <div class="data-returned-box">
+                        <h4>Data returned:</h4>
+                        <ul>
+                            <li>Transcript text</li>
+                            <li>Word-level timing information</li>
+                            <li>Confidence scores</li>
+                        </ul>
+                    </div>
+                    <div class="google-handling">
+                        <strong>Google's data handling:</strong> Processed in memory, not stored for training. See <a href="https://cloud.google.com/terms/data-processing-terms">Google Cloud Data Processing Terms</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">3</span>
+                    <span>Vision OCR Processing</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Cloud Function              Google Vision API
+        |                                      |
+        |  Send: image of text passage         |
+        +------------------------------------->|
+        |                                      |
+        |  Receive: extracted text + positions |
+        |<-------------------------------------+</div>
+                    <div class="data-sent-box">
+                        <h4>Data sent to Google Vision:</h4>
+                        <ul>
+                            <li>Image of reading passage (text only, <strong>no photos of children</strong>)</li>
+                        </ul>
+                    </div>
+                    <div class="data-returned-box">
+                        <h4>Data returned:</h4>
+                        <ul>
+                            <li>Extracted text</li>
+                            <li>Word positions (bounding boxes)</li>
+                        </ul>
+                    </div>
+                    <div class="google-handling">
+                        <strong>Google's data handling:</strong> Processed in memory, not stored for training
+                    </div>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">4</span>
+                    <span>Word Alignment and Metrics (Local)</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Cloud Function (Local Processing)
+        |
+        |  Input:
+        |  - Spoken words (from Speech-to-Text)
+        |  - Expected words (from Vision OCR)
+        |
+        |  Processing:
+        |  - Dynamic programming alignment
+        |  - Calculate accuracy, WPM, prosody
+        |  - Detect error patterns
+        |
+        |  Output:
+        |  - AlignedWord[] with status
+        |  - Metrics (accuracy %, WPM, etc.)
+        |  - Error patterns detected</div>
+                    <div class="info-box success">
+                        <strong>This stage is entirely local</strong> - no data sent to external services.
+                    </div>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">5</span>
+                    <span>AI Summary Generation</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Cloud Function              Google Gemini AI
+        |                                      |
+        |  Send:                               |
+        |  - Student first name                |
+        |  - Accuracy percentage               |
+        |  - Words per minute                  |
+        |  - Prosody grade                     |
+        |  - Correct/misread words             |
+        +------------------------------------->|
+        |                                      |
+        |  Receive: personalized summary text  |
+        |<-------------------------------------+</div>
+                    <div class="data-sent-box">
+                        <h4>Data sent to Google Gemini:</h4>
+                    </div>
+                    <div class="json-block">{
+  <span class="key">"studentFirstName"</span>: <span class="string">"Emma"</span>,
+  <span class="key">"accuracy"</span>: <span class="number">92</span>,
+  <span class="key">"wordsPerMinute"</span>: <span class="number">105</span>,
+  <span class="key">"prosodyGrade"</span>: <span class="string">"Proficient"</span>,
+  <span class="key">"strengthWords"</span>: [<span class="string">"beautiful"</span>, <span class="string">"restaurant"</span>, <span class="string">"adventure"</span>],
+  <span class="key">"struggleWords"</span>: [
+    {<span class="key">"expected"</span>: <span class="string">"through"</span>, <span class="key">"spoken"</span>: <span class="string">"threw"</span>},
+    {<span class="key">"expected"</span>: <span class="string">"knight"</span>, <span class="key">"spoken"</span>: <span class="string">"night"</span>}
+  ],
+  <span class="key">"primaryPattern"</span>: {
+    <span class="key">"type"</span>: <span class="string">"homophone_confusion"</span>,
+    <span class="key">"description"</span>: <span class="string">"Confusing words that sound alike"</span>
+  }
+}</div>
+                    <div class="data-returned-box">
+                        <h4>Data returned:</h4>
+                        <ul>
+                            <li>8-10 sentence personalized summary</li>
+                            <li>Encouraging tone with Gen-Z friendly language</li>
+                        </ul>
+                    </div>
+                    <div class="google-handling">
+                        <strong>Google's data handling:</strong> API usage does not contribute to model training. See <a href="https://ai.google.dev/gemini-api/terms">Gemini API Terms</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">6</span>
+                    <span>Text-to-Speech</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Cloud Function              Google Cloud TTS
+        |                                      |
+        |  Send: AI summary text               |
+        |  (contains student first name)       |
+        +------------------------------------->|
+        |                                      |
+        |  Receive: MP3 audio file             |
+        |<-------------------------------------+</div>
+                    <div class="data-sent-box">
+                        <h4>Data sent to Google TTS:</h4>
+                        <ul>
+                            <li>AI-generated summary text (includes student first name and performance description)</li>
+                        </ul>
+                    </div>
+                    <div class="data-returned-box">
+                        <h4>Data returned:</h4>
+                        <ul>
+                            <li>MP3 audio file of spoken summary</li>
+                        </ul>
+                    </div>
+                    <p><strong>Voice Used:</strong> Google Cloud TTS Studio voice (en-US-Studio-O) - highest quality</p>
+                </div>
+            </div>
+
+            <div class="stage-card">
+                <div class="stage-header">
+                    <span class="stage-number">7</span>
+                    <span>Storage and Display</span>
+                </div>
+                <div class="stage-content">
+                    <div class="flow-diagram">Firebase Firestore                   Firebase Storage
+        |                                    |
+        |  Permanent Storage:                |  Temporary Storage (24h):
+        |  - Student name                    |  - Audio recording
+        |  - Assessment metrics              |  - Original image
+        |  - Word alignment results          |  - Generated video
+        |  - Error patterns                  |  - AI summary audio
+        |  - AI summary text                 |</div>
+                </div>
+            </div>
+
+            <h2>Data Sent to Each Google Service</h2>
+
+            <div class="service-grid">
+                <div class="service-card">
+                    <h4>Google Cloud Speech-to-Text</h4>
+                    <table>
+                        <tr><td>Audio recording</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>Student name</td><td><span class="badge-no">No</span></td></tr>
+                        <tr><td>School/Teacher info</td><td><span class="badge-no">No</span></td></tr>
+                    </table>
+                </div>
+                <div class="service-card">
+                    <h4>Google Cloud Vision</h4>
+                    <table>
+                        <tr><td>Image of text</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>Student name</td><td><span class="badge-no">No</span></td></tr>
+                        <tr><td>Photos of children</td><td><span class="badge-no">No</span></td></tr>
+                    </table>
+                </div>
+                <div class="service-card">
+                    <h4>Google Gemini AI</h4>
+                    <table>
+                        <tr><td>Student first name</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>Full name</td><td><span class="badge-no">No</span></td></tr>
+                        <tr><td>Assessment scores</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>Audio/Images</td><td><span class="badge-no">No</span></td></tr>
+                    </table>
+                </div>
+                <div class="service-card">
+                    <h4>Google Cloud TTS</h4>
+                    <table>
+                        <tr><td>Summary text</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>First name (in text)</td><td><span class="badge-yes">Yes</span></td></tr>
+                        <tr><td>Raw assessment data</td><td><span class="badge-no">No</span></td></tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="not-sent">
+                <h3>Data NOT Sent to Third Parties</h3>
+                <p>The following data is <strong>never</strong> sent outside Firebase:</p>
+                <ul>
+                    <li>Student's last name (only first name to AI services)</li>
+                    <li>Grade level</li>
+                    <li>Teacher/school identifying information</li>
+                    <li>Device identifiers</li>
+                    <li>Location data</li>
+                    <li>Photos of children (only text images)</li>
+                </ul>
+            </div>
+
+            <h2>Data Retention by Service</h2>
+            <table>
+                <tr>
+                    <th>Service</th>
+                    <th>Our Request</th>
+                    <th>Google's Handling</th>
+                </tr>
+                <tr>
+                    <td>Speech-to-Text</td>
+                    <td>No storage</td>
+                    <td>Processed and discarded</td>
+                </tr>
+                <tr>
+                    <td>Vision API</td>
+                    <td>No storage</td>
+                    <td>Processed and discarded</td>
+                </tr>
+                <tr>
+                    <td>Gemini AI</td>
+                    <td>No storage</td>
+                    <td>API calls not used for training</td>
+                </tr>
+                <tr>
+                    <td>Cloud TTS</td>
+                    <td>No storage</td>
+                    <td>Processed and discarded</td>
+                </tr>
+                <tr>
+                    <td>Firebase</td>
+                    <td>Until deletion</td>
+                    <td>Encrypted, access-controlled</td>
+                </tr>
+            </table>
+
+            <h2>Security Measures</h2>
+            <h3>In Transit</h3>
+            <ul>
+                <li>All API calls use HTTPS/TLS 1.3</li>
+                <li>Firebase SDK uses secure WebSocket connections</li>
+            </ul>
+
+            <h3>At Rest</h3>
+            <ul>
+                <li>Firebase Firestore: Encrypted with AES-256</li>
+                <li>Firebase Storage: Encrypted with Google-managed keys</li>
+            </ul>
+
+            <h3>Access Control</h3>
+            <ul>
+                <li>Teacher accounts isolated by Firebase Auth UID</li>
+                <li>Firestore security rules enforce data isolation</li>
+                <li>No cross-teacher data access possible</li>
+            </ul>
+
+            <h2>Compliance Summary</h2>
+            <table class="compliance-table">
+                <tr>
+                    <th>Requirement</th>
+                    <th>How We Comply</th>
+                </tr>
+                <tr>
+                    <td>COPPA: Disclose third parties</td>
+                    <td>All Google services listed above</td>
+                </tr>
+                <tr>
+                    <td>COPPA: No more data than needed</td>
+                    <td>Only first name to AI, no photos of children</td>
+                </tr>
+                <tr>
+                    <td>COPPA: Reasonable security</td>
+                    <td>HTTPS, encryption, access control</td>
+                </tr>
+                <tr>
+                    <td>FERPA: School official exception</td>
+                    <td>Used only for educational purposes</td>
+                </tr>
+                <tr>
+                    <td>FERPA: Direct control</td>
+                    <td>Data isolated by teacher account</td>
+                </tr>
+            </table>
+
+            <h2>Questions?</h2>
+            <div class="contact-box">
+                <div>
+                    <strong>For technical questions about data flow:</strong><br>
+                    <span class="placeholder">[OPERATOR_EMAIL]</span>
+                </div>
+                <div>
+                    <strong>For compliance questions:</strong><br>
+                    <span class="placeholder">[OPERATOR_EMAIL]</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Word Analyzer - Data Flow Documentation</p>
+            <p>This document details how student data is processed through Google Cloud services.</p>
+        </div>
+    </div>
+</body>
+</html>

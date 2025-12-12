@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer - Parent Rights Notice</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #1f2937;
+            background: #f8fafc;
+        }
+        .document {
+            max-width: 850px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+            padding: 40px 50px;
+            text-align: center;
+        }
+        .header h1 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .header .subtitle { font-size: 18px; opacity: 0.95; }
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+        .content { padding: 40px 50px; }
+        h2 {
+            color: #d97706;
+            font-size: 22px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #fef3c7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h2:first-child { margin-top: 0; }
+        h2 .icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        h3 { color: #b45309; font-size: 17px; margin-top: 25px; margin-bottom: 12px; }
+        p { margin-bottom: 16px; font-size: 16px; }
+        ul, ol { margin-bottom: 15px; padding-left: 25px; }
+        li { margin-bottom: 10px; font-size: 16px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 15px;
+        }
+        th {
+            background: #f59e0b;
+            color: white;
+            padding: 14px 18px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td { padding: 14px 18px; border-bottom: 1px solid #e2e8f0; }
+        tr:nth-child(even) { background: #fffbeb; }
+        .how-it-works {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        .step-card {
+            background: #fffbeb;
+            border: 2px solid #fcd34d;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        .step-card .number {
+            width: 40px;
+            height: 40px;
+            background: #f59e0b;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin: 0 auto 12px;
+        }
+        .step-card .text {
+            font-size: 14px;
+            color: #78350f;
+        }
+        .rights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 25px 0;
+        }
+        .right-card {
+            background: #fffbeb;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #f59e0b;
+        }
+        .right-card h4 {
+            color: #b45309;
+            font-size: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .right-card h4 .num {
+            background: #f59e0b;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+        }
+        .right-card p {
+            margin: 0;
+            font-size: 14px;
+            color: #78350f;
+        }
+        .info-box {
+            background: #fef3c7;
+            border-left: 5px solid #f59e0b;
+            padding: 20px 25px;
+            margin: 25px 0;
+            border-radius: 0 12px 12px 0;
+        }
+        .info-box.success {
+            background: #dcfce7;
+            border-left-color: #22c55e;
+        }
+        .info-box.blue {
+            background: #dbeafe;
+            border-left-color: #3b82f6;
+        }
+        .security-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .security-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #f0fdf4;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .security-item .check {
+            width: 28px;
+            height: 28px;
+            background: #22c55e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .security-item .text {
+            font-size: 14px;
+        }
+        .placeholder {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #92400e;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .contact-section {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+        .contact-section h3 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .contact-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 20px;
+        }
+        .contact-option {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        .contact-option h4 {
+            color: #f59e0b;
+            margin-bottom: 10px;
+        }
+        .contact-option p {
+            font-size: 14px;
+            margin: 0;
+        }
+        .footer {
+            background: #78350f;
+            color: white;
+            padding: 30px 50px;
+            text-align: center;
+        }
+        .footer p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .footer .thanks {
+            font-size: 18px;
+            margin-bottom: 10px;
+            opacity: 1;
+        }
+        @media print {
+            body { background: white; }
+            .document { box-shadow: none; }
+            .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .how-it-works, .rights-grid, .security-list, .contact-options {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        @media (max-width: 700px) {
+            .how-it-works, .rights-grid, .security-list, .contact-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document">
+        <div class="header">
+            <h1>Parent Rights Notice</h1>
+            <div class="subtitle">Word Analyzer Reading Assessment App</div>
+            <div class="badge">For Parents and Guardians</div>
+        </div>
+
+        <div class="content">
+            <h2><span class="icon">?</span> What is Word Analyzer?</h2>
+            <p>Word Analyzer is an iPad app that helps teachers assess how well your child reads aloud. Here's how it works:</p>
+
+            <div class="how-it-works">
+                <div class="step-card">
+                    <div class="number">1</div>
+                    <div class="text">Your child reads a passage out loud</div>
+                </div>
+                <div class="step-card">
+                    <div class="number">2</div>
+                    <div class="text">The app records the audio</div>
+                </div>
+                <div class="step-card">
+                    <div class="number">3</div>
+                    <div class="text">The app takes a picture of the text</div>
+                </div>
+                <div class="step-card">
+                    <div class="number">4</div>
+                    <div class="text">The app checks which words were correct</div>
+                </div>
+                <div class="step-card">
+                    <div class="number">5</div>
+                    <div class="text">Your child gets an encouraging message</div>
+                </div>
+                <div class="step-card">
+                    <div class="number">6</div>
+                    <div class="text">Teacher tracks reading progress</div>
+                </div>
+            </div>
+
+            <h2><span class="icon">i</span> What Information is Collected?</h2>
+            <h3>About Your Child</h3>
+            <table>
+                <tr>
+                    <th>Information</th>
+                    <th>How It's Used</th>
+                </tr>
+                <tr>
+                    <td><strong>Name</strong></td>
+                    <td>So the teacher knows whose reading it is</td>
+                </tr>
+                <tr>
+                    <td><strong>Grade Level</strong></td>
+                    <td>To compare with typical reading levels</td>
+                </tr>
+                <tr>
+                    <td><strong>Voice Recording</strong></td>
+                    <td>To check pronunciation and fluency</td>
+                </tr>
+                <tr>
+                    <td><strong>Reading Results</strong></td>
+                    <td>Accuracy, speed, and areas to practice</td>
+                </tr>
+            </table>
+
+            <div class="info-box success">
+                <strong>What We DON'T Collect:</strong>
+                <ul style="margin: 10px 0 0 0;">
+                    <li>No photos of your child (only photos of the text they're reading)</li>
+                    <li>No location information</li>
+                    <li>No information for advertising</li>
+                    <li>No social media connections</li>
+                </ul>
+            </div>
+
+            <h2><span class="icon">~</span> How Long is Information Kept?</h2>
+            <table>
+                <tr>
+                    <th>Type of Data</th>
+                    <th>How Long</th>
+                </tr>
+                <tr>
+                    <td>Voice recordings</td>
+                    <td><strong style="color: #22c55e;">Deleted after 24 hours</strong></td>
+                </tr>
+                <tr>
+                    <td>Pictures of text</td>
+                    <td><strong style="color: #22c55e;">Deleted after 24 hours</strong></td>
+                </tr>
+                <tr>
+                    <td>Reading scores</td>
+                    <td>Kept until you or the school asks us to delete it</td>
+                </tr>
+            </table>
+
+            <h2><span class="icon">@</span> Who Sees My Child's Information?</h2>
+
+            <h3>Your Child's Teacher</h3>
+            <ul>
+                <li>Can see all reading results</li>
+                <li>Uses the information to help your child improve</li>
+            </ul>
+
+            <h3>Google Cloud Services</h3>
+            <p>Word Analyzer uses Google's cloud services to process the audio and images. This is the same Google that many schools already use.</p>
+            <div class="info-box blue">
+                <ul style="margin: 0;">
+                    <li>Google's computers analyze the recording to figure out what words were said</li>
+                    <li>Google does <strong>NOT</strong> keep the audio or images</li>
+                    <li>Google does <strong>NOT</strong> use your child's information for advertising</li>
+                </ul>
+            </div>
+
+            <h2><span class="icon">*</span> Your Rights as a Parent</h2>
+            <p>You have the right to:</p>
+
+            <div class="rights-grid">
+                <div class="right-card">
+                    <h4><span class="num">1</span> See Your Child's Information</h4>
+                    <p>Ask to see what reading results have been collected about your child.</p>
+                </div>
+                <div class="right-card">
+                    <h4><span class="num">2</span> Delete Your Child's Information</h4>
+                    <p>Ask us to delete all information about your child. We'll do it within 30 days.</p>
+                </div>
+                <div class="right-card">
+                    <h4><span class="num">3</span> Stop Collection</h4>
+                    <p>Tell us not to collect any more information. (Note: Your child won't be able to use the app anymore.)</p>
+                </div>
+                <div class="right-card">
+                    <h4><span class="num">4</span> Ask Questions</h4>
+                    <p>Contact us anytime with questions about your child's privacy.</p>
+                </div>
+            </div>
+
+            <h2><span class="icon">!</span> How to Exercise Your Rights</h2>
+
+            <div class="contact-section">
+                <h3>Contact Us</h3>
+                <div class="contact-options">
+                    <div class="contact-option">
+                        <h4>Option 1: Through Your School</h4>
+                        <p>Contact your child's school and they can forward your request to us.</p>
+                    </div>
+                    <div class="contact-option">
+                        <h4>Option 2: Contact Us Directly</h4>
+                        <p>
+                            Email: <span class="placeholder">[OPERATOR_EMAIL]</span><br>
+                            Phone: <span class="placeholder">[OPERATOR_PHONE]</span>
+                        </p>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top: 20px; margin-bottom: 0;">
+                    <strong>When you contact us, please include:</strong>
+                    <ul style="margin: 10px 0 0 0;">
+                        <li>Your child's name</li>
+                        <li>Your child's school</li>
+                        <li>What you'd like us to do (see information, delete information, etc.)</li>
+                    </ul>
+                    <p style="margin: 10px 0 0 0;"><strong>We'll respond within 30 days.</strong></p>
+                </div>
+            </div>
+
+            <h2><span class="icon">?</span> Why Schools Can Consent for Parents</h2>
+            <p>Under federal law (COPPA), schools are allowed to consent to the collection of student information on behalf of parents when:</p>
+            <ul>
+                <li>The information is used only for education</li>
+                <li>The information is not used for advertising</li>
+                <li>Parents are told about the app</li>
+            </ul>
+            <p>Your school has agreed to notify parents (like through this notice) that Word Analyzer is being used.</p>
+
+            <h2><span class="icon">#</span> Data Security</h2>
+            <p>We take protecting your child's information seriously:</p>
+
+            <div class="security-list">
+                <div class="security-item">
+                    <div class="check">+</div>
+                    <div class="text"><strong>Encrypted</strong><br>All information is scrambled so only we can read it</div>
+                </div>
+                <div class="security-item">
+                    <div class="check">+</div>
+                    <div class="text"><strong>Secure Connections</strong><br>Information is sent safely (like online banking)</div>
+                </div>
+                <div class="security-item">
+                    <div class="check">+</div>
+                    <div class="text"><strong>Auto-Delete</strong><br>Voice recordings and images deleted after 24 hours</div>
+                </div>
+                <div class="security-item">
+                    <div class="check">+</div>
+                    <div class="text"><strong>Private Access</strong><br>Only your child's teacher can see their results</div>
+                </div>
+            </div>
+
+            <h2><span class="icon">!</span> Changes to This Notice</h2>
+            <p>If we make important changes to how we handle your child's information, we'll:</p>
+            <ol>
+                <li>Update this notice</li>
+                <li>Tell your school</li>
+                <li>Ask for permission again if needed</li>
+            </ol>
+
+            <h2><span class="icon">?</span> Questions?</h2>
+            <p>If you have any questions about your child's privacy, please contact:</p>
+
+            <div class="contact-section">
+                <div class="contact-options">
+                    <div class="contact-option">
+                        <h4>Your Child's School</h4>
+                        <p>They can answer questions or forward them to us</p>
+                    </div>
+                    <div class="contact-option">
+                        <h4>Contact Us Directly</h4>
+                        <p>
+                            <strong><span class="placeholder">[OPERATOR_NAME]</span></strong><br>
+                            <span class="placeholder">[OPERATOR_ADDRESS]</span><br>
+                            Email: <span class="placeholder">[OPERATOR_EMAIL]</span><br>
+                            Phone: <span class="placeholder">[OPERATOR_PHONE]</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h2><span class="icon">+</span> Learn More</h2>
+            <p>For more detailed information, you can read our full <a href="PRIVACY-POLICY.html">Privacy Policy</a>.</p>
+            <p>For information about children's online privacy rights, visit: <a href="https://www.ftc.gov/business-guidance/privacy-security/childrens-privacy" target="_blank">FTC Children's Privacy</a></p>
+        </div>
+
+        <div class="footer">
+            <p class="thanks">Thank you for trusting Word Analyzer to help your child become a better reader!</p>
+            <p>Word Analyzer - Parent Rights Notice</p>
+        </div>
+    </div>
+</body>
+</html>
