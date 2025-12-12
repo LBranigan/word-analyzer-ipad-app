@@ -45,7 +45,8 @@
       "Bash(npx eas:*)",
       "Bash(eas:*)",
       "Bash(npm run build:*)",
-      "Bash(npx firebase deploy:*)"
+      "Bash(npx firebase deploy:*)",
+      "Bash(npm run deploy:*)"
     ]
   }
 }

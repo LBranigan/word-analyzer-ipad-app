@@ -109,10 +109,53 @@ function calculateMetrics(matchingResult, audioDuration) {
         repeatCount,
     };
 }
+// Consonant blends - two or more consonants that blend together
+const CONSONANT_BLENDS = [
+    // L-blends
+    'bl', 'cl', 'fl', 'gl', 'pl', 'sl',
+    // R-blends
+    'br', 'cr', 'dr', 'fr', 'gr', 'pr', 'tr',
+    // S-blends
+    'sc', 'sk', 'sl', 'sm', 'sn', 'sp', 'st', 'sw',
+    // 3-letter blends
+    'scr', 'spl', 'spr', 'str', 'squ',
+    // Ending blends
+    'nd', 'nt', 'mp', 'ft', 'lt', 'lk', 'ct', 'pt',
+];
+// Digraphs - two letters that make one sound
+const DIGRAPHS = ['ch', 'sh', 'th', 'ph', 'wh', 'ck', 'ng', 'gh'];
+/**
+ * Calculate Levenshtein distance for similarity comparison
+ */
+function levenshteinDistance(s1, s2) {
+    const m = s1.length;
+    const n = s2.length;
+    const dp = Array(m + 1).fill(null).map(() => Array(n + 1).fill(0));
+    for (let i = 0; i <= m; i++)
+        dp[i][0] = i;
+    for (let j = 0; j <= n; j++)
+        dp[0][j] = j;
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (s1[i - 1] === s2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            }
+            else {
+                dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+            }
+        }
+    }
+    return dp[m][n];
+}
 /**
  * Analyze error patterns including hesitation and repetition
  * Based on word-analyzer-v2 analyzeErrorPatterns (lines 2140-2165)
- * Enhanced with hesitation, repetition, omission, and addition detection
+ * Enhanced with:
+ * - Consonant blend errors (bl, cl, fr, tr, etc)
+ * - Digraph errors (ch, sh, th, ph, wh)
+ * - First-letter guessing detection
+ * - Speech patterns (R→W, TH substitutions)
+ * - Vowel confusion errors
  */
 function analyzeErrorPatterns(words) {
     const patterns = [];
@@ -163,6 +206,118 @@ function analyzeErrorPatterns(words) {
         // Final sound errors
         if (expected[expected.length - 1] !== spoken[spoken.length - 1]) {
             addPattern('final_sound', 'final_sound', 'Final sound error', word.expected, word.spoken);
+        }
+        // ============================================
+        // CONSONANT BLEND ERRORS
+        // Detects when student struggles with consonant clusters
+        // ============================================
+        for (const blend of CONSONANT_BLENDS) {
+            if (expected.includes(blend) && !spoken.includes(blend)) {
+                // Check if they simplified the blend (e.g., "street" → "seet", "play" → "pay")
+                const blendSimplified = blend.length === 2 &&
+                    (spoken.includes(blend[0]) || spoken.includes(blend[1]));
+                if (blendSimplified || spoken.length < expected.length) {
+                    addPattern(`blend_${blend}`, 'consonant_blend', `Consonant blend difficulty: "${blend}"`, word.expected, word.spoken);
+                }
+            }
+        }
+        // ============================================
+        // DIGRAPH ERRORS
+        // Detects when student struggles with digraphs (ch, sh, th, ph, wh)
+        // ============================================
+        for (const digraph of DIGRAPHS) {
+            if (expected.includes(digraph)) {
+                // Check if digraph is missing or substituted in spoken word
+                if (!spoken.includes(digraph)) {
+                    // Common digraph substitutions
+                    const digraphSubstitutions = {
+                        'ch': ['sh', 'k', 'c', 'tch'],
+                        'sh': ['ch', 's', 'ss'],
+                        'th': ['d', 't', 'f', 'v', 'z'], // "the" → "da", "three" → "free"
+                        'ph': ['f', 'p'],
+                        'wh': ['w', 'h'],
+                        'ck': ['k', 'c'],
+                        'ng': ['n', 'g'],
+                        'gh': ['g', 'f'],
+                    };
+                    const possibleSubs = digraphSubstitutions[digraph] || [];
+                    const wasSubstituted = possibleSubs.some(sub => spoken.includes(sub));
+                    if (wasSubstituted || spoken.length < expected.length) {
+                        addPattern(`digraph_${digraph}`, 'digraph', `Digraph difficulty: "${digraph}"`, word.expected, word.spoken);
+                    }
+                }
+            }
+        }
+        // ============================================
+        // FIRST-LETTER GUESSING
+        // Student uses first letter to guess but doesn't decode the rest
+        // Detected when: same first letter + low overall similarity
+        // ============================================
+        if (expected[0] === spoken[0] && expected.length > 2 && spoken.length > 2) {
+            const maxLen = Math.max(expected.length, spoken.length);
+            const distance = levenshteinDistance(expected, spoken);
+            const similarity = 1 - (distance / maxLen);
+            // Same first letter but very different word (similarity < 0.5)
+            if (similarity < 0.5) {
+                addPattern('first_letter_guess', 'first_letter_guess', 'First-letter guessing (needs to decode full word)', word.expected, word.spoken);
+            }
+        }
+        // ============================================
+        // R-SOUND ISSUES (R → W substitution)
+        // Common in young readers: "rabbit" → "wabbit", "red" → "wed"
+        // ============================================
+        if (expected.includes('r')) {
+            // Check for R → W substitution
+            const expectedRPositions = [];
+            for (let i = 0; i < expected.length; i++) {
+                if (expected[i] === 'r')
+                    expectedRPositions.push(i);
+            }
+            for (const pos of expectedRPositions) {
+                // Check if corresponding position in spoken has 'w' instead of 'r'
+                if (pos < spoken.length && spoken[pos] === 'w') {
+                    addPattern('r_to_w', 'r_sound', 'R → W substitution', word.expected, word.spoken);
+                    break;
+                }
+            }
+            // Also check if 'r' is completely missing and 'w' appears
+            if (!spoken.includes('r') && spoken.includes('w') && !expected.includes('w')) {
+                addPattern('r_to_w', 'r_sound', 'R → W substitution', word.expected, word.spoken);
+            }
+        }
+        // ============================================
+        // TH-SOUND ISSUES
+        // Common substitutions: "the" → "da", "three" → "free", "think" → "tink"
+        // ============================================
+        if (expected.includes('th')) {
+            const thSubstitutes = ['d', 't', 'f', 'v', 'z'];
+            // Check if 'th' was replaced with a single consonant
+            if (!spoken.includes('th')) {
+                for (const sub of thSubstitutes) {
+                    // Look for the substitute in positions where 'th' should be
+                    const thIndex = expected.indexOf('th');
+                    if (thIndex !== -1 && thIndex < spoken.length) {
+                        if (spoken[thIndex] === sub || spoken.includes(sub)) {
+                            addPattern(`th_to_${sub}`, 'th_sound', `TH → ${sub.toUpperCase()} substitution`, word.expected, word.spoken);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        // ============================================
+        // VOWEL ERRORS
+        // Confusion between similar vowel sounds
+        // ============================================
+        const vowelPairs = [
+            ['a', 'e'], ['e', 'i'], ['i', 'e'], ['o', 'u'], ['a', 'o'],
+            ['ea', 'ee'], ['ie', 'ei'], ['ou', 'ow'], ['ai', 'ay'],
+        ];
+        for (const [v1, v2] of vowelPairs) {
+            if ((expected.includes(v1) && spoken.includes(v2) && !expected.includes(v2)) ||
+                (expected.includes(v2) && spoken.includes(v1) && !expected.includes(v1))) {
+                addPattern(`vowel_${v1}_${v2}`, 'vowel_error', `Vowel confusion: ${v1}/${v2}`, word.expected, word.spoken);
+            }
         }
         // Visual similarity (b/d, p/q, m/n, u/n, w/v)
         const visualPairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n'], ['w', 'v']];
