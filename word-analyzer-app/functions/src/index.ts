@@ -11,6 +11,7 @@ import { calculateMetrics, analyzeErrorPatterns, generatePatternSummary } from '
 import { generateVideo } from './services/videoGenerator';
 import { generatePdfReport } from './services/pdfGenerator';
 import { generateAISummary } from './services/summaryGenerator';
+import { textToSSML, generateSpeechAudioSSML } from './services/textToSpeech';
 
 admin.initializeApp();
 
@@ -266,6 +267,37 @@ export const processAssessment = functions
       );
       console.log(`AI summary generated: ${aiSummary.length} chars`);
 
+      // Generate TTS audio for the AI summary
+      let aiSummaryAudioUrl: string | null = null;
+      try {
+        // Convert text to SSML for more natural speech
+        const ssml = textToSSML(aiSummary);
+        const audioBuffer = await generateSpeechAudioSSML(ssml, {
+          voiceType: 'journey', // Most natural voice
+          speakingRate: 0.95,
+        });
+
+        // Upload audio to storage
+        const summaryAudioPath = `summary-audio/${teacherId}/${assessmentId}/summary.mp3`;
+        const summaryAudioToken = uuidv4();
+        const summaryAudioFile = bucket.file(summaryAudioPath);
+
+        await summaryAudioFile.save(audioBuffer, {
+          metadata: {
+            contentType: 'audio/mpeg',
+            metadata: {
+              firebaseStorageDownloadTokens: summaryAudioToken,
+            },
+          },
+        });
+
+        aiSummaryAudioUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(summaryAudioPath)}?alt=media&token=${summaryAudioToken}`;
+        console.log(`TTS audio uploaded: ${audioBuffer.length} bytes`);
+      } catch (ttsError) {
+        console.error('TTS generation failed, will use device TTS fallback:', ttsError);
+        // Continue without TTS audio - frontend will fall back to expo-speech
+      }
+
       // Move audio to temp bucket for playback (24h TTL handled by lifecycle rule)
       const tempAudioPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
       const audioDownloadToken = uuidv4();
@@ -327,6 +359,7 @@ export const processAssessment = functions
         errorPatterns,
         patternSummary,
         aiSummary,
+        aiSummaryAudioUrl,
         processedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 

@@ -219,8 +219,10 @@ function analyzeErrorPatterns(words) {
             addPattern('repetition', 'repetition', 'Word repeated (stutter)', word.expected, word.spoken || '');
         }
         // Track self-corrections (positive indicator - student caught their own error)
+        // Self-corrections should NOT also be counted as other error types
         if (word.isSelfCorrection) {
             addPattern('self_correction', 'self_correction', 'Self-corrected (caught own error)', word.expected, word.spoken || '');
+            continue; // Skip further error analysis - self-correction is the only pattern for this word
         }
         // Skip further analysis for correct or skipped words
         if (word.status === 'correct' || !word.spoken)

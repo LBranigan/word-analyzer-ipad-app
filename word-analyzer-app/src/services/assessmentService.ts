@@ -134,6 +134,7 @@ export function subscribeToAssessment(
         errorPatterns: data.errorPatterns,
         patternSummary: data.patternSummary,
         aiSummary: data.aiSummary,
+        aiSummaryAudioUrl: data.aiSummaryAudioUrl,
       });
     }
   });
@@ -175,6 +176,7 @@ export async function getAssessments(
       errorPatterns: data.errorPatterns,
       patternSummary: data.patternSummary,
       aiSummary: data.aiSummary,
+      aiSummaryAudioUrl: data.aiSummaryAudioUrl,
     };
   });
 }
@@ -214,6 +216,7 @@ export function subscribeToAssessments(
         errorPatterns: data.errorPatterns,
         patternSummary: data.patternSummary,
         aiSummary: data.aiSummary,
+        aiSummaryAudioUrl: data.aiSummaryAudioUrl,
       };
     });
     onUpdate(assessments);

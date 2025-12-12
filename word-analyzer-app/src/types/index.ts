@@ -173,6 +173,7 @@ export interface DashboardAssessment {
   errorPatterns?: DashboardErrorPattern[];
   patternSummary?: PatternSummary;
   aiSummary?: string;  // AI-generated personalized feedback for the student
+  aiSummaryAudioUrl?: string;  // URL to pre-generated TTS audio of the summary
 }
 
 export type RecordingDuration = 30 | 60;

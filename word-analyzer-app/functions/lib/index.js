@@ -47,6 +47,7 @@ const metricsCalculator_1 = require("./services/metricsCalculator");
 const videoGenerator_1 = require("./services/videoGenerator");
 const pdfGenerator_1 = require("./services/pdfGenerator");
 const summaryGenerator_1 = require("./services/summaryGenerator");
+const textToSpeech_1 = require("./services/textToSpeech");
 admin.initializeApp();
 const db = admin.firestore();
 const storage = admin.storage();
@@ -255,6 +256,34 @@ exports.processAssessment = functions
         const studentName = (assessmentData === null || assessmentData === void 0 ? void 0 : assessmentData.studentName) || 'Student';
         const aiSummary = await (0, summaryGenerator_1.generateAISummary)(studentName, metrics, matchingResult.words, errorPatterns, patternSummary);
         console.log(`AI summary generated: ${aiSummary.length} chars`);
+        // Generate TTS audio for the AI summary
+        let aiSummaryAudioUrl = null;
+        try {
+            // Convert text to SSML for more natural speech
+            const ssml = (0, textToSpeech_1.textToSSML)(aiSummary);
+            const audioBuffer = await (0, textToSpeech_1.generateSpeechAudioSSML)(ssml, {
+                voiceType: 'journey', // Most natural voice
+                speakingRate: 0.95,
+            });
+            // Upload audio to storage
+            const summaryAudioPath = `summary-audio/${teacherId}/${assessmentId}/summary.mp3`;
+            const summaryAudioToken = (0, uuid_1.v4)();
+            const summaryAudioFile = bucket.file(summaryAudioPath);
+            await summaryAudioFile.save(audioBuffer, {
+                metadata: {
+                    contentType: 'audio/mpeg',
+                    metadata: {
+                        firebaseStorageDownloadTokens: summaryAudioToken,
+                    },
+                },
+            });
+            aiSummaryAudioUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(summaryAudioPath)}?alt=media&token=${summaryAudioToken}`;
+            console.log(`TTS audio uploaded: ${audioBuffer.length} bytes`);
+        }
+        catch (ttsError) {
+            console.error('TTS generation failed, will use device TTS fallback:', ttsError);
+            // Continue without TTS audio - frontend will fall back to expo-speech
+        }
         // Move audio to temp bucket for playback (24h TTL handled by lifecycle rule)
         const tempAudioPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
         const audioDownloadToken = (0, uuid_1.v4)();
@@ -308,6 +337,7 @@ exports.processAssessment = functions
             errorPatterns,
             patternSummary,
             aiSummary,
+            aiSummaryAudioUrl,
             processedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         console.log('Results saved to Firestore');

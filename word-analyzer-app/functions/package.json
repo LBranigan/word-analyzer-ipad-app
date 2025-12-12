@@ -15,6 +15,7 @@
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@google-cloud/speech": "^6.0.0",
+    "@google-cloud/text-to-speech": "^5.5.0",
     "@google-cloud/vertexai": "^1.9.0",
     "@google-cloud/vision": "^4.0.0",
     "canvas": "^3.2.0",

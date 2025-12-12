@@ -187,9 +187,10 @@ function detectHesitation(currentWord, previousWord) {
  * Stutters: Same or very similar word repeated (error pattern)
  *   - "the the quick" → "the" at index 1 is a stutter
  *
- * Self-corrections: Different word followed by a correction attempt (positive indicator)
- *   - "house... home" where student changed their answer mid-word
- *   - Detected when consecutive words share a prefix but are different
+ * Self-corrections: Moderately strict detection
+ *   - Short fragment (1-3 chars) followed by full word starting with that fragment
+ *   - OR words sharing prefix with 50-80% similarity spoken in quick succession
+ *   - Must have short time gap (<0.25s) indicating immediate correction
  *
  * @param spokenWords Array of spoken word timings
  * @returns Object with sets of repeated and self-corrected word indices
@@ -207,45 +208,32 @@ function detectRepeatedWords(spokenWords) {
             repeatedIndices.add(i);
             continue;
         }
-        // Check for very similar words (partial repeats/stutters OR self-corrections)
+        // Check for very similar words (stutters only - very high similarity)
         if (current.length >= 2 && previous.length >= 2) {
-            const minLen = Math.min(current.length, previous.length);
-            const currentPrefix = current.substring(0, Math.min(3, minLen));
-            const previousPrefix = previous.substring(0, Math.min(3, minLen));
-            // Words share a prefix (student started the same way)
-            if (currentPrefix === previousPrefix || previous.startsWith(currentPrefix) || current.startsWith(previousPrefix)) {
-                const similarity = calculateWordSimilarity(current, previous);
-                if (similarity >= 0.85) {
-                    // Very similar - this is a stutter/repeat
-                    repeatedIndices.add(i);
-                }
-                else if (similarity >= 0.4 && similarity < 0.85) {
-                    // Moderately similar with same prefix - likely a self-correction
-                    // Student started saying one word, then changed to another
-                    // e.g., "thr-... three" or "house... home" or "wen-... went"
-                    selfCorrectionIndices.add(i);
-                    console.log(`Self-correction detected: "${previous}" → "${current}" (similarity: ${similarity.toFixed(2)})`);
-                }
-            }
-            // Also check for self-corrections where student abandons mid-word
-            // Detected by a very short previous word that's a prefix of current
-            if (previous.length <= 3 && current.startsWith(previous)) {
-                // Previous was likely an abandoned attempt: "th" → "three"
-                selfCorrectionIndices.add(i);
-                console.log(`Self-correction (abandoned start): "${previous}" → "${current}"`);
+            const similarity = calculateWordSimilarity(current, previous);
+            if (similarity >= 0.85) {
+                // Very similar - this is a stutter/repeat
+                repeatedIndices.add(i);
             }
         }
-        // Check for quick succession (words spoken rapidly = possible correction)
+        // Self-correction detection
         const timeBetween = spokenWords[i].startTime - spokenWords[i - 1].endTime;
-        if (timeBetween < 0.2 && timeBetween >= 0) {
-            // Very quick follow-up - might be a correction
-            // Only flag as self-correction if words are somewhat different
-            const similarity = calculateWordSimilarity(current, previous);
-            if (similarity >= 0.3 && similarity < 0.7) {
-                // Different enough to not be a stutter, similar enough to be related
-                if (!repeatedIndices.has(i) && !selfCorrectionIndices.has(i)) {
+        const isQuickSuccession = timeBetween >= 0 && timeBetween < 0.25;
+        // Case 1: Short fragment followed by full word
+        // e.g., "th" → "three", "str" → "street", "wen" → "went"
+        if (previous.length <= 3 && current.length >= 3 && current.startsWith(previous) && isQuickSuccession) {
+            selfCorrectionIndices.add(i);
+            console.log(`Self-correction (abandoned fragment): "${previous}" → "${current}" (${timeBetween.toFixed(2)}s gap)`);
+        }
+        // Case 2: Words with same prefix and moderate similarity (clear correction attempt)
+        // e.g., "house" → "home", "want" → "went" spoken quickly
+        if (!selfCorrectionIndices.has(i) && current.length >= 3 && previous.length >= 3 && isQuickSuccession) {
+            const prefix = previous.substring(0, 2);
+            if (current.startsWith(prefix)) {
+                const similarity = calculateWordSimilarity(current, previous);
+                if (similarity >= 0.5 && similarity < 0.8) {
                     selfCorrectionIndices.add(i);
-                    console.log(`Self-correction (quick follow-up): "${previous}" → "${current}" (${timeBetween.toFixed(2)}s gap)`);
+                    console.log(`Self-correction (prefix match): "${previous}" → "${current}" (similarity: ${similarity.toFixed(2)}, ${timeBetween.toFixed(2)}s gap)`);
                 }
             }
         }

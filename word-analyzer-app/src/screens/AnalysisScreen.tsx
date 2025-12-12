@@ -616,6 +616,7 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody, onEr
   const [summaryState, setSummaryState] = useState<'ready' | 'playing' | 'finished'>('ready');
   const [displayedText, setDisplayedText] = useState('');
   const revealTimeouts = useRef<NodeJS.Timeout[]>([]);
+  const soundRef = useRef<Audio.Sound | null>(null);
 
   // Get the AI summary or fallback to a simple message
   const aiSummary = assessment.aiSummary ||
@@ -625,17 +626,24 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody, onEr
       ? `Good reading! ${metrics?.correctCount} words correct. Keep practicing the highlighted words.`
       : `Keep practicing! Focus on the words highlighted in red and orange.`);
 
-  // Cleanup timeouts on unmount
+  // Check if we have pre-generated audio
+  const hasPreGeneratedAudio = !!assessment.aiSummaryAudioUrl;
+
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       revealTimeouts.current.forEach(t => clearTimeout(t));
       Speech.stop();
+      if (soundRef.current) {
+        soundRef.current.unloadAsync();
+      }
     };
   }, []);
 
-  const revealTextGradually = (fullText: string) => {
+  const revealTextGradually = (fullText: string, durationMs?: number) => {
     const words = fullText.split(' ');
-    const msPerWord = 320; // Approximate speaking rate
+    // If we have duration from audio, use it; otherwise estimate
+    const msPerWord = durationMs ? durationMs / words.length : 320;
 
     // Clear any existing timeouts
     revealTimeouts.current.forEach(t => clearTimeout(t));
@@ -653,7 +661,46 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody, onEr
     setSummaryState('playing');
     setDisplayedText('');
 
-    // Start text-to-speech
+    // If we have pre-generated audio, use it (much better quality!)
+    if (hasPreGeneratedAudio && assessment.aiSummaryAudioUrl) {
+      try {
+        // Unload any previous sound
+        if (soundRef.current) {
+          await soundRef.current.unloadAsync();
+        }
+
+        // Load and play the pre-generated audio
+        const { sound } = await Audio.Sound.createAsync(
+          { uri: assessment.aiSummaryAudioUrl },
+          { shouldPlay: true },
+          (status) => {
+            if (status.isLoaded && status.didJustFinish) {
+              setSummaryState('finished');
+              setDisplayedText(aiSummary);
+            }
+          }
+        );
+        soundRef.current = sound;
+
+        // Get audio duration for text reveal timing
+        const status = await sound.getStatusAsync();
+        const durationMs = status.isLoaded ? status.durationMillis || 30000 : 30000;
+
+        // Reveal text gradually synced with audio duration
+        revealTextGradually(aiSummary, durationMs);
+
+      } catch (error) {
+        console.error('Error playing pre-generated audio, falling back to device TTS:', error);
+        // Fall back to device TTS
+        playWithDeviceTTS();
+      }
+    } else {
+      // No pre-generated audio, use device TTS
+      playWithDeviceTTS();
+    }
+  };
+
+  const playWithDeviceTTS = () => {
     Speech.speak(aiSummary, {
       language: 'en-US',
       rate: 0.95,
@@ -675,8 +722,14 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody, onEr
     revealTextGradually(aiSummary);
   };
 
-  const handleStopSummary = () => {
+  const handleStopSummary = async () => {
+    // Stop pre-generated audio if playing
+    if (soundRef.current) {
+      await soundRef.current.stopAsync();
+    }
+    // Stop device TTS if playing
     Speech.stop();
+
     revealTimeouts.current.forEach(t => clearTimeout(t));
     setDisplayedText(aiSummary);
     setSummaryState('finished');

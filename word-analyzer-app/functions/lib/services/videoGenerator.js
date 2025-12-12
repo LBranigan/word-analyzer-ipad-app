@@ -169,14 +169,8 @@ function renderFrame(ctx, canvas, wordLayouts, currentTime, padding, fontSize, s
         if (isCurrentWord) {
             ctx.fillRect(layout.x, layout.y + 8, layout.width - 10, 3);
         }
-        // Draw hesitation indicator (purple dotted line above word)
-        if (layout.hesitation) {
-            ctx.fillStyle = '#7c3aed'; // Purple
-            ctx.font = '14px Arial';
-            // Draw pause indicator above the word
-            const pauseMs = layout.pauseDuration ? Math.round(layout.pauseDuration * 1000) : 500;
-            ctx.fillText(`⏸ ${pauseMs}ms`, layout.x, layout.y - fontSize - 5);
-        }
+        // Hesitation words are already colored purple via getWordColor()
+        // No additional indicator needed - the color speaks for itself
         // Draw repeat indicator (small "↺" symbol after word)
         if (layout.isRepeat) {
             ctx.fillStyle = '#9333ea'; // Darker purple
