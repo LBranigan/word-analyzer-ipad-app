@@ -498,7 +498,7 @@ exports.generateAssessmentPdf = functions
 })
     .https
     .onCall(async (data, context) => {
-    var _a;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o;
     // Verify authentication
     if (!context.auth) {
         throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -523,22 +523,28 @@ exports.generateAssessmentPdf = functions
     }
     try {
         const bucket = storage.bucket();
-        // Generate PDF
+        // Generate PDF with full assessment data
         const pdfBuffer = await (0, pdfGenerator_1.generatePdfReport)({
             studentName: assessmentData.studentName,
             assessmentDate: ((_a = assessmentData.createdAt) === null || _a === void 0 ? void 0 : _a.toDate()) || new Date(),
-            metrics: assessmentData.metrics || {
-                accuracy: 0,
-                wordsPerMinute: 0,
-                prosodyScore: 0,
-                prosodyGrade: '',
-                totalWords: 0,
-                correctCount: 0,
-                errorCount: 0,
-                skipCount: 0,
+            metrics: {
+                accuracy: ((_b = assessmentData.metrics) === null || _b === void 0 ? void 0 : _b.accuracy) || 0,
+                wordsPerMinute: ((_c = assessmentData.metrics) === null || _c === void 0 ? void 0 : _c.wordsPerMinute) || 0,
+                prosodyScore: ((_d = assessmentData.metrics) === null || _d === void 0 ? void 0 : _d.prosodyScore) || 0,
+                prosodyGrade: ((_e = assessmentData.metrics) === null || _e === void 0 ? void 0 : _e.prosodyGrade) || '',
+                totalWords: ((_f = assessmentData.metrics) === null || _f === void 0 ? void 0 : _f.totalWords) || 0,
+                correctCount: ((_g = assessmentData.metrics) === null || _g === void 0 ? void 0 : _g.correctCount) || 0,
+                errorCount: ((_h = assessmentData.metrics) === null || _h === void 0 ? void 0 : _h.errorCount) || 0,
+                skipCount: ((_j = assessmentData.metrics) === null || _j === void 0 ? void 0 : _j.skipCount) || 0,
+                hesitationCount: (_k = assessmentData.metrics) === null || _k === void 0 ? void 0 : _k.hesitationCount,
+                fillerWordCount: (_l = assessmentData.metrics) === null || _l === void 0 ? void 0 : _l.fillerWordCount,
+                repeatCount: (_m = assessmentData.metrics) === null || _m === void 0 ? void 0 : _m.repeatCount,
+                selfCorrectionCount: (_o = assessmentData.metrics) === null || _o === void 0 ? void 0 : _o.selfCorrectionCount,
             },
             words: assessmentData.words || [],
             errorPatterns: assessmentData.errorPatterns || [],
+            aiSummary: assessmentData.aiSummary,
+            patternSummary: assessmentData.patternSummary,
         });
         // Upload PDF to storage
         const pdfStoragePath = `pdfs/${teacherId}/${assessmentId}/report.pdf`;

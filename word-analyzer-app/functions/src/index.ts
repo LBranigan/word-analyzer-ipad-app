@@ -594,22 +594,28 @@ export const generateAssessmentPdf = functions
     try {
       const bucket = storage.bucket();
 
-      // Generate PDF
+      // Generate PDF with full assessment data
       const pdfBuffer = await generatePdfReport({
         studentName: assessmentData.studentName,
         assessmentDate: assessmentData.createdAt?.toDate() || new Date(),
-        metrics: assessmentData.metrics || {
-          accuracy: 0,
-          wordsPerMinute: 0,
-          prosodyScore: 0,
-          prosodyGrade: '',
-          totalWords: 0,
-          correctCount: 0,
-          errorCount: 0,
-          skipCount: 0,
+        metrics: {
+          accuracy: assessmentData.metrics?.accuracy || 0,
+          wordsPerMinute: assessmentData.metrics?.wordsPerMinute || 0,
+          prosodyScore: assessmentData.metrics?.prosodyScore || 0,
+          prosodyGrade: assessmentData.metrics?.prosodyGrade || '',
+          totalWords: assessmentData.metrics?.totalWords || 0,
+          correctCount: assessmentData.metrics?.correctCount || 0,
+          errorCount: assessmentData.metrics?.errorCount || 0,
+          skipCount: assessmentData.metrics?.skipCount || 0,
+          hesitationCount: assessmentData.metrics?.hesitationCount,
+          fillerWordCount: assessmentData.metrics?.fillerWordCount,
+          repeatCount: assessmentData.metrics?.repeatCount,
+          selfCorrectionCount: assessmentData.metrics?.selfCorrectionCount,
         },
         words: assessmentData.words || [],
         errorPatterns: assessmentData.errorPatterns || [],
+        aiSummary: assessmentData.aiSummary,
+        patternSummary: assessmentData.patternSummary,
       });
 
       // Upload PDF to storage
