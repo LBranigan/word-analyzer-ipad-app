@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Analyzer iPad App - Complete Technical Reference</title>
+    <style>
+        :root {
+            --primary: #1a535c;
+            --secondary: #4ecdc4;
+            --accent: #ff6b6b;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --info: #3498db;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --correct: #22c55e;
+            --skipped: #ef4444;
+            --misread: #f97316;
+            --substituted: #e74c3c;
+            --hesitation: #7c3aed;
+            --repeat: #9333ea;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 2.5rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Pipeline Overview */
+        .pipeline-overview {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .pipeline-title {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid var(--secondary);
+        }
+
+        .pipeline-flow {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pipeline-step {
+            flex: 1;
+            min-width: 130px;
+            text-align: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .pipeline-step::after {
+            content: '→';
+            position: absolute;
+            right: -1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .pipeline-step:last-child::after { display: none; }
+
+        .pipeline-step h4 { margin-bottom: 0.25rem; font-size: 0.9rem; }
+        .pipeline-step small { opacity: 0.9; font-size: 0.75rem; }
+
+        /* Section Cards */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section h2::before {
+            content: '';
+            width: 4px;
+            height: 1.5rem;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        /* Algorithm Boxes */
+        .algorithm-box {
+            background: #f8f9fa;
+            border-left: 4px solid var(--info);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .algorithm-box h3 {
+            color: var(--info);
+            margin-bottom: 0.75rem;
+        }
+
+        .algorithm-box.success { border-left-color: var(--success); }
+        .algorithm-box.success h3 { color: var(--success); }
+        .algorithm-box.warning { border-left-color: var(--warning); }
+        .algorithm-box.warning h3 { color: var(--warning); }
+        .algorithm-box.danger { border-left-color: var(--accent); }
+        .algorithm-box.danger h3 { color: var(--accent); }
+        .algorithm-box.purple { border-left-color: var(--hesitation); }
+        .algorithm-box.purple h3 { color: var(--hesitation); }
+
+        /* Code blocks */
+        .code-block {
+            background: var(--dark);
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 0.5rem 0;
+        }
+
+        .code-block .comment { color: #6272a4; }
+        .code-block .keyword { color: #ff79c6; }
+        .code-block .number { color: #bd93f9; }
+        .code-block .string { color: #f1fa8c; }
+        .code-block .function { color: #50fa7b; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: var(--primary);
+            color: white;
+        }
+
+        tr:hover { background: #f5f5f5; }
+
+        /* Grid layouts */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        /* Error type cards */
+        .error-card {
+            padding: 1rem;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
+        .error-card.correct { border-color: var(--correct); background: rgba(34, 197, 94, 0.1); }
+        .error-card.skipped { border-color: var(--skipped); background: rgba(239, 68, 68, 0.1); }
+        .error-card.misread { border-color: var(--misread); background: rgba(249, 115, 22, 0.1); }
+        .error-card.substituted { border-color: var(--substituted); background: rgba(231, 76, 60, 0.1); }
+        .error-card.hesitation { border-color: var(--hesitation); background: rgba(124, 58, 237, 0.1); }
+        .error-card.repeat { border-color: var(--repeat); background: rgba(147, 51, 234, 0.1); }
+
+        .error-card h4 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Formula boxes */
+        .formula {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .formula var {
+            font-style: italic;
+        }
+
+        /* Lists */
+        ul.styled-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        ul.styled-list li {
+            padding: 0.5rem 0 0.5rem 2rem;
+            position: relative;
+        }
+
+        ul.styled-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0.5rem;
+            color: var(--secondary);
+        }
+
+        /* Matrix visualization */
+        .matrix-demo {
+            font-family: monospace;
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+
+        .matrix-demo table {
+            border-collapse: collapse;
+        }
+
+        .matrix-demo td, .matrix-demo th {
+            padding: 0.5rem;
+            text-align: center;
+            border: 1px solid #ddd;
+            min-width: 50px;
+        }
+
+        .matrix-demo .highlight { background: var(--secondary); color: white; }
+        .matrix-demo .header { background: var(--primary); color: white; }
+
+        /* Threshold visualization */
+        .threshold-bar {
+            height: 30px;
+            background: linear-gradient(to right,
+                #e74c3c 0%, #e74c3c 55%,
+                #f39c12 55%, #f39c12 70%,
+                #2ecc71 70%, #2ecc71 85%,
+                #27ae60 85%, #27ae60 100%
+            );
+            border-radius: 8px;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        .threshold-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        /* Notes */
+        .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        }
+
+        .note strong { color: #856404; }
+
+        .note.info {
+            background: #d1ecf1;
+            border-color: #bee5eb;
+        }
+
+        .note.info strong { color: #0c5460; }
+
+        .note.success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        .note.success strong { color: #155724; }
+
+        /* Feature cards */
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .feature-card h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Firebase structure */
+        .firebase-tree {
+            font-family: monospace;
+            background: #263238;
+            color: #fff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .firebase-tree .collection { color: #82aaff; }
+        .firebase-tree .document { color: #c3e88d; }
+        .firebase-tree .field { color: #f78c6c; }
+        .firebase-tree .type { color: #89ddff; }
+
+        @media (max-width: 768px) {
+            .pipeline-flow { flex-direction: column; }
+            .pipeline-step::after { display: none; }
+            .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Word Analyzer iPad App</h1>
+        <p class="subtitle">Oral Reading Fluency Assessment - Complete Technical Reference</p>
+
+        <!-- Pipeline Overview -->
+        <div class="pipeline-overview">
+            <h2 class="pipeline-title">🔄 Analysis Pipeline Overview</h2>
+            <div class="pipeline-flow">
+                <div class="pipeline-step">
+                    <h4>1. RECORD</h4>
+                    <small>30s/60s Audio</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>2. EARLY UPLOAD</h4>
+                    <small>Audio → Firebase</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>3. PRE-TRANSCRIBE</h4>
+                    <small>Background STT</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>4. CAPTURE</h4>
+                    <small>Image → Firebase</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>5. PROCESS</h4>
+                    <small>OCR + Align + Analyze</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>6. AI SUMMARY</h4>
+                    <small>Gemini + Google TTS</small>
+                </div>
+                <div class="pipeline-step">
+                    <h4>7. RESULTS</h4>
+                    <small>5-Tab Display</small>
+                </div>
+            </div>
+
+            <div class="note info" style="margin-top: 1.5rem;">
+                <strong>⚡ Early Upload Optimization:</strong> Audio uploads immediately after recording while user takes picture. Pre-transcription starts in background, saving 5-15 seconds when processing begins.
+            </div>
+        </div>
+
+        <!-- Section 1: App Architecture -->
+        <div class="section">
+            <h2>📐 Application Architecture</h2>
+
+            <div class="grid-4">
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h4>Frontend</h4>
+                    <p>React Native / Expo</p>
+                    <small>iPad optimized</small>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">☁️</div>
+                    <h4>Backend</h4>
+                    <p>Firebase Functions</p>
+                    <small>Node.js 20</small>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🗄️</div>
+                    <h4>Database</h4>
+                    <p>Cloud Firestore</p>
+                    <small>Real-time sync</small>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📦</div>
+                    <h4>Storage</h4>
+                    <p>Firebase Storage</p>
+                    <small>24h TTL</small>
+                </div>
+            </div>
+
+            <div class="algorithm-box" style="margin-top: 1.5rem;">
+                <h3>🏗️ Project Structure</h3>
+                <div class="code-block">
+word-analyzer-app/
+├── src/
+│   ├── screens/
+│   │   ├── HomeScreen.tsx          <span class="comment"># Student selection</span>
+│   │   ├── RecordingScreen.tsx     <span class="comment"># Audio recording with prompts</span>
+│   │   ├── CaptureScreen.tsx       <span class="comment"># Image capture</span>
+│   │   ├── AnalysisScreen.tsx      <span class="comment"># Results (5 tabs)</span>
+│   │   └── HistoryScreen.tsx       <span class="comment"># Past assessments</span>
+│   ├── services/
+│   │   ├── assessmentService.ts    <span class="comment"># Firebase upload, subscriptions</span>
+│   │   └── studentService.ts       <span class="comment"># Student CRUD</span>
+│   └── types/index.ts              <span class="comment"># TypeScript interfaces</span>
+├── functions/
+│   └── src/
+│       ├── index.ts                <span class="comment"># Cloud Function entry points</span>
+│       └── services/
+│           ├── speechToText.ts     <span class="comment"># Google Speech API</span>
+│           ├── visionOcr.ts        <span class="comment"># Google Vision OCR</span>
+│           ├── wordMatching.ts     <span class="comment"># DP alignment algorithm</span>
+│           ├── metricsCalculator.ts<span class="comment"># Accuracy, WPM, prosody</span>
+│           ├── summaryGenerator.ts <span class="comment"># Gemini AI summaries</span>
+│           ├── textToSpeech.ts     <span class="comment"># Google Cloud TTS (Studio voices)</span>
+│           ├── videoGenerator.ts   <span class="comment"># MP4 with highlights</span>
+│           └── pdfGenerator.ts     <span class="comment"># PDF reports</span>
+└── CLAUDE.md                       <span class="comment"># Developer documentation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Cloud Functions -->
+        <div class="section">
+            <h2>⚡ Cloud Functions</h2>
+
+            <table>
+                <tr>
+                    <th>Function</th>
+                    <th>Trigger</th>
+                    <th>Timeout</th>
+                    <th>Memory</th>
+                    <th>Purpose</th>
+                </tr>
+                <tr>
+                    <td><code>preTranscribeAudio</code></td>
+                    <td>Storage (audio upload)</td>
+                    <td>180s</td>
+                    <td>512MB</td>
+                    <td>Start transcription while user takes picture</td>
+                </tr>
+                <tr>
+                    <td><code>processAssessment</code></td>
+                    <td>Storage (image upload)</td>
+                    <td>540s</td>
+                    <td>2GB</td>
+                    <td>Full pipeline: OCR → Align → Metrics → AI → Video</td>
+                </tr>
+                <tr>
+                    <td><code>generateAssessmentVideo</code></td>
+                    <td>HTTPS callable</td>
+                    <td>540s</td>
+                    <td>2GB</td>
+                    <td>On-demand video regeneration</td>
+                </tr>
+                <tr>
+                    <td><code>generateAssessmentPdf</code></td>
+                    <td>HTTPS callable</td>
+                    <td>120s</td>
+                    <td>512MB</td>
+                    <td>On-demand PDF report</td>
+                </tr>
+            </table>
+
+            <div class="algorithm-box success">
+                <h3>🔐 Firebase Secrets</h3>
+                <div class="code-block">
+<span class="comment"># Required for AI summaries</span>
+firebase functions:secrets:set GEMINI_API_KEY
+
+<span class="comment"># Google Cloud TTS uses default service account credentials</span>
+<span class="comment"># (no separate API key needed)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Input Processing -->
+        <div class="section">
+            <h2>📥 Stage 1: Input Processing</h2>
+
+            <div class="grid-2">
+                <div class="algorithm-box">
+                    <h3>🎤 Speech-to-Text (Google Cloud)</h3>
+                    <p>Transcribes audio with word-level timing and confidence scores using <code>longRunningRecognize</code>.</p>
+                    <div class="code-block">
+<span class="comment">// Configuration</span>
+config = {
+  encoding: <span class="string">"WEBM_OPUS"</span>,      <span class="comment">// Auto-detected for WEBM</span>
+  languageCode: <span class="string">"en-US"</span>,
+  enableWordTimeOffsets: <span class="keyword">true</span>,
+  enableWordConfidence: <span class="keyword">true</span>,   <span class="comment">// Per-word confidence</span>
+  enableAutomaticPunctuation: <span class="keyword">true</span>,
+  model: <span class="string">"latest_long"</span>
+}
+
+<span class="comment">// Returns word timing info</span>
+WordTiming = {
+  word: <span class="string">"quick"</span>,
+  startTime: <span class="number">0.4</span>,       <span class="comment">// seconds</span>
+  endTime: <span class="number">0.7</span>,         <span class="comment">// seconds</span>
+  confidence: <span class="number">0.92</span>      <span class="comment">// 0-1</span>
+}
+                    </div>
+                </div>
+
+                <div class="algorithm-box">
+                    <h3>🖼️ Vision OCR (Google Cloud)</h3>
+                    <p>Extracts text with word-level bounding boxes. Uses <code>canvas.loadImage()</code> for accurate dimensions.</p>
+                    <div class="code-block">
+<span class="comment">// Get actual image dimensions</span>
+<span class="keyword">const</span> img = <span class="keyword">await</span> loadImage(imageBuffer);
+imageWidth = img.width;
+imageHeight = img.height;
+
+<span class="comment">// Vision API TEXT_DETECTION</span>
+<span class="keyword">const</span> [result] = <span class="keyword">await</span> visionClient.textDetection({
+  image: { content: imageBuffer }
+});
+
+<span class="comment">// Returns words with bounding boxes</span>
+OcrWord = {
+  text: <span class="string">"quick"</span>,
+  boundingBox: {
+    x: <span class="number">120</span>, y: <span class="number">45</span>,
+    width: <span class="number">80</span>, height: <span class="number">24</span>
+  }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-box warning">
+                <h3>📝 OCR Post-Processing</h3>
+                <p>Handles common OCR artifacts before word matching:</p>
+                <table>
+                    <tr><th>Issue</th><th>Example</th><th>Solution</th></tr>
+                    <tr><td>Em-dash merged words</td><td>"2023—was"</td><td>Split on —/– to ["2023", "was"]</td></tr>
+                    <tr><td>Line-break hyphens</td><td>["entre-", "preneurs"]</td><td>Merge to "entrepreneurs"</td></tr>
+                    <tr><td>Standalone punctuation</td><td>[".", ",", "!"]</td><td>Filter out</td></tr>
+                    <tr><td>Hyphenated compounds</td><td>["T", "-", "shirt"]</td><td>Merge to "T-shirt"</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 4: Word Normalization -->
+        <div class="section">
+            <h2>🔧 Stage 2: Word Normalization</h2>
+            <p>Before comparison, words are normalized to handle variations in spelling, contractions, and representation.</p>
+
+            <div class="algorithm-box success">
+                <h3>normalizeWord()</h3>
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">normalizeWord</span>(word: string): string {
+  <span class="comment">// Step 1: Lowercase and keep only alphanumeric + apostrophe</span>
+  <span class="keyword">let</span> normalized = word.toLowerCase().replace(/[^a-z0-9']/g, <span class="string">''</span>);
+
+  <span class="comment">// Step 2: Expand contractions</span>
+  <span class="keyword">const</span> contractions = {
+    <span class="string">"n't"</span>: <span class="string">' not'</span>,   <span class="comment">// "can't" → "can not"</span>
+    <span class="string">"'re"</span>: <span class="string">' are'</span>,   <span class="comment">// "they're" → "they are"</span>
+    <span class="string">"'ve"</span>: <span class="string">' have'</span>,  <span class="comment">// "I've" → "I have"</span>
+    <span class="string">"'ll"</span>: <span class="string">' will'</span>,  <span class="comment">// "I'll" → "I will"</span>
+    <span class="string">"'d"</span>: <span class="string">' would'</span>,  <span class="comment">// "I'd" → "I would"</span>
+    <span class="string">"'m"</span>: <span class="string">' am'</span>,     <span class="comment">// "I'm" → "I am"</span>
+    <span class="string">"'s"</span>: <span class="string">''</span>          <span class="comment">// possessive - remove</span>
+  };
+
+  <span class="keyword">return</span> normalized.trim();
+}
+                </div>
+
+                <table>
+                    <tr><th>Input</th><th>Output</th><th>Notes</th></tr>
+                    <tr><td>"Can't"</td><td>"can not"</td><td>Contraction expanded</td></tr>
+                    <tr><td>"Hello!"</td><td>"hello"</td><td>Punctuation removed</td></tr>
+                    <tr><td>"John's"</td><td>"john"</td><td>Possessive removed</td></tr>
+                    <tr><td>"T-shirt"</td><td>"tshirt"</td><td>Hyphen removed</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 5: Similarity Calculation -->
+        <div class="section">
+            <h2>📊 Stage 3: Word Similarity Calculation</h2>
+            <p>Multiple algorithms work together to determine if two words match or are similar.</p>
+
+            <div class="grid-2">
+                <div class="algorithm-box danger">
+                    <h3>🔢 Levenshtein Distance</h3>
+                    <p>Minimum edits (insert, delete, substitute) to transform one word into another.</p>
+
+                    <div class="formula">
+                        Similarity = 1 - (distance / max(len₁, len₂))
+                    </div>
+
+                    <div class="code-block">
+<span class="keyword">function</span> <span class="function">levenshteinDistance</span>(s1, s2) {
+  <span class="keyword">const</span> dp = Array(m+<span class="number">1</span>).fill(<span class="keyword">null</span>)
+            .map(() => Array(n+<span class="number">1</span>).fill(<span class="number">0</span>));
+
+  <span class="comment">// Base cases</span>
+  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i <= m; i++) dp[i][<span class="number">0</span>] = i;
+  <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j <= n; j++) dp[<span class="number">0</span>][j] = j;
+
+  <span class="comment">// Fill DP table</span>
+  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i <= m; i++) {
+    <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">1</span>; j <= n; j++) {
+      <span class="keyword">if</span> (s1[i-<span class="number">1</span>] === s2[j-<span class="number">1</span>]) {
+        dp[i][j] = dp[i-<span class="number">1</span>][j-<span class="number">1</span>];
+      } <span class="keyword">else</span> {
+        dp[i][j] = <span class="number">1</span> + Math.min(
+          dp[i-<span class="number">1</span>][j],     <span class="comment">// Delete</span>
+          dp[i][j-<span class="number">1</span>],     <span class="comment">// Insert</span>
+          dp[i-<span class="number">1</span>][j-<span class="number">1</span>]   <span class="comment">// Substitute</span>
+        );
+      }
+    }
+  }
+  <span class="keyword">return</span> dp[m][n];
+}
+                    </div>
+
+                    <div class="matrix-demo">
+                        <p><strong>Example:</strong> "cat" → "car" (distance = 1)</p>
+                        <table>
+                            <tr><th class="header"></th><th class="header">""</th><th class="header">c</th><th class="header">a</th><th class="header">r</th></tr>
+                            <tr><th class="header">""</th><td>0</td><td>1</td><td>2</td><td>3</td></tr>
+                            <tr><th class="header">c</th><td>1</td><td class="highlight">0</td><td>1</td><td>2</td></tr>
+                            <tr><th class="header">a</th><td>2</td><td>1</td><td class="highlight">0</td><td>1</td></tr>
+                            <tr><th class="header">t</th><td>3</td><td>2</td><td>1</td><td class="highlight">1</td></tr>
+                        </table>
+                        <p>Similarity = 1 - (1/3) = <strong>0.67</strong></p>
+                    </div>
+                </div>
+
+                <div class="algorithm-box warning">
+                    <h3>🔄 OCR Confusion Handling</h3>
+                    <p>Machine OCR errors should not penalize students. Normalizes common OCR misreadings:</p>
+
+                    <div class="code-block">
+<span class="keyword">const</span> OCR_CONFUSIONS = [
+  [<span class="string">'0'</span>, <span class="string">'o'</span>],   <span class="comment">// zero ↔ letter o</span>
+  [<span class="string">'1'</span>, <span class="string">'l'</span>],   <span class="comment">// one ↔ lowercase L</span>
+  [<span class="string">'1'</span>, <span class="string">'i'</span>],   <span class="comment">// one ↔ letter i</span>
+  [<span class="string">'5'</span>, <span class="string">'s'</span>],   <span class="comment">// five ↔ letter s</span>
+  [<span class="string">'8'</span>, <span class="string">'b'</span>],   <span class="comment">// eight ↔ letter b</span>
+  [<span class="string">'rn'</span>, <span class="string">'m'</span>], <span class="comment">// r+n looks like m</span>
+  [<span class="string">'cl'</span>, <span class="string">'d'</span>], <span class="comment">// c+l looks like d</span>
+  [<span class="string">'vv'</span>, <span class="string">'w'</span>], <span class="comment">// v+v looks like w</span>
+];
+
+<span class="comment">// If words match after OCR normalization</span>
+<span class="comment">// → Count as correct (similarity = 1.0)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-box">
+                <h3>🔗 Combined Similarity: calculateWordSimilarity()</h3>
+                <p>Uses a cascade of checks to determine the best similarity score.</p>
+
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">calculateWordSimilarity</span>(word1, word2) {
+  <span class="keyword">const</span> w1 = normalizeWord(word1);
+  <span class="keyword">const</span> w2 = normalizeWord(word2);
+
+  <span class="comment">// 1. Exact match</span>
+  <span class="keyword">if</span> (w1 === w2) <span class="keyword">return</span> <span class="number">1.0</span>;
+
+  <span class="comment">// 2. OCR confusion match (machine error, not student error)</span>
+  <span class="keyword">if</span> (normalizeOcrConfusions(w1) === normalizeOcrConfusions(w2)) {
+    <span class="keyword">return</span> <span class="number">1.0</span>;
+  }
+
+  <span class="comment">// 3. Number equivalents ("fifteen" = "15", "first" = "1st")</span>
+  <span class="keyword">if</span> (areNumberEquivalents(word1, word2)) <span class="keyword">return</span> <span class="number">1.0</span>;
+
+  <span class="comment">// 4. Phonetic equivalents (homophones)</span>
+  <span class="keyword">if</span> (arePhoneticEquivalents(w1, w2)) <span class="keyword">return</span> <span class="number">0.95</span>;
+
+  <span class="comment">// 5. Prefix matching (same first 3+ characters)</span>
+  <span class="keyword">if</span> (minLen >= <span class="number">3</span> && w1.substring(<span class="number">0</span>, <span class="number">3</span>) === w2.substring(<span class="number">0</span>, <span class="number">3</span>)) {
+    <span class="keyword">return</span> <span class="number">0.6</span> + (<span class="number">0.35</span> * lengthRatio);
+  }
+
+  <span class="comment">// 6. Levenshtein-based similarity (check both normal and OCR-normalized)</span>
+  <span class="keyword">const</span> similarity = <span class="number">1</span> - (bestDistance / maxLen);
+  <span class="keyword">const</span> lengthBonus = (w1.length === w2.length) ? <span class="number">0.1</span> : <span class="number">0</span>;
+
+  <span class="keyword">return</span> Math.min(<span class="number">1</span>, similarity + lengthBonus);
+}
+                </div>
+
+                <h4>Similarity Thresholds</h4>
+                <div class="threshold-bar"></div>
+                <div class="threshold-labels">
+                    <span>0.0 (No Match)</span>
+                    <span>0.55 (Low)</span>
+                    <span>0.70 (Medium)</span>
+                    <span>0.95 (Phonetic)</span>
+                    <span>1.0 (Exact)</span>
+                </div>
+
+                <table>
+                    <tr><th>Score</th><th>Classification</th><th>Use Case</th></tr>
+                    <tr><td>≥ 0.95</td><td>Correct</td><td>Exact or phonetic match</td></tr>
+                    <tr><td>≥ 0.70</td><td>Misread</td><td>Similar but not exact</td></tr>
+                    <tr><td>≥ 0.40</td><td>Substituted</td><td>Different but related</td></tr>
+                    <tr><td>< 0.40</td><td>Substituted (penalty)</td><td>Very different word</td></tr>
+                </table>
+            </div>
+
+            <div class="grid-2">
+                <div class="algorithm-box success">
+                    <h3>📖 Phonetic Equivalences (150+ Homophones)</h3>
+                    <p>Words that sound the same but are spelled differently count as correct.</p>
+                    <div class="code-block">
+<span class="keyword">const</span> phoneticEquivalences = {
+  <span class="comment">// Number homophones</span>
+  <span class="string">'one'</span>: [<span class="string">'won'</span>, <span class="string">'1'</span>],
+  <span class="string">'two'</span>: [<span class="string">'to'</span>, <span class="string">'too'</span>, <span class="string">'2'</span>],
+  <span class="string">'four'</span>: [<span class="string">'for'</span>, <span class="string">'fore'</span>, <span class="string">'4'</span>],
+  <span class="string">'eight'</span>: [<span class="string">'ate'</span>, <span class="string">'8'</span>],
+
+  <span class="comment">// Common homophones</span>
+  <span class="string">'their'</span>: [<span class="string">'there'</span>, <span class="string">"they're"</span>],
+  <span class="string">'your'</span>: [<span class="string">"you're"</span>, <span class="string">'yore'</span>],
+  <span class="string">'write'</span>: [<span class="string">'right'</span>, <span class="string">'rite'</span>],
+  <span class="string">'knight'</span>: [<span class="string">'night'</span>],
+  <span class="string">'know'</span>: [<span class="string">'no'</span>],
+  <span class="string">'hear'</span>: [<span class="string">'here'</span>],
+  <span class="comment">// ... 150+ total pairs</span>
+};
+                    </div>
+                </div>
+
+                <div class="algorithm-box">
+                    <h3>🔢 Number Equivalences</h3>
+                    <p>Written numbers match their digit equivalents.</p>
+                    <div class="code-block">
+<span class="keyword">const</span> numberEquivalences = {
+  <span class="comment">// Cardinal numbers</span>
+  <span class="string">'fifteen'</span>: <span class="string">'15'</span>,
+  <span class="string">'twenty'</span>: <span class="string">'20'</span>,
+  <span class="string">'hundred'</span>: <span class="string">'100'</span>,
+
+  <span class="comment">// Ordinal numbers</span>
+  <span class="string">'first'</span>: <span class="string">'1st'</span>,
+  <span class="string">'second'</span>: <span class="string">'2nd'</span>,
+  <span class="string">'third'</span>: <span class="string">'3rd'</span>,
+};
+
+<span class="comment">// "fifteen" spoken when "15" shown → correct</span>
+<span class="comment">// "1st" spoken when "first" shown → correct</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 6: Word Alignment -->
+        <div class="section">
+            <h2>🎯 Stage 4: Word Alignment (Dynamic Programming)</h2>
+            <p>The core algorithm that matches spoken words to expected words, handling skipped words, substitutions, and insertions.</p>
+
+            <div class="algorithm-box danger">
+                <h3>📐 matchWords() - DP Alignment</h3>
+                <p>Uses dynamic programming to find the optimal alignment between expected (OCR) and spoken word sequences.</p>
+
+                <div class="formula">
+                    dp[i][j] = max(match_score, skip_score, insert_score)
+                </div>
+
+                <div class="code-block">
+<span class="comment">// Scoring parameters</span>
+<span class="keyword">const</span> MATCH_CORRECT = +<span class="number">1.0</span>;   <span class="comment">// Similarity ≥ 0.95</span>
+<span class="keyword">const</span> MATCH_MISREAD = +<span class="number">0.5</span>;   <span class="comment">// Similarity ≥ 0.70</span>
+<span class="keyword">const</span> MATCH_SUBST = +<span class="number">0.2</span>;     <span class="comment">// Similarity ≥ 0.40</span>
+<span class="keyword">const</span> MATCH_WRONG = -<span class="number">0.5</span>;     <span class="comment">// Similarity < 0.40</span>
+<span class="keyword">const</span> SKIP_PENALTY = -<span class="number">1.0</span>;    <span class="comment">// Student skipped expected word</span>
+<span class="keyword">const</span> INSERT_PENALTY = -<span class="number">0.3</span>;  <span class="comment">// Student said extra word</span>
+
+<span class="comment">// DP Table construction</span>
+<span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i <= m; i++) {
+  <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j <= n; j++) {
+    <span class="comment">// Option 1: Match expected[i] with spoken[j]</span>
+    <span class="keyword">const</span> similarity = calculateWordSimilarity(expected[i], spoken[j]);
+    <span class="keyword">let</span> score = similarity >= <span class="number">0.95</span> ? <span class="number">1.0</span> :
+                similarity >= <span class="number">0.70</span> ? <span class="number">0.5</span> :
+                similarity >= <span class="number">0.40</span> ? <span class="number">0.2</span> : -<span class="number">0.5</span>;
+
+    <span class="comment">// Option 2: Skip expected word (not spoken)</span>
+    <span class="keyword">const</span> skipScore = dp[i][j] - <span class="number">1.0</span>;
+
+    <span class="comment">// Option 3: Extra spoken word (insertion)</span>
+    <span class="keyword">const</span> insertScore = dp[i][j] - <span class="number">0.3</span>;
+
+    <span class="comment">// Choose best option and store path</span>
+  }
+}
+                </div>
+
+                <h4>Visual Example: Aligning "The quick brown fox" with spoken "The brown fox"</h4>
+                <div class="matrix-demo">
+                    <table>
+                        <tr>
+                            <th class="header"></th>
+                            <th class="header">""</th>
+                            <th class="header">The</th>
+                            <th class="header">brown</th>
+                            <th class="header">fox</th>
+                        </tr>
+                        <tr>
+                            <th class="header">""</th>
+                            <td class="highlight">0</td><td>-0.3</td><td>-0.6</td><td>-0.9</td>
+                        </tr>
+                        <tr>
+                            <th class="header">The</th>
+                            <td>-1</td><td class="highlight">1</td><td>0.7</td><td>0.4</td>
+                        </tr>
+                        <tr>
+                            <th class="header">quick</th>
+                            <td>-2</td><td>0</td><td class="highlight">0</td><td>-0.3</td>
+                        </tr>
+                        <tr>
+                            <th class="header">brown</th>
+                            <td>-3</td><td>-1</td><td class="highlight">1</td><td>0.7</td>
+                        </tr>
+                        <tr>
+                            <th class="header">fox</th>
+                            <td>-4</td><td>-2</td><td>0</td><td class="highlight">2</td>
+                        </tr>
+                    </table>
+                    <p><strong>Backtrack path:</strong> match(The) → skip(quick) → match(brown) → match(fox)</p>
+                    <p><strong>Result:</strong> "The" ✅, "quick" ⬜ SKIPPED, "brown" ✅, "fox" ✅</p>
+                </div>
+            </div>
+
+            <div class="algorithm-box">
+                <h3>📍 Passage Boundary Detection</h3>
+                <p>Auto-detects which OCR words the student was trying to read (handles partial readings).</p>
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">findSpokenRangeInOCR</span>(spokenWords, ocrWords) {
+  <span class="comment">// Build similarity matrix between all spoken and OCR words</span>
+  <span class="keyword">const</span> similarityMatrix = buildSimilarityMatrix(spoken, ocr);
+
+  <span class="comment">// Try each possible starting position in OCR</span>
+  <span class="keyword">for</span> (<span class="keyword">let</span> startOCR = <span class="number">0</span>; startOCR < n; startOCR++) {
+    <span class="comment">// Run DP from this starting point</span>
+    <span class="comment">// Track: score, matchCount, lastOCR, firstOCR</span>
+  }
+
+  <span class="comment">// Return best alignment range</span>
+  <span class="keyword">return</span> { firstIndex: bestStart, lastIndex: bestEnd, matchedCount };
+}
+                </div>
+                <div class="note">
+                    <strong>Why needed:</strong> Students may start reading from the middle of a page or skip sections. This algorithm finds the actual passage they read within the full OCR text.
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 7: Fluency Detection -->
+        <div class="section">
+            <h2>⏱️ Stage 5: Fluency Detection</h2>
+            <p>Detects hesitations, repetitions, self-corrections, and filler words that affect reading fluency.</p>
+
+            <div class="grid-2">
+                <div class="algorithm-box purple">
+                    <h3>⏸️ Hesitation Detection</h3>
+                    <p>A pause > 0.5 seconds between words indicates hesitation.</p>
+                    <div class="code-block">
+<span class="keyword">const</span> HESITATION_THRESHOLD = <span class="number">0.5</span>; <span class="comment">// seconds</span>
+
+<span class="keyword">function</span> <span class="function">detectHesitation</span>(currentWord, previousWord) {
+  <span class="keyword">const</span> pauseDuration =
+    currentWord.startTime - previousWord.endTime;
+
+  <span class="keyword">return</span> {
+    hesitation: pauseDuration > HESITATION_THRESHOLD,
+    pauseDuration: pauseDuration
+  };
+}
+
+<span class="comment">// Exception: Don't count pauses after punctuation</span>
+<span class="comment">// (natural pauses after . , ; : ! ?)</span>
+<span class="keyword">const</span> NATURAL_PAUSE = /[.,;:!?\-—–]$/;
+                    </div>
+                </div>
+
+                <div class="algorithm-box">
+                    <h3>🔁 Repetition & Self-Correction Detection</h3>
+                    <div class="code-block">
+<span class="keyword">function</span> <span class="function">detectRepeatedWords</span>(spokenWords) {
+  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">1</span>; i < spokenWords.length; i++) {
+    <span class="keyword">const</span> current = normalize(spokenWords[i]);
+    <span class="keyword">const</span> previous = normalize(spokenWords[i - <span class="number">1</span>]);
+
+    <span class="comment">// STUTTER: Exact repeat</span>
+    <span class="keyword">if</span> (current === previous) {
+      repeatedIndices.add(i);
+      <span class="keyword">continue</span>;
+    }
+
+    <span class="comment">// STUTTER: Very similar (similarity ≥ 0.85)</span>
+    <span class="keyword">if</span> (similarity >= <span class="number">0.85</span>) {
+      repeatedIndices.add(i);
+    }
+
+    <span class="comment">// SELF-CORRECTION: Short fragment → full word</span>
+    <span class="comment">// e.g., "th" → "three" in quick succession</span>
+    <span class="keyword">if</span> (previous.length <= <span class="number">3</span> &&
+        current.startsWith(previous) &&
+        timeBetween < <span class="number">0.25</span>) {
+      selfCorrectionIndices.add(i);
+    }
+  }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-box success">
+                <h3>🗣️ Filler Word Detection</h3>
+                <p>Common filler words are filtered from matching but counted for fluency scoring.</p>
+                <div class="code-block">
+<span class="keyword">const</span> FILLER_WORDS = [
+  <span class="string">'um'</span>, <span class="string">'uh'</span>, <span class="string">'er'</span>, <span class="string">'ah'</span>,
+  <span class="string">'like'</span>, <span class="string">'so'</span>, <span class="string">'well'</span>,
+  <span class="string">'hmm'</span>, <span class="string">'mm'</span>, <span class="string">'erm'</span>
+];
+
+<span class="comment">// Filler words are:</span>
+<span class="comment">// 1. Filtered OUT before word matching</span>
+<span class="comment">// 2. Counted for prosody smoothness calculation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 8: Error Classification -->
+        <div class="section">
+            <h2>🏷️ Stage 6: Error Classification</h2>
+
+            <div class="grid-3">
+                <div class="error-card correct">
+                    <h4><span class="color-dot" style="background: var(--correct);"></span> Correct</h4>
+                    <p><strong>Condition:</strong> Similarity ≥ 0.95 (exact, phonetic, or number match)</p>
+                    <p><strong>Display:</strong> Green highlight</p>
+                    <p><strong>Example:</strong> "their" → "there" ✓</p>
+                </div>
+
+                <div class="error-card hesitation">
+                    <h4><span class="color-dot" style="background: var(--hesitation);"></span> Correct + Hesitation</h4>
+                    <p><strong>Condition:</strong> Correct word with pause > 0.5s before it</p>
+                    <p><strong>Display:</strong> Purple highlight</p>
+                    <p><strong>Note:</strong> Only if otherwise correct</p>
+                </div>
+
+                <div class="error-card misread">
+                    <h4><span class="color-dot" style="background: var(--misread);"></span> Misread</h4>
+                    <p><strong>Condition:</strong> Similarity 0.70-0.94</p>
+                    <p><strong>Display:</strong> Orange highlight</p>
+                    <p><strong>Example:</strong> "house" → "horse"</p>
+                </div>
+
+                <div class="error-card substituted">
+                    <h4><span class="color-dot" style="background: var(--substituted);"></span> Substituted</h4>
+                    <p><strong>Condition:</strong> Similarity < 0.70</p>
+                    <p><strong>Display:</strong> Orange highlight</p>
+                    <p><strong>Example:</strong> "cat" → "dog"</p>
+                </div>
+
+                <div class="error-card skipped">
+                    <h4><span class="color-dot" style="background: var(--skipped);"></span> Skipped</h4>
+                    <p><strong>Condition:</strong> Expected word has no spoken match</p>
+                    <p><strong>Display:</strong> Red highlight</p>
+                    <p><strong>Example:</strong> "The <s>quick</s> brown"</p>
+                </div>
+
+                <div class="error-card repeat">
+                    <h4><span class="color-dot" style="background: var(--repeat);"></span> Repeated/Self-Corrected</h4>
+                    <p><strong>Condition:</strong> Same word spoken twice or quick correction</p>
+                    <p><strong>Display:</strong> ↺ symbol indicator</p>
+                    <p><strong>Example:</strong> "the the quick"</p>
+                </div>
+            </div>
+
+            <div class="note" style="margin-top: 1rem;">
+                <strong>⚠️ Color Priority System:</strong> Error colors (orange/red) always take priority over hesitation (purple). If a word was misread with hesitation, it shows orange (misread), not purple.
+            </div>
+        </div>
+
+        <!-- Section 9: Error Pattern Analysis -->
+        <div class="section">
+            <h2>🔍 Stage 7: Error Pattern Analysis</h2>
+            <p>Deeper analysis identifies specific reading difficulties for targeted instruction.</p>
+
+            <div class="grid-2">
+                <div class="algorithm-box">
+                    <h3>📝 Consonant Blend Errors</h3>
+                    <p>Difficulty with consonant clusters.</p>
+                    <div class="code-block">
+<span class="keyword">const</span> CONSONANT_BLENDS = [
+  <span class="comment">// L-blends</span>
+  <span class="string">'bl'</span>, <span class="string">'cl'</span>, <span class="string">'fl'</span>, <span class="string">'gl'</span>, <span class="string">'pl'</span>, <span class="string">'sl'</span>,
+  <span class="comment">// R-blends</span>
+  <span class="string">'br'</span>, <span class="string">'cr'</span>, <span class="string">'dr'</span>, <span class="string">'fr'</span>, <span class="string">'gr'</span>, <span class="string">'pr'</span>, <span class="string">'tr'</span>,
+  <span class="comment">// S-blends</span>
+  <span class="string">'sc'</span>, <span class="string">'sk'</span>, <span class="string">'sp'</span>, <span class="string">'st'</span>, <span class="string">'sw'</span>,
+  <span class="comment">// 3-letter blends</span>
+  <span class="string">'scr'</span>, <span class="string">'spl'</span>, <span class="string">'spr'</span>, <span class="string">'str'</span>, <span class="string">'squ'</span>,
+];
+
+<span class="comment">// "street" → "seet" = blend difficulty</span>
+<span class="comment">// "play" → "pay" = blend difficulty</span>
+                    </div>
+                </div>
+
+                <div class="algorithm-box warning">
+                    <h3>🔤 Digraph Errors</h3>
+                    <p>Difficulty with two letters making one sound.</p>
+                    <div class="code-block">
+<span class="keyword">const</span> DIGRAPHS = [
+  <span class="string">'ch'</span>, <span class="string">'sh'</span>, <span class="string">'th'</span>, <span class="string">'ph'</span>, <span class="string">'wh'</span>, <span class="string">'ck'</span>, <span class="string">'ng'</span>, <span class="string">'gh'</span>
+];
+
+<span class="keyword">const</span> digraphSubstitutions = {
+  <span class="string">'ch'</span>: [<span class="string">'sh'</span>, <span class="string">'k'</span>, <span class="string">'c'</span>],
+  <span class="string">'sh'</span>: [<span class="string">'ch'</span>, <span class="string">'s'</span>],
+  <span class="string">'th'</span>: [<span class="string">'d'</span>, <span class="string">'t'</span>, <span class="string">'f'</span>, <span class="string">'v'</span>],
+  <span class="string">'ph'</span>: [<span class="string">'f'</span>, <span class="string">'p'</span>],
+  <span class="string">'wh'</span>: [<span class="string">'w'</span>, <span class="string">'h'</span>],
+};
+                    </div>
+                </div>
+
+                <div class="algorithm-box danger">
+                    <h3>🎯 First-Letter Guessing</h3>
+                    <p>Student guesses based on first letter without decoding the whole word.</p>
+                    <div class="code-block">
+<span class="comment">// Detection: Same first letter but very different word</span>
+<span class="keyword">if</span> (expected[<span class="number">0</span>] === spoken[<span class="number">0</span>] &&
+    similarity < <span class="number">0.5</span>) {
+  <span class="comment">// First-letter guessing detected</span>
+}
+
+<span class="comment">// Example: "beautiful" → "big"</span>
+<span class="comment">// (starts with 'b', very low similarity)</span>
+                    </div>
+                </div>
+
+                <div class="algorithm-box purple">
+                    <h3>🗣️ Speech Pattern Issues</h3>
+                    <p>Common speech substitutions that may indicate need for evaluation.</p>
+                    <div class="code-block">
+<span class="comment">// R → W substitution (common in young readers)</span>
+<span class="comment">// "rabbit" → "wabbit", "red" → "wed"</span>
+<span class="keyword">if</span> (expected.includes(<span class="string">'r'</span>) && spoken.includes(<span class="string">'w'</span>)) {
+  addPattern(<span class="string">'r_sound'</span>);
+}
+
+<span class="comment">// TH substitution</span>
+<span class="comment">// "the" → "da", "three" → "free"</span>
+<span class="keyword">if</span> (expected.includes(<span class="string">'th'</span>) && !spoken.includes(<span class="string">'th'</span>)) {
+  <span class="keyword">if</span> (spoken includes 'd', 't', 'f', or 'v') {
+    addPattern(<span class="string">'th_sound'</span>);
+  }
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-box success">
+                <h3>📋 Pattern Summary Generation</h3>
+                <p>Generates actionable recommendations for teachers based on error patterns.</p>
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">generatePatternSummary</span>(patterns, metrics) {
+  <span class="comment">// Consonant blend difficulties (≥2 instances)</span>
+  <span class="keyword">if</span> (consonantBlendErrors >= <span class="number">2</span>) {
+    issues.push(<span class="string">'Difficulty with consonant blends'</span>);
+    recommendations.push(<span class="string">'Practice blending with word ladders'</span>);
+  }
+
+  <span class="comment">// First-letter guessing (≥2 instances)</span>
+  <span class="keyword">if</span> (firstLetterGuessing >= <span class="number">2</span>) {
+    issues.push(<span class="string">'Relying on first-letter guessing'</span>);
+    recommendations.push(<span class="string">'Encourage sounding out entire word'</span>);
+  }
+
+  <span class="comment">// Speech referral suggestions (≥3 instances)</span>
+  <span class="keyword">if</span> (rSoundErrors >= <span class="number">3</span> || thSoundErrors >= <span class="number">3</span>) {
+    referrals.push(<span class="string">'Consider speech-language evaluation'</span>);
+  }
+
+  <span class="comment">// Determine severity</span>
+  severity = totalIssues === <span class="number">0</span> ? <span class="string">'excellent'</span> :
+             totalIssues <= <span class="number">2</span> ? <span class="string">'mild'</span> :
+             totalIssues <= <span class="number">4</span> ? <span class="string">'moderate'</span> : <span class="string">'significant'</span>;
+}
+                </div>
+            </div>
+
+            <h3 style="margin-top: 1.5rem;">All Error Pattern Types</h3>
+            <table>
+                <tr><th>Type</th><th>Description</th><th>Example</th></tr>
+                <tr><td><code>initial_sound</code></td><td>First sound error</td><td>"cat" → "bat"</td></tr>
+                <tr><td><code>final_sound</code></td><td>Last sound error</td><td>"cat" → "can"</td></tr>
+                <tr><td><code>consonant_blend</code></td><td>Blend difficulty (bl, tr, str)</td><td>"street" → "seet"</td></tr>
+                <tr><td><code>digraph</code></td><td>Digraph error (ch, sh, th)</td><td>"ship" → "sip"</td></tr>
+                <tr><td><code>first_letter_guess</code></td><td>Guessing from first letter</td><td>"beautiful" → "big"</td></tr>
+                <tr><td><code>r_sound</code></td><td>R → W substitution</td><td>"rabbit" → "wabbit"</td></tr>
+                <tr><td><code>th_sound</code></td><td>TH substitution</td><td>"the" → "da"</td></tr>
+                <tr><td><code>vowel_error</code></td><td>Vowel confusion</td><td>"pet" → "pit"</td></tr>
+                <tr><td><code>visual_similarity</code></td><td>b/d, p/q, m/n confusion</td><td>"dog" → "bog"</td></tr>
+                <tr><td><code>omission</code></td><td>Sounds left out</td><td>"plant" → "pant"</td></tr>
+                <tr><td><code>addition</code></td><td>Extra sounds added</td><td>"saw" → "sawed"</td></tr>
+                <tr><td><code>word_length</code></td><td>Long word difficulty (7+)</td><td>Multisyllabic words</td></tr>
+                <tr><td><code>hesitation</code></td><td>Significant pause > 0.5s</td><td>[pause] → word</td></tr>
+                <tr><td><code>repetition</code></td><td>Word stutter</td><td>"the the quick"</td></tr>
+                <tr><td><code>self_correction</code></td><td>Caught own error ✓</td><td>"wen-went"</td></tr>
+                <tr><td><code>filler_word</code></td><td>Um, uh, er, ah</td><td>"um... the"</td></tr>
+            </table>
+        </div>
+
+        <!-- Section 10: Prosody Metrics -->
+        <div class="section">
+            <h2>📈 Stage 8: Prosody Metrics Calculation</h2>
+
+            <div class="algorithm-box">
+                <h3>calculateMetrics()</h3>
+
+                <h4>1. Accuracy Percentage</h4>
+                <div class="formula">
+                    Accuracy = (correctCount ÷ totalWords) × 100
+                </div>
+
+                <h4>2. Words Per Minute (Correct Words Only)</h4>
+                <div class="formula">
+                    WPM = correctCount ÷ (actualReadingTime ÷ 60)
+                </div>
+                <p style="margin-top: 0.5rem;"><em>Note: Uses actual reading time from word timestamps, not audio duration. Only counts correctly read words.</em></p>
+
+                <h4>3. Prosody Score (4-Component Weighted Average)</h4>
+                <div class="code-block">
+<span class="comment">// Component 1: Accuracy (35% weight)</span>
+accuracyPoints = accuracy >= <span class="number">98</span> ? <span class="number">4</span> :
+                 accuracy >= <span class="number">95</span> ? <span class="number">3.5</span> :
+                 accuracy >= <span class="number">90</span> ? <span class="number">3</span> :
+                 accuracy >= <span class="number">85</span> ? <span class="number">2.5</span> :
+                 accuracy >= <span class="number">75</span> ? <span class="number">2</span> : <span class="number">1.5</span>;
+
+<span class="comment">// Component 2: Rate (25% weight) - Optimal: 100-180 WPM</span>
+ratePoints = (wpm >= <span class="number">100</span> && wpm <= <span class="number">180</span>) ? <span class="number">4</span> :
+             (wpm >= <span class="number">80</span> && wpm <= <span class="number">200</span>) ? <span class="number">3.5</span> :
+             (wpm >= <span class="number">60</span> && wpm <= <span class="number">220</span>) ? <span class="number">3</span> : <span class="number">2</span>;
+
+<span class="comment">// Component 3: Fluency (25% weight) - Based on error rate</span>
+errorRate = errorCount / totalWords;
+fluencyPoints = errorRate <= <span class="number">0.02</span> ? <span class="number">4</span> :
+                errorRate <= <span class="number">0.05</span> ? <span class="number">3.5</span> :
+                errorRate <= <span class="number">0.10</span> ? <span class="number">3</span> :
+                errorRate <= <span class="number">0.20</span> ? <span class="number">2.5</span> : <span class="number">2</span>;
+
+<span class="comment">// Component 4: Smoothness (15% weight) - Hesitation + fillers + repeats</span>
+disfluencyRate = hesitationRate + fillerRate + repeatRate;
+smoothnessPoints = disfluencyRate <= <span class="number">0.02</span> ? <span class="number">4</span> :
+                   disfluencyRate <= <span class="number">0.05</span> ? <span class="number">3.5</span> :
+                   disfluencyRate <= <span class="number">0.10</span> ? <span class="number">3</span> :
+                   disfluencyRate <= <span class="number">0.20</span> ? <span class="number">2.5</span> :
+                   disfluencyRate <= <span class="number">0.30</span> ? <span class="number">2</span> : <span class="number">1.5</span>;
+
+<span class="comment">// Final Score (0-4 scale)</span>
+prosodyScore = accuracyPoints * <span class="number">0.35</span> +
+               ratePoints * <span class="number">0.25</span> +
+               fluencyPoints * <span class="number">0.25</span> +
+               smoothnessPoints * <span class="number">0.15</span>;
+                </div>
+
+                <h4>4. Prosody Grade Assignment</h4>
+                <table>
+                    <tr><th>Score Range</th><th>Grade</th><th>Description</th></tr>
+                    <tr><td>≥ 3.8</td><td style="color: var(--success); font-weight: bold;">Excellent</td><td>Fluent reading with appropriate pace and accuracy</td></tr>
+                    <tr><td>3.0 - 3.7</td><td style="color: var(--info); font-weight: bold;">Proficient</td><td>Good fluency with minor issues</td></tr>
+                    <tr><td>2.0 - 2.9</td><td style="color: var(--warning); font-weight: bold;">Developing</td><td>Reading is choppy or has frequent errors</td></tr>
+                    <tr><td>< 2.0</td><td style="color: var(--accent); font-weight: bold;">Needs Support</td><td>Significant fluency difficulties</td></tr>
+                </table>
+            </div>
+
+            <div class="algorithm-box success">
+                <h3>📊 Example Calculation</h3>
+                <table>
+                    <tr><th>Metric</th><th>Value</th><th>Points</th></tr>
+                    <tr><td>Total Words</td><td>50</td><td>-</td></tr>
+                    <tr><td>Correct Words</td><td>45</td><td>-</td></tr>
+                    <tr><td>Accuracy</td><td>90%</td><td>3.0 (×0.35 = 1.05)</td></tr>
+                    <tr><td>Reading Time</td><td>25 seconds</td><td>-</td></tr>
+                    <tr><td>WPM (correct only)</td><td>108</td><td>4.0 (×0.25 = 1.00)</td></tr>
+                    <tr><td>Error Rate</td><td>10%</td><td>3.0 (×0.25 = 0.75)</td></tr>
+                    <tr><td>Disfluency Rate</td><td>8%</td><td>3.0 (×0.15 = 0.45)</td></tr>
+                    <tr><th>Prosody Score</th><th colspan="2">1.05 + 1.00 + 0.75 + 0.45 = <strong>3.25 (Proficient)</strong></th></tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- Section 11: AI Summary Generation -->
+        <div class="section">
+            <h2>🤖 Stage 9: AI Summary Generation</h2>
+
+            <div class="grid-2">
+                <div class="algorithm-box">
+                    <h3>✨ Gemini AI Summary</h3>
+                    <p>Generates personalized, encouraging feedback for each student.</p>
+                    <div class="code-block">
+<span class="comment">// Model configuration for creative outputs</span>
+<span class="keyword">const</span> model = ai.getGenerativeModel({
+  model: <span class="string">'gemini-1.5-flash'</span>,
+  generationConfig: {
+    maxOutputTokens: <span class="number">400</span>,
+    temperature: <span class="number">0.95</span>,    <span class="comment">// High for variety</span>
+    topP: <span class="number">0.95</span>,
+    topK: <span class="number">40</span>,
+  },
+});
+
+<span class="comment">// Prompt includes:</span>
+<span class="comment">// - Student name</span>
+<span class="comment">// - Accuracy, WPM, prosody grade</span>
+<span class="comment">// - Specific words they nailed</span>
+<span class="comment">// - Words that were tricky</span>
+<span class="comment">// - Primary error pattern</span>
+<span class="comment">// - Random variety seed (for uniqueness)</span>
+                    </div>
+                </div>
+
+                <div class="algorithm-box purple">
+                    <h3>🔊 Google Cloud TTS (Studio Voices)</h3>
+                    <p>High-quality, natural-sounding voice for AI summary playback.</p>
+                    <div class="code-block">
+<span class="comment">// Voice priority (highest quality first)</span>
+<span class="keyword">const</span> GOOGLE_VOICES = {
+  studioFemale: <span class="string">'en-US-Studio-O'</span>,    <span class="comment">// Best quality</span>
+  neural2Female: <span class="string">'en-US-Neural2-F'</span>,  <span class="comment">// Very good</span>
+  journeyFemale: <span class="string">'en-US-Journey-F'</span>,  <span class="comment">// Good for long content</span>
+  wavenetFemale: <span class="string">'en-US-Wavenet-F'</span>,  <span class="comment">// Good fallback</span>
+  standard: <span class="string">'en-US-Standard-C'</span>,      <span class="comment">// Basic fallback</span>
+};
+
+<span class="comment">// Tries voices in order, falls back if unavailable</span>
+<span class="keyword">const</span> [response] = <span class="keyword">await</span> googleTtsClient
+  .synthesizeSpeech({
+    input: { text: aiSummary },
+    voice: { name: voiceName, languageCode: <span class="string">'en-US'</span> },
+    audioConfig: { audioEncoding: <span class="string">'MP3'</span> },
+  });
+                    </div>
+                </div>
+            </div>
+
+            <div class="algorithm-box success">
+                <h3>🎲 Summary Variety Features</h3>
+                <ul class="styled-list">
+                    <li><strong>Random Variety Seed:</strong> Added to each prompt for different phrasing</li>
+                    <li><strong>25+ Creative Sign-offs:</strong> Based on student name and accuracy level</li>
+                    <li><strong>Random Greetings:</strong> "Hey!", "Yo!", "What's up!", etc.</li>
+                    <li><strong>Gen Z Slang:</strong> "no cap", "fire", "goated", "lowkey", etc.</li>
+                    <li><strong>Fallback Randomization:</strong> Even fallback summaries are varied</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Section 12: Video Generation -->
+        <div class="section">
+            <h2>🎬 Stage 10: Video Generation</h2>
+
+            <div class="algorithm-box">
+                <h3>⚡ Optimized Keyframe Approach</h3>
+                <p>Generates frames only when word highlighting changes (not every 1/30th second).</p>
+                <div class="code-block">
+<span class="comment">// OLD: 30fps × 60s = 1800 frames (slow!)</span>
+<span class="comment">// NEW: Only frames at transition points = ~100-200 frames</span>
+
+<span class="keyword">function</span> <span class="function">findTransitionTimes</span>(wordLayouts, audioDuration) {
+  <span class="keyword">const</span> times = <span class="keyword">new</span> Set();
+
+  times.add(<span class="number">0</span>);  <span class="comment">// Start of video</span>
+
+  wordLayouts.forEach(layout => {
+    <span class="keyword">if</span> (layout.startTime) times.add(layout.startTime);
+    <span class="keyword">if</span> (layout.endTime) {
+      times.add(layout.endTime);
+      times.add(layout.endTime + <span class="number">0.001</span>);  <span class="comment">// Dimmed state</span>
+    }
+  });
+
+  times.add(audioDuration);  <span class="comment">// End of video</span>
+
+  <span class="keyword">return</span> Array.from(times).sort();
+}
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="algorithm-box success">
+                    <h3>🖼️ Frame Generation</h3>
+                    <div class="code-block">
+<span class="comment">// Canvas: 1280×720</span>
+<span class="comment">// Font: 36px Arial</span>
+
+<span class="comment">// For each keyframe:</span>
+<span class="number">1</span>. Clear canvas (white background)
+<span class="number">2</span>. Draw header + student info
+<span class="number">3</span>. Draw words with status colors
+<span class="number">4</span>. Underline current word
+<span class="number">5</span>. Draw repeat indicators (↺)
+<span class="number">6</span>. Draw legend at bottom
+<span class="number">7</span>. Draw progress bar
+<span class="number">8</span>. Save as JPEG (quality: 0.9)
+                    </div>
+                </div>
+
+                <div class="algorithm-box">
+                    <h3>🎥 FFmpeg Encoding</h3>
+                    <div class="code-block">
+ffmpeg()
+  .input(concatFile)      <span class="comment">// Keyframes with durations</span>
+  .inputOptions([<span class="string">'-f concat'</span>])
+  .input(audioPath)
+  .outputOptions([
+    <span class="string">'-c:v libx264'</span>,
+    <span class="string">'-preset fast'</span>,      <span class="comment">// Speed over compression</span>
+    <span class="string">'-crf 23'</span>,           <span class="comment">// Good quality</span>
+    <span class="string">'-c:a aac'</span>,
+    <span class="string">'-b:a 128k'</span>,
+    <span class="string">'-movflags +faststart'</span>,
+    <span class="string">'-vsync vfr'</span>,        <span class="comment">// Variable frame rate</span>
+  ])
+                    </div>
+                </div>
+            </div>
+
+            <div class="note success">
+                <strong>⚡ Performance:</strong> Video generation reduced from 2-5 minutes to ~10-15 seconds. Videos are auto-generated after processing completes.
+            </div>
+        </div>
+
+        <!-- Section 13: Firebase Structure -->
+        <div class="section">
+            <h2>🗄️ Firebase Data Structure</h2>
+
+            <div class="firebase-tree">
+<span class="collection">teachers/</span>{teacherId}/
+├── <span class="collection">students/</span>{studentId}
+│   ├── <span class="field">name</span>: <span class="type">string</span>
+│   ├── <span class="field">grade</span>?: <span class="type">string</span>
+│   └── <span class="field">createdAt</span>: <span class="type">timestamp</span>
+│
+└── <span class="collection">assessments/</span>{assessmentId}
+    ├── <span class="field">studentId</span>, <span class="field">studentName</span>: <span class="type">string</span>
+    ├── <span class="field">status</span>: <span class="type">'uploading' | 'processing' | 'complete' | 'error'</span>
+    ├── <span class="field">createdAt</span>, <span class="field">processedAt</span>: <span class="type">timestamp</span>
+    │
+    ├── <span class="comment">// Pre-transcription (background)</span>
+    ├── <span class="field">preTranscribeStatus</span>: <span class="type">'processing' | 'complete' | 'error'</span>
+    ├── <span class="field">preTranscript</span>: <span class="type">string</span>
+    ├── <span class="field">preTranscriptWords</span>: <span class="type">WordTiming[]</span>
+    │
+    ├── <span class="comment">// Media URLs (24h TTL)</span>
+    ├── <span class="field">audioUrl</span>, <span class="field">imageUrl</span>: <span class="type">string</span>
+    ├── <span class="field">videoUrl</span>: <span class="type">string</span>
+    ├── <span class="field">pdfUrl</span>: <span class="type">string</span>
+    ├── <span class="field">aiSummaryAudioUrl</span>: <span class="type">string</span>
+    │
+    ├── <span class="comment">// Image dimensions (for bounding box scaling)</span>
+    ├── <span class="field">imageWidth</span>, <span class="field">imageHeight</span>: <span class="type">number</span>
+    │
+    ├── <span class="comment">// Results</span>
+    ├── <span class="field">ocrText</span>, <span class="field">transcript</span>: <span class="type">string</span>
+    ├── <span class="field">audioDuration</span>: <span class="type">number</span>
+    ├── <span class="field">metrics</span>: {
+    │   ├── <span class="field">accuracy</span>, <span class="field">wordsPerMinute</span>, <span class="field">prosodyScore</span>: <span class="type">number</span>
+    │   ├── <span class="field">prosodyGrade</span>: <span class="type">string</span>
+    │   ├── <span class="field">totalWords</span>, <span class="field">correctCount</span>, <span class="field">errorCount</span>, <span class="field">skipCount</span>: <span class="type">number</span>
+    │   └── <span class="field">hesitationCount</span>, <span class="field">fillerWordCount</span>, <span class="field">repeatCount</span>: <span class="type">number</span>
+    │ }
+    ├── <span class="field">words</span>: <span class="type">AlignedWord[]</span>
+    ├── <span class="field">errorPatterns</span>: <span class="type">ErrorPattern[]</span>
+    ├── <span class="field">patternSummary</span>: {
+    │   ├── <span class="field">severity</span>: <span class="type">'excellent' | 'mild' | 'moderate' | 'significant'</span>
+    │   ├── <span class="field">primaryIssues</span>, <span class="field">recommendations</span>, <span class="field">strengths</span>: <span class="type">string[]</span>
+    │   └── <span class="field">referralSuggestions</span>: <span class="type">string[]</span>
+    │ }
+    └── <span class="field">aiSummary</span>: <span class="type">string</span>
+            </div>
+        </div>
+
+        <!-- Section 14: Frontend Display -->
+        <div class="section">
+            <h2>📱 Frontend: Analysis Screen (5 Tabs)</h2>
+
+            <div class="grid-3">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>Summary Tab</h4>
+                    <p>Accuracy %, WPM, prosody score with breakdown popup, AI summary with audio playback</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎬</div>
+                    <h4>Video Tab</h4>
+                    <p>Word-by-word highlighting synchronized to audio recording</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h4>Export Tab</h4>
+                    <p>Download PDF report, share video</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🖼️</div>
+                    <h4>Image Tab</h4>
+                    <p>Original image with first/last word highlighting (bounding boxes)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h4>Patterns Tab</h4>
+                    <p>Error breakdown with click-to-pulse, severity badge, recommendations</p>
+                </div>
+            </div>
+
+            <div class="algorithm-box">
+                <h3>🎯 Click-to-Pulse Feature</h3>
+                <p>When user clicks an error pattern in the breakdown, matching words pulse in the word display.</p>
+                <div class="code-block">
+<span class="keyword">function</span> <span class="function">handleErrorPatternClick</span>(pattern) {
+  <span class="keyword">let</span> matchingIndices = [];
+
+  <span class="keyword">switch</span> (pattern.type) {
+    <span class="keyword">case</span> <span class="string">'hesitation'</span>:
+      matchingIndices = words.filter(w => w.hesitation);
+      <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'repetition'</span>:
+      matchingIndices = words.filter(w => w.isRepeat);
+      <span class="keyword">break</span>;
+    <span class="keyword">case</span> <span class="string">'self_correction'</span>:
+      matchingIndices = words.filter(w => w.isSelfCorrection);
+      <span class="keyword">break</span>;
+    <span class="keyword">default</span>:
+      <span class="comment">// Match by pattern.examples word list</span>
+      matchingIndices = words.filter(w =>
+        pattern.examples.some(e => e.expected === w.expected)
+      );
+  }
+
+  setPulsingWords(matchingIndices);
+}
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="section" style="background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); color: white;">
+            <h2 style="color: white;">📋 Complete Analysis Flow Summary</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>📱 Record</h4>
+                    <ul class="styled-list">
+                        <li>30s or 60s audio</li>
+                        <li>Voice prompts</li>
+                        <li>Early upload</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>📥 Input</h4>
+                    <ul class="styled-list">
+                        <li>Speech-to-Text (Google)</li>
+                        <li>Vision OCR (Google)</li>
+                        <li>Pre-transcription</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🔧 Normalize</h4>
+                    <ul class="styled-list">
+                        <li>Lowercase + clean</li>
+                        <li>Expand contractions</li>
+                        <li>OCR post-process</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>📊 Compare</h4>
+                    <ul class="styled-list">
+                        <li>Levenshtein distance</li>
+                        <li>Phonetic equivalents</li>
+                        <li>Number equivalents</li>
+                        <li>OCR confusion handling</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🎯 Align</h4>
+                    <ul class="styled-list">
+                        <li>Dynamic programming</li>
+                        <li>Passage boundary detection</li>
+                        <li>Backtrack for alignment</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🏷️ Classify</h4>
+                    <ul class="styled-list">
+                        <li>✅ Correct (green)</li>
+                        <li>🟣 Hesitation (purple)</li>
+                        <li>🟠 Misread (orange)</li>
+                        <li>🔴 Skipped (red)</li>
+                        <li>↺ Repeat indicator</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🔍 Analyze Patterns</h4>
+                    <ul class="styled-list">
+                        <li>Consonant blends</li>
+                        <li>Digraphs (ch, sh, th)</li>
+                        <li>First-letter guessing</li>
+                        <li>Speech patterns</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>📈 Calculate</h4>
+                    <ul class="styled-list">
+                        <li>Accuracy %</li>
+                        <li>WPM (correct only)</li>
+                        <li>Prosody (4 components)</li>
+                        <li>Severity level</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🤖 AI Summary</h4>
+                    <ul class="styled-list">
+                        <li>Gemini generation</li>
+                        <li>Google Cloud TTS (Studio)</li>
+                        <li>Varied sign-offs</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>🎬 Generate</h4>
+                    <ul class="styled-list">
+                        <li>Keyframe video</li>
+                        <li>PDF report</li>
+                        <li>Auto-generation</li>
+                    </ul>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.1); padding: 1rem; border-radius: 8px;">
+                    <h4>📱 Display</h4>
+                    <ul class="styled-list">
+                        <li>5-tab results</li>
+                        <li>Click-to-pulse</li>
+                        <li>Real-time sync</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer style="text-align: center; padding: 2rem; color: #666;">
+            <p>Word Analyzer iPad App - Technical Documentation</p>
+            <p>Generated: December 2024</p>
+        </footer>
+    </div>
+</body>
+</html>

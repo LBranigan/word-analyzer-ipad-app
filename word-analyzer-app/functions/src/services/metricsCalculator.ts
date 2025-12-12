@@ -114,11 +114,11 @@ export function calculateMetrics(
     actualReadingTime = word.endTime - word.startTime;
   }
 
-  // Words per minute - using actual reading time
-  const wordsRead = correctCount + matchingResult.misreadCount + matchingResult.substitutionCount;
+  // Words per minute - only counting CORRECT words read
+  // This gives a more accurate measure of reading fluency
   const minutesElapsed = actualReadingTime / 60;
   const wordsPerMinute = minutesElapsed > 0
-    ? Math.round(wordsRead / minutesElapsed)
+    ? Math.round(correctCount / minutesElapsed)
     : 0;
 
   // Prosody score calculation (from word-analyzer-v2 lines 2249-2281)
@@ -307,6 +307,7 @@ export function analyzeErrorPatterns(words: AlignedWord[]): ErrorPattern[] {
     }
 
     // Track self-corrections (positive indicator - student caught their own error)
+    // Self-corrections should NOT also be counted as other error types
     if (word.isSelfCorrection) {
       addPattern(
         'self_correction',
@@ -315,6 +316,7 @@ export function analyzeErrorPatterns(words: AlignedWord[]): ErrorPattern[] {
         word.expected,
         word.spoken || ''
       );
+      continue; // Skip further error analysis - self-correction is the only pattern for this word
     }
 
     // Skip further analysis for correct or skipped words

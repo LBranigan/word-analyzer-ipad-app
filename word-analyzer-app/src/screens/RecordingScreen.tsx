@@ -47,9 +47,8 @@ const BEEP_DURATION = 2.5; // seconds
 
 // Pre-recorded audio prompts
 const AUDIO_STATE_YOUR_NAME = require('../assets/audio/state-your-name.mp3');
-const AUDIO_BEGIN_READING = require('../assets/audio/begin-reading.mp3');
+const AUDIO_BEGIN_READING = require('../assets/audio/begin-reading.mp3'); // Includes beep at end
 const AUDIO_RECORDING_COMPLETE = require('../assets/audio/recording-complete.mp3');
-const AUDIO_BEEP = require('../assets/audio/beep.mp3');
 
 export default function RecordingScreen() {
   const navigation = useNavigation<NavigationProp>();
@@ -133,61 +132,143 @@ export default function RecordingScreen() {
     speakPrompt();
   };
 
+  // Helper to play a single sound and wait for it to finish
+  const playSoundAsync = async (audioSource: any): Promise<void> => {
+    return new Promise<void>((resolve, reject) => {
+      let sound: Audio.Sound | null = null;
+      let hasResolved = false;
+      let timeoutId: NodeJS.Timeout | null = null;
+
+      const cleanup = async () => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+          timeoutId = null;
+        }
+        if (sound) {
+          try {
+            await sound.unloadAsync();
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+          sound = null;
+        }
+      };
+
+      const finish = async () => {
+        if (hasResolved) return;
+        hasResolved = true;
+        await cleanup();
+        resolve();
+      };
+
+      // Timeout fallback - if sound doesn't finish in 10 seconds, continue anyway
+      timeoutId = setTimeout(() => {
+        console.warn('playSoundAsync timeout - continuing anyway');
+        finish();
+      }, 10000);
+
+      // Create and play the sound
+      Audio.Sound.createAsync(audioSource, { shouldPlay: true, volume: 1.0 })
+        .then(({ sound: createdSound, status }) => {
+          sound = createdSound;
+
+          if (!status.isLoaded) {
+            console.error('Sound failed to load');
+            finish();
+            return;
+          }
+
+          // Check if already finished (very short sounds)
+          if (status.isLoaded && status.didJustFinish) {
+            console.log('Sound already finished on load');
+            finish();
+            return;
+          }
+
+          // Get duration for a more accurate timeout
+          const duration = status.isLoaded && status.durationMillis
+            ? status.durationMillis + 500
+            : 10000;
+
+          // Update timeout based on actual duration
+          if (timeoutId) {
+            clearTimeout(timeoutId);
+          }
+          timeoutId = setTimeout(() => {
+            console.warn(`playSoundAsync timeout after ${duration}ms - continuing`);
+            finish();
+          }, duration);
+
+          // Set up status listener
+          createdSound.setOnPlaybackStatusUpdate((playStatus: AVPlaybackStatus) => {
+            if (playStatus.isLoaded && playStatus.didJustFinish) {
+              console.log('Sound finished playing via status update');
+              finish();
+            }
+            // Handle errors
+            if (!playStatus.isLoaded && 'error' in playStatus) {
+              console.error('Sound playback error:', playStatus.error);
+              finish();
+            }
+          });
+        })
+        .catch((err) => {
+          console.error('playSoundAsync createAsync error:', err);
+          if (timeoutId) clearTimeout(timeoutId);
+          hasResolved = true;
+          reject(err);
+        });
+    });
+  };
+
+  // Play audio prompt then call onComplete
   const playAudioPrompt = async (audioSource: any, onComplete: () => void) => {
     try {
-      // Unload previous sound if exists
       if (promptSound.current) {
         await promptSound.current.unloadAsync();
         promptSound.current = null;
       }
 
-      // Load and play the sound
-      const { sound } = await Audio.Sound.createAsync(audioSource);
-      promptSound.current = sound;
-
-      // Set up completion callback
-      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
-        if (status.isLoaded && status.didJustFinish) {
-          onComplete();
-        }
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        staysActiveInBackground: false,
+        shouldDuckAndroid: true,
+        playThroughEarpieceAndroid: false,
       });
 
-      await sound.playAsync();
+      await playSoundAsync(audioSource);
+
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      onComplete();
     } catch (err) {
       console.error('Failed to play audio prompt:', err);
-      // If audio fails, continue anyway
+      try {
+        await Audio.setAudioModeAsync({
+          allowsRecordingIOS: true,
+          playsInSilentModeIOS: true,
+        });
+      } catch {}
       onComplete();
     }
   };
 
   const speakPrompt = () => {
+    // Play "state your name" then start countdown and recording
     playAudioPrompt(AUDIO_STATE_YOUR_NAME, () => {
-      // After voice prompt, start beep countdown
-      startBeepCountdown('name_beep');
+      startCountdownThenRecord('name');
     });
   };
 
-  const playBeep = async () => {
-    try {
-      const { sound } = await Audio.Sound.createAsync(AUDIO_BEEP);
-      await sound.playAsync();
-      // Unload after playing
-      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
-        if (status.isLoaded && status.didJustFinish) {
-          sound.unloadAsync();
-        }
-      });
-    } catch (err) {
-      console.error('Failed to play beep:', err);
-    }
-  };
-
-  const startBeepCountdown = (nextPhase: 'name_beep' | 'reading_beep') => {
-    setPhase(nextPhase);
+  // Visual countdown before recording starts
+  const startCountdownThenRecord = (type: 'name' | 'reading') => {
+    const phase = type === 'name' ? 'name_beep' : 'reading_beep';
+    setPhase(phase);
     setBeepCountdown(Math.ceil(BEEP_DURATION));
-
-    // Play beep sound immediately
-    playBeep();
 
     let count = Math.ceil(BEEP_DURATION);
     const interval = setInterval(() => {
@@ -196,7 +277,7 @@ export default function RecordingScreen() {
 
       if (count <= 0) {
         clearInterval(interval);
-        if (nextPhase === 'name_beep') {
+        if (type === 'name') {
           startNameRecording();
         } else {
           startReadingRecording();
@@ -252,10 +333,10 @@ export default function RecordingScreen() {
   };
 
   const handleStartReading = () => {
-    // Play "Please begin reading" prompt, then start countdown
-    setPhase('voice_prompt'); // Reuse voice_prompt phase for visual
+    // Play "Please begin reading" (includes beep in the audio file), then start recording
+    setPhase('voice_prompt');
     playAudioPrompt(AUDIO_BEGIN_READING, () => {
-      startBeepCountdown('reading_beep');
+      startCountdownThenRecord('reading');
     });
   };
 

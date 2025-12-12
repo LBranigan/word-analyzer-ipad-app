@@ -41,9 +41,16 @@ export interface VideoGeneratorInput {
   wpm: number;
 }
 
+interface KeyFrame {
+  time: number;
+  duration: number;
+  imagePath: string;
+}
+
 /**
  * Generate a video with word highlighting synchronized to audio
- * Returns the path to the generated video file
+ * OPTIMIZED: Uses keyframe-only approach - generates frames only when word states change
+ * This reduces frame count from 1800+ to ~100-200 frames for a 60s video
  */
 export async function generateVideo(
   input: VideoGeneratorInput,
@@ -55,7 +62,6 @@ export async function generateVideo(
   // Video settings
   const width = 1280;
   const height = 720;
-  const fps = 30;
   const padding = 60;
   const lineHeight = 50;
   const fontSize = 36;
@@ -67,61 +73,123 @@ export async function generateVideo(
   // Prepare word layouts
   const wordLayouts = prepareWordLayouts(words, ctx, width, padding, lineHeight, fontSize);
 
-  // Create temporary directory for frames
+  // Create temporary directory for keyframes
   const tempDir = path.join(os.tmpdir(), `video-${Date.now()}`);
   fs.mkdirSync(tempDir, { recursive: true });
 
-  // Generate frames
-  const totalFrames = Math.ceil(audioDuration * fps);
-  console.log(`Generating ${totalFrames} frames for ${audioDuration}s video...`);
+  // Find all transition points (when word highlighting changes)
+  const transitionTimes = findTransitionTimes(wordLayouts, audioDuration);
+  console.log(`Found ${transitionTimes.length} transition points (vs ${Math.ceil(audioDuration * 30)} frames at 30fps)`);
 
-  for (let frame = 0; frame < totalFrames; frame++) {
-    const currentTime = frame / fps;
+  // Generate keyframes only at transition points
+  const keyframes: KeyFrame[] = [];
+
+  for (let i = 0; i < transitionTimes.length; i++) {
+    const currentTime = transitionTimes[i];
+    const nextTime = transitionTimes[i + 1] ?? audioDuration;
+    const duration = nextTime - currentTime;
+
+    // Skip very short durations (less than 1 frame at 30fps)
+    if (duration < 0.033) continue;
+
     renderFrame(ctx, canvas, wordLayouts, currentTime, padding, fontSize, studentName, wpm);
 
-    // Save frame
-    const framePath = path.join(tempDir, `frame-${String(frame).padStart(6, '0')}.png`);
-    const buffer = canvas.toBuffer('image/png');
+    // Save keyframe as JPEG (much faster than PNG, minimal quality loss)
+    const framePath = path.join(tempDir, `frame-${String(i).padStart(4, '0')}.jpg`);
+    const buffer = canvas.toBuffer('image/jpeg', { quality: 0.9 });
     fs.writeFileSync(framePath, buffer);
 
-    // Log progress every 100 frames
-    if (frame % 100 === 0) {
-      console.log(`Generated frame ${frame}/${totalFrames}`);
+    keyframes.push({
+      time: currentTime,
+      duration: duration,
+      imagePath: framePath,
+    });
+
+    // Log progress every 50 keyframes
+    if (i % 50 === 0) {
+      console.log(`Generated keyframe ${i}/${transitionTimes.length}`);
     }
   }
 
-  console.log('All frames generated, creating video...');
+  console.log(`Generated ${keyframes.length} keyframes, creating video...`);
 
-  // Combine frames with audio using FFmpeg
+  // Create concat file for FFmpeg
+  const concatFilePath = path.join(tempDir, 'concat.txt');
+  const concatContent = keyframes
+    .map(kf => `file '${kf.imagePath.replace(/\\/g, '/')}'\nduration ${kf.duration.toFixed(4)}`)
+    .join('\n');
+
+  // Add last frame again (FFmpeg concat demuxer quirk)
+  const lastFrame = keyframes[keyframes.length - 1];
+  const fullConcatContent = concatContent + `\nfile '${lastFrame.imagePath.replace(/\\/g, '/')}'`;
+  fs.writeFileSync(concatFilePath, fullConcatContent);
+
+  // Combine keyframes with audio using FFmpeg concat demuxer
   return new Promise((resolve, reject) => {
-    const framePattern = path.join(tempDir, 'frame-%06d.png');
-
     ffmpeg()
-      .input(framePattern)
-      .inputFPS(fps)
+      .input(concatFilePath)
+      .inputOptions(['-f concat', '-safe 0'])
       .input(audioPath)
       .outputOptions([
         '-c:v libx264',
+        '-preset fast',        // Faster encoding (was default/medium)
+        '-crf 23',             // Good quality (lower = better, 18-28 typical)
         '-pix_fmt yuv420p',
         '-c:a aac',
+        '-b:a 128k',
         '-shortest',
-        '-movflags +faststart'
+        '-movflags +faststart',
+        '-vsync vfr',          // Variable frame rate (matches our keyframe approach)
       ])
       .output(outputPath)
+      .on('progress', (progress) => {
+        if (progress.percent) {
+          console.log(`Encoding: ${progress.percent.toFixed(1)}%`);
+        }
+      })
       .on('end', () => {
-        // Clean up temp frames
+        // Clean up temp files
         fs.rmSync(tempDir, { recursive: true, force: true });
         console.log('Video generation complete');
         resolve(outputPath);
       })
       .on('error', (err) => {
-        // Clean up temp frames
+        // Clean up temp files
         fs.rmSync(tempDir, { recursive: true, force: true });
         console.error('FFmpeg error:', err);
         reject(err);
       })
       .run();
   });
+}
+
+/**
+ * Find all times when the visual state of the video changes
+ * This includes: start of video, each word start, each word end, end of video
+ */
+function findTransitionTimes(wordLayouts: WordLayout[], audioDuration: number): number[] {
+  const times = new Set<number>();
+
+  // Always include start
+  times.add(0);
+
+  // Add all word transitions
+  wordLayouts.forEach(layout => {
+    if (layout.startTime !== undefined) {
+      times.add(layout.startTime);
+    }
+    if (layout.endTime !== undefined) {
+      times.add(layout.endTime);
+      // Add a tiny bit after end time to show the "dimmed" state
+      times.add(layout.endTime + 0.001);
+    }
+  });
+
+  // Add end of audio
+  times.add(audioDuration);
+
+  // Sort and return
+  return Array.from(times).sort((a, b) => a - b);
 }
 
 /**
@@ -210,15 +278,6 @@ function renderFrame(
       ctx.fillRect(layout.x, layout.y + 8, layout.width - 10, 3);
     }
 
-    // Draw hesitation indicator (purple dotted line above word)
-    if (layout.hesitation) {
-      ctx.fillStyle = '#7c3aed'; // Purple
-      ctx.font = '14px Arial';
-      // Draw pause indicator above the word
-      const pauseMs = layout.pauseDuration ? Math.round(layout.pauseDuration * 1000) : 500;
-      ctx.fillText(`⏸ ${pauseMs}ms`, layout.x, layout.y - fontSize - 5);
-    }
-
     // Draw repeat indicator (small "↺" symbol after word)
     if (layout.isRepeat) {
       ctx.fillStyle = '#9333ea'; // Darker purple
@@ -255,6 +314,8 @@ function renderFrame(
 
 /**
  * Get color for word based on status and timing
+ * Priority: misread/substituted/skipped errors take precedence over hesitation
+ * Hesitation (purple) only shows if word was otherwise read correctly
  */
 function getWordColor(
   layout: WordLayout,
@@ -268,46 +329,41 @@ function getWordColor(
     if (currentTime >= layout.startTime && currentTime <= layout.endTime) {
       isCurrentWord = true;
       // Highlight current word based on status
+      // Error colors take priority over hesitation
       switch (layout.status) {
         case 'correct':
-          color = '#22c55e'; // Bright green
+          // Only show purple hesitation if word was read correctly
+          color = layout.hesitation ? '#7c3aed' : '#22c55e'; // Purple if hesitation, else green
           break;
         case 'misread':
         case 'substituted':
-          color = '#f97316'; // Orange
+          color = '#f97316'; // Orange - takes priority over hesitation
           break;
         case 'skipped':
-          color = '#ef4444'; // Red
+          color = '#ef4444'; // Red - takes priority over hesitation
           break;
-      }
-      // Add purple tint if hesitation
-      if (layout.hesitation) {
-        color = '#7c3aed'; // Purple for hesitation
       }
     } else if (currentTime > layout.endTime) {
       // Already spoken - use dimmer colors
       switch (layout.status) {
         case 'correct':
-          color = '#86efac'; // Light green
+          // Only show light purple hesitation if word was read correctly
+          color = layout.hesitation ? '#c4b5fd' : '#86efac'; // Light purple if hesitation, else light green
           break;
         case 'misread':
         case 'substituted':
-          color = '#fdba74'; // Light orange
+          color = '#fdba74'; // Light orange - takes priority over hesitation
           break;
         case 'skipped':
-          color = '#fca5a5'; // Light red
+          color = '#fca5a5'; // Light red - takes priority over hesitation
           break;
-      }
-      // Add purple tint if hesitation
-      if (layout.hesitation) {
-        color = '#c4b5fd'; // Light purple for hesitation
       }
     }
   } else {
     // No timing data - use status colors dimly
     switch (layout.status) {
       case 'correct':
-        color = '#86efac';
+        color = layout.hesitation ? '#c4b5fd' : '#86efac';
         break;
       case 'misread':
       case 'substituted':

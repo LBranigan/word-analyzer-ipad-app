@@ -1,160 +1,125 @@
 /**
  * Text-to-Speech Service
- * Uses Google Cloud Text-to-Speech with WaveNet voices for natural-sounding audio
+ * Uses Google Cloud Text-to-Speech with Studio voices (highest quality)
+ *
+ * Privacy Note: Student data is sent to Google Cloud for TTS processing.
+ * Schools should have a Google Cloud DPA in place for FERPA compliance.
  */
 
 import { TextToSpeechClient, protos } from '@google-cloud/text-to-speech';
 
-// Initialize the client
-const ttsClient = new TextToSpeechClient();
+// Initialize Google TTS client
+const googleTtsClient = new TextToSpeechClient();
 
-// Voice options - using Journey voices for most natural sound
-// These are the newest, most natural-sounding voices from Google
-const VOICE_OPTIONS = {
-  // Journey voices (newest, most expressive)
-  journey: {
+// Google TTS voices - ordered by quality (best first)
+// Studio voices are the most natural-sounding
+const GOOGLE_VOICES = {
+  // Studio voices - highest quality, most natural (premium pricing ~$0.16/1M chars)
+  studioFemale: {
     languageCode: 'en-US',
-    name: 'en-US-Journey-D', // Male journey voice (warm, friendly)
-    ssmlGender: 'MALE' as const,
+    name: 'en-US-Studio-O',  // Studio female voice - warm, professional
+    ssmlGender: 'FEMALE' as const,
   },
+  // Neural2 voices - very good quality (~$0.000016/char)
+  neural2Female: {
+    languageCode: 'en-US',
+    name: 'en-US-Neural2-F',
+    ssmlGender: 'FEMALE' as const,
+  },
+  // Journey voices - good for longer content
   journeyFemale: {
     languageCode: 'en-US',
-    name: 'en-US-Journey-F', // Female journey voice
+    name: 'en-US-Journey-F',
     ssmlGender: 'FEMALE' as const,
   },
-  // WaveNet voices (very natural, slightly less expressive than Journey)
-  wavenet: {
-    languageCode: 'en-US',
-    name: 'en-US-Wavenet-D', // Male WaveNet voice
-    ssmlGender: 'MALE' as const,
-  },
+  // WaveNet voices - good quality fallback
   wavenetFemale: {
     languageCode: 'en-US',
-    name: 'en-US-Wavenet-F', // Female WaveNet voice
+    name: 'en-US-Wavenet-F',
     ssmlGender: 'FEMALE' as const,
   },
-  // Neural2 voices (good quality, faster)
-  neural2: {
+  // Standard voices - basic fallback (cheapest)
+  standard: {
     languageCode: 'en-US',
-    name: 'en-US-Neural2-D', // Male Neural2 voice
-    ssmlGender: 'MALE' as const,
+    name: 'en-US-Standard-C',
+    ssmlGender: 'FEMALE' as const,
   },
 };
 
 export interface TTSOptions {
-  voiceType?: 'journey' | 'journeyFemale' | 'wavenet' | 'wavenetFemale' | 'neural2';
-  speakingRate?: number; // 0.25 to 4.0, default 1.0
-  pitch?: number; // -20.0 to 20.0, default 0
+  speakingRate?: number;
 }
 
 /**
- * Generate speech audio from text using Google Cloud TTS
+ * Generate speech audio using Google Cloud TTS
+ * Tries highest quality voices first, falls back to lower quality if unavailable
  * Returns MP3 audio buffer
  */
 export async function generateSpeechAudio(
   text: string,
   options: TTSOptions = {}
 ): Promise<Buffer> {
-  const {
-    voiceType = 'journey', // Default to Journey voice (most natural)
-    speakingRate = 0.95, // Slightly slower for clarity
-    pitch = 0,
-  } = options;
+  const { speakingRate = 1.0 } = options;
 
-  const voice = VOICE_OPTIONS[voiceType];
+  // Try voices in order of quality (best first)
+  const voicesToTry = [
+    'studioFemale',
+    'neural2Female',
+    'journeyFemale',
+    'wavenetFemale',
+    'standard'
+  ] as const;
 
-  console.log(`Generating TTS audio with ${voiceType} voice...`);
+  for (const voiceKey of voicesToTry) {
+    const voice = GOOGLE_VOICES[voiceKey];
 
-  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
-    input: { text },
-    voice: {
-      languageCode: voice.languageCode,
-      name: voice.name,
-      ssmlGender: voice.ssmlGender,
-    },
-    audioConfig: {
-      audioEncoding: 'MP3',
-      speakingRate,
-      pitch,
-      // Add effects for even better quality
-      effectsProfileId: ['headphone-class-device'], // Optimized for headphones/speakers
-    },
-  };
+    const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
+      input: { text },
+      voice: {
+        languageCode: voice.languageCode,
+        name: voice.name,
+        ssmlGender: voice.ssmlGender,
+      },
+      audioConfig: {
+        audioEncoding: 'MP3',
+        speakingRate,
+        pitch: 0,
+        // Audio profile optimized for speakers
+        effectsProfileId: ['small-bluetooth-speaker-class-device'],
+      },
+    };
 
-  try {
-    const [response] = await ttsClient.synthesizeSpeech(request);
+    try {
+      console.log(`Trying Google TTS voice: ${voiceKey} (${voice.name})...`);
+      const [response] = await googleTtsClient.synthesizeSpeech(request);
 
-    if (!response.audioContent) {
-      throw new Error('No audio content in TTS response');
+      if (!response.audioContent) {
+        throw new Error('No audio content in Google TTS response');
+      }
+
+      console.log(`Google TTS success with ${voiceKey}: ${(response.audioContent as Uint8Array).length} bytes`);
+      return Buffer.from(response.audioContent as Uint8Array);
+    } catch (error) {
+      console.warn(`Google TTS voice ${voiceKey} failed:`, error);
+      // Continue to next voice
     }
-
-    const audioBuffer = Buffer.from(response.audioContent as Uint8Array);
-    console.log(`TTS audio generated: ${audioBuffer.length} bytes`);
-
-    return audioBuffer;
-  } catch (error) {
-    console.error('TTS generation error:', error);
-    throw error;
   }
+
+  throw new Error('All Google TTS voices failed');
 }
 
-/**
- * Generate speech with SSML for better pronunciation and emphasis
- * Use this for more control over how the summary is spoken
- */
+// Legacy export for backwards compatibility
 export async function generateSpeechAudioSSML(
   ssml: string,
   options: TTSOptions = {}
 ): Promise<Buffer> {
-  const {
-    voiceType = 'journey',
-    speakingRate = 0.95,
-    pitch = 0,
-  } = options;
+  // Strip SSML tags and use plain text
+  const plainText = ssml
+    .replace(/<speak>/g, '')
+    .replace(/<\/speak>/g, '')
+    .replace(/<break[^>]*\/>/g, ' ')
+    .replace(/<[^>]+>/g, '')
+    .trim();
 
-  const voice = VOICE_OPTIONS[voiceType];
-
-  const request: protos.google.cloud.texttospeech.v1.ISynthesizeSpeechRequest = {
-    input: { ssml },
-    voice: {
-      languageCode: voice.languageCode,
-      name: voice.name,
-      ssmlGender: voice.ssmlGender,
-    },
-    audioConfig: {
-      audioEncoding: 'MP3',
-      speakingRate,
-      pitch,
-      effectsProfileId: ['headphone-class-device'],
-    },
-  };
-
-  const [response] = await ttsClient.synthesizeSpeech(request);
-
-  if (!response.audioContent) {
-    throw new Error('No audio content in TTS response');
-  }
-
-  return Buffer.from(response.audioContent as Uint8Array);
-}
-
-/**
- * Convert plain text to SSML with natural pauses and emphasis
- * Makes the summary sound more natural when spoken
- */
-export function textToSSML(text: string): string {
-  let ssml = text
-    // Add pauses after sentences
-    .replace(/\. /g, '.<break time="400ms"/> ')
-    .replace(/! /g, '!<break time="300ms"/> ')
-    .replace(/\? /g, '?<break time="400ms"/> ')
-    // Add slight pause after commas
-    .replace(/, /g, ',<break time="200ms"/> ')
-    // Add emphasis to quoted words (words they nailed/struggled with)
-    .replace(/'([^']+)'/g, '<emphasis level="moderate">$1</emphasis>')
-    // Add excitement to slang terms
-    .replace(/\b(no cap|lit|fire|fam|slay|goated|bussin)\b/gi,
-      '<prosody rate="105%" pitch="+5%">$1</prosody>');
-
-  return `<speak>${ssml}</speak>`;
+  return generateSpeechAudio(plainText, options);
 }

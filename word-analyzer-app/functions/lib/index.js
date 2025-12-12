@@ -126,8 +126,9 @@ exports.preTranscribeAudio = functions
  */
 exports.processAssessment = functions
     .runWith({
-    timeoutSeconds: 300,
-    memory: '1GB',
+    timeoutSeconds: 540, // Increased for video generation
+    memory: '2GB', // Increased for video generation
+    secrets: ['GEMINI_API_KEY'], // Access API keys
 })
     .storage
     .object()
@@ -259,12 +260,8 @@ exports.processAssessment = functions
         // Generate TTS audio for the AI summary
         let aiSummaryAudioUrl = null;
         try {
-            // Convert text to SSML for more natural speech
-            const ssml = (0, textToSpeech_1.textToSSML)(aiSummary);
-            const audioBuffer = await (0, textToSpeech_1.generateSpeechAudioSSML)(ssml, {
-                voiceType: 'journey', // Most natural voice
-                speakingRate: 0.95,
-            });
+            // Use Google Cloud TTS with Studio voice (highest quality)
+            const audioBuffer = await (0, textToSpeech_1.generateSpeechAudio)(aiSummary);
             // Upload audio to storage
             const summaryAudioPath = `summary-audio/${teacherId}/${assessmentId}/summary.mp3`;
             const summaryAudioToken = (0, uuid_1.v4)();
@@ -341,6 +338,54 @@ exports.processAssessment = functions
             processedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
         console.log('Results saved to Firestore');
+        // Auto-generate video in background (non-blocking for user)
+        // User sees results immediately, video appears when ready
+        try {
+            console.log('Starting auto video generation...');
+            // Download audio to temp file
+            const tempAudioPath = path.join(os.tmpdir(), `audio-${assessmentId}.webm`);
+            await bucket.file(tempAudioPath.replace(os.tmpdir() + path.sep, '')).download({ destination: tempAudioPath }).catch(() => {
+                // Audio might already be moved, download from temp location
+            });
+            // Try downloading from audio-temp location
+            const audioTempPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
+            await bucket.file(audioTempPath).download({ destination: tempAudioPath });
+            // Generate video
+            const tempVideoPath = path.join(os.tmpdir(), `video-${assessmentId}.mp4`);
+            await (0, videoGenerator_1.generateVideo)({
+                words: matchingResult.words,
+                audioDuration,
+                studentName: studentName || 'Student',
+                wpm: metrics.wordsPerMinute || 0,
+            }, tempAudioPath, tempVideoPath);
+            // Upload video to storage
+            const videoStoragePath = `videos/${teacherId}/${assessmentId}/video.mp4`;
+            const videoDownloadToken = (0, uuid_1.v4)();
+            await bucket.upload(tempVideoPath, {
+                destination: videoStoragePath,
+                metadata: {
+                    contentType: 'video/mp4',
+                    metadata: {
+                        firebaseStorageDownloadTokens: videoDownloadToken,
+                    },
+                },
+            });
+            // Generate download URL
+            const videoUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(videoStoragePath)}?alt=media&token=${videoDownloadToken}`;
+            // Update assessment with video URL
+            await assessmentRef.update({
+                videoUrl,
+                videoGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+            // Clean up temp files
+            fs.unlinkSync(tempAudioPath);
+            fs.unlinkSync(tempVideoPath);
+            console.log(`Video auto-generated successfully for assessment ${assessmentId}`);
+        }
+        catch (videoError) {
+            // Video generation is non-critical - don't fail the assessment
+            console.error('Auto video generation failed (non-critical):', videoError);
+        }
         // Delete original uploads
         await audioFile.delete();
         await imageFile.delete();

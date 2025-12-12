@@ -41,11 +41,11 @@ function calculateMetrics(matchingResult, audioDuration) {
         const word = wordsWithTiming[0];
         actualReadingTime = word.endTime - word.startTime;
     }
-    // Words per minute - using actual reading time
-    const wordsRead = correctCount + matchingResult.misreadCount + matchingResult.substitutionCount;
+    // Words per minute - only counting CORRECT words read
+    // This gives a more accurate measure of reading fluency
     const minutesElapsed = actualReadingTime / 60;
     const wordsPerMinute = minutesElapsed > 0
-        ? Math.round(wordsRead / minutesElapsed)
+        ? Math.round(correctCount / minutesElapsed)
         : 0;
     // Prosody score calculation (from word-analyzer-v2 lines 2249-2281)
     // NOW INCLUDES HESITATION PENALTY

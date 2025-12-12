@@ -102,6 +102,14 @@ export default function AnalysisScreen() {
 
   const soundRef = useRef<Audio.Sound | null>(null);
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const scrollViewRef = useRef<ScrollView>(null);
+
+  // Handle tab change - scroll to top when switching tabs
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    // Scroll to top when changing tabs
+    scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+  };
 
   // Sync video/pdf URLs from assessment
   useEffect(() => {
@@ -430,7 +438,7 @@ export default function AnalysisScreen() {
               : 'Generating PDF in background...'}
           </Text>
           <TouchableOpacity
-            onPress={() => setActiveTab(videoStatus === 'generating' ? 'video' : 'export')}
+            onPress={() => handleTabChange(videoStatus === 'generating' ? 'video' : 'export')}
           >
             <Text style={styles.generatingBannerLink}>View</Text>
           </TouchableOpacity>
@@ -445,38 +453,38 @@ export default function AnalysisScreen() {
             icon="summarize"
             label="Summary"
             active={activeTab === 'summary'}
-            onPress={() => setActiveTab('summary')}
+            onPress={() => handleTabChange('summary')}
           />
           <SidebarTab
             icon="videocam"
             label="Video"
             active={activeTab === 'video'}
-            onPress={() => setActiveTab('video')}
+            onPress={() => handleTabChange('video')}
             ready={videoStatus === 'ready'}
           />
           <SidebarTab
             icon="picture-as-pdf"
             label="Export"
             active={activeTab === 'export'}
-            onPress={() => setActiveTab('export')}
+            onPress={() => handleTabChange('export')}
             ready={pdfStatus === 'ready'}
           />
           <SidebarTab
             icon="image"
             label="Image"
             active={activeTab === 'image'}
-            onPress={() => setActiveTab('image')}
+            onPress={() => handleTabChange('image')}
           />
           <SidebarTab
             icon="pattern"
             label="Patterns"
             active={activeTab === 'patterns'}
-            onPress={() => setActiveTab('patterns')}
+            onPress={() => handleTabChange('patterns')}
           />
         </View>
 
         {/* Results Area */}
-        <ScrollView style={styles.resultsArea}>
+        <ScrollView ref={scrollViewRef} style={styles.resultsArea}>
           {activeTab === 'summary' && (
             <SummaryTab
               assessment={assessment}
@@ -942,14 +950,15 @@ function PulsingWord({ word, index, isHighlighted, onPress, getWordStyle }: {
         style={[
           styles.word,
           getWordStyle(word.status),
-          word.hesitation && styles.wordWithHesitation,
+          // Only show hesitation (purple) if word was read correctly - errors take priority
+          word.hesitation && word.status === 'correct' && styles.wordWithHesitation,
           // Always have border space reserved to prevent movement
           styles.wordWithPulseBorder,
           isHighlighted && { borderColor },
         ]}
       >
         <Text style={styles.wordText}>{word.expected}</Text>
-        {word.hesitation && (
+        {word.hesitation && word.status === 'correct' && (
           <View style={styles.hesitationIndicator}>
             <Text style={styles.hesitationDot}>⏸</Text>
           </View>
