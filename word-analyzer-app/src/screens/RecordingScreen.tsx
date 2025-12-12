@@ -17,8 +17,7 @@ import {
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Audio } from 'expo-av';
-import * as Speech from 'expo-speech';
+import { Audio, AVPlaybackStatus } from 'expo-av';
 import { MaterialIcons } from '@expo/vector-icons';
 import { RecordingDuration } from '../types';
 
@@ -46,6 +45,12 @@ type Phase =
 const NAME_RECORDING_DURATION = 4; // seconds
 const BEEP_DURATION = 2.5; // seconds
 
+// Pre-recorded audio prompts
+const AUDIO_STATE_YOUR_NAME = require('../assets/audio/state-your-name.mp3');
+const AUDIO_BEGIN_READING = require('../assets/audio/begin-reading.mp3');
+const AUDIO_RECORDING_COMPLETE = require('../assets/audio/recording-complete.mp3');
+const AUDIO_BEEP = require('../assets/audio/beep.mp3');
+
 export default function RecordingScreen() {
   const navigation = useNavigation<NavigationProp>();
   const route = useRoute<RecordingRouteProp>();
@@ -62,7 +67,7 @@ export default function RecordingScreen() {
 
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const beepSound = useRef<Audio.Sound | null>(null);
+  const promptSound = useRef<Audio.Sound | null>(null);
 
   // Start the flow when screen loads
   useEffect(() => {
@@ -98,10 +103,15 @@ export default function RecordingScreen() {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    if (beepSound.current) {
-      await beepSound.current.unloadAsync();
+    if (promptSound.current) {
+      try {
+        await promptSound.current.stopAsync();
+        await promptSound.current.unloadAsync();
+      } catch (e) {
+        // Ignore errors during cleanup
+      }
+      promptSound.current = null;
     }
-    Speech.stop();
   };
 
   const startFlow = async () => {
@@ -123,26 +133,60 @@ export default function RecordingScreen() {
     speakPrompt();
   };
 
+  const playAudioPrompt = async (audioSource: any, onComplete: () => void) => {
+    try {
+      // Unload previous sound if exists
+      if (promptSound.current) {
+        await promptSound.current.unloadAsync();
+        promptSound.current = null;
+      }
+
+      // Load and play the sound
+      const { sound } = await Audio.Sound.createAsync(audioSource);
+      promptSound.current = sound;
+
+      // Set up completion callback
+      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
+        if (status.isLoaded && status.didJustFinish) {
+          onComplete();
+        }
+      });
+
+      await sound.playAsync();
+    } catch (err) {
+      console.error('Failed to play audio prompt:', err);
+      // If audio fails, continue anyway
+      onComplete();
+    }
+  };
+
   const speakPrompt = () => {
-    Speech.speak('Please state your name', {
-      language: 'en-US',
-      rate: 0.9,
-      onDone: () => {
-        // After voice prompt, start beep countdown
-        startBeepCountdown('name_beep');
-      },
-      onError: () => {
-        // If speech fails, just start beep
-        startBeepCountdown('name_beep');
-      },
+    playAudioPrompt(AUDIO_STATE_YOUR_NAME, () => {
+      // After voice prompt, start beep countdown
+      startBeepCountdown('name_beep');
     });
+  };
+
+  const playBeep = async () => {
+    try {
+      const { sound } = await Audio.Sound.createAsync(AUDIO_BEEP);
+      await sound.playAsync();
+      // Unload after playing
+      sound.setOnPlaybackStatusUpdate((status: AVPlaybackStatus) => {
+        if (status.isLoaded && status.didJustFinish) {
+          sound.unloadAsync();
+        }
+      });
+    } catch (err) {
+      console.error('Failed to play beep:', err);
+    }
   };
 
   const startBeepCountdown = (nextPhase: 'name_beep' | 'reading_beep') => {
     setPhase(nextPhase);
     setBeepCountdown(Math.ceil(BEEP_DURATION));
 
-    // Play beep sound
+    // Play beep sound immediately
     playBeep();
 
     let count = Math.ceil(BEEP_DURATION);
@@ -159,17 +203,6 @@ export default function RecordingScreen() {
         }
       }
     }, 1000);
-  };
-
-  const playBeep = async () => {
-    try {
-      // Create a simple beep using oscillator (web) or system sound
-      // For now, we'll use a visual indicator - audio beep can be added later
-      // with a bundled sound file
-      console.log('BEEP!');
-    } catch (err) {
-      console.error('Failed to play beep:', err);
-    }
   };
 
   const startNameRecording = async () => {
@@ -219,7 +252,11 @@ export default function RecordingScreen() {
   };
 
   const handleStartReading = () => {
-    startBeepCountdown('reading_beep');
+    // Play "Please begin reading" prompt, then start countdown
+    setPhase('voice_prompt'); // Reuse voice_prompt phase for visual
+    playAudioPrompt(AUDIO_BEGIN_READING, () => {
+      startBeepCountdown('reading_beep');
+    });
   };
 
   const startReadingRecording = async () => {
@@ -266,11 +303,11 @@ export default function RecordingScreen() {
 
     setPhase('complete');
 
-    // TODO: Pass recordings to next screen or state
-    // For now, navigate back after a short delay
-    setTimeout(() => {
+    // Play completion sound
+    playAudioPrompt(AUDIO_RECORDING_COMPLETE, () => {
+      // Navigate back after completion sound
       navigation.goBack();
-    }, 1500);
+    });
   };
 
   const handleCancel = async () => {
