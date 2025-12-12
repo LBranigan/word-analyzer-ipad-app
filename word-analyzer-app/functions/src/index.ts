@@ -7,14 +7,94 @@ import * as fs from 'fs';
 import { transcribeAudio } from './services/speechToText';
 import { extractTextFromImage } from './services/visionOcr';
 import { matchWords } from './services/wordMatching';
-import { calculateMetrics, analyzeErrorPatterns } from './services/metricsCalculator';
+import { calculateMetrics, analyzeErrorPatterns, generatePatternSummary } from './services/metricsCalculator';
 import { generateVideo } from './services/videoGenerator';
 import { generatePdfReport } from './services/pdfGenerator';
+import { generateAISummary } from './services/summaryGenerator';
 
 admin.initializeApp();
 
 const db = admin.firestore();
 const storage = admin.storage();
+
+/**
+ * Pre-transcribe audio when uploaded early (before image)
+ * This allows transcription to start while user takes the picture
+ * Triggered when audio is uploaded to uploads/ folder
+ */
+export const preTranscribeAudio = functions
+  .runWith({
+    timeoutSeconds: 180,
+    memory: '512MB',
+  })
+  .storage
+  .object()
+  .onFinalize(async (object) => {
+    const filePath = object.name;
+    if (!filePath) return;
+
+    // Only process audio files in uploads/ folder
+    if (!filePath.startsWith('uploads/')) return;
+    if (!filePath.includes('audio')) return;
+
+    const pathParts = filePath.split('/');
+    if (pathParts.length !== 4) return;
+
+    const [, teacherId, assessmentId] = pathParts;
+
+    console.log(`[Pre-transcribe] Audio uploaded: ${filePath}`);
+
+    const assessmentRef = db.collection('teachers').doc(teacherId)
+      .collection('assessments').doc(assessmentId);
+
+    // Check if we should pre-transcribe (only if no transcript exists yet)
+    const doc = await assessmentRef.get();
+    if (!doc.exists) {
+      console.log('[Pre-transcribe] Assessment doc does not exist, skipping');
+      return;
+    }
+
+    const data = doc.data();
+    if (data?.preTranscript || data?.status === 'processing' || data?.status === 'complete') {
+      console.log('[Pre-transcribe] Transcript already exists or processing, skipping');
+      return;
+    }
+
+    try {
+      // Mark that pre-transcription is starting
+      await assessmentRef.update({ preTranscribeStatus: 'processing' });
+
+      const bucket = storage.bucket(object.bucket);
+      const audioFile = bucket.file(filePath);
+
+      // Get audio content type
+      const [audioMetadata] = await audioFile.getMetadata();
+      const audioContentType = audioMetadata.contentType || 'audio/webm';
+
+      // Build GCS URI for Speech-to-Text
+      const gcsUri = `gs://${bucket.name}/${filePath}`;
+      console.log(`[Pre-transcribe] Starting transcription: ${gcsUri}`);
+
+      // Call Speech-to-Text
+      const transcription = await transcribeAudio(gcsUri, audioContentType);
+      console.log(`[Pre-transcribe] Complete: "${transcription.transcript.substring(0, 50)}..."`);
+
+      // Store pre-transcription result
+      await assessmentRef.update({
+        preTranscribeStatus: 'complete',
+        preTranscript: transcription.transcript,
+        preTranscriptWords: transcription.words,
+      });
+
+      console.log('[Pre-transcribe] Saved to Firestore');
+    } catch (error) {
+      console.error('[Pre-transcribe] Error:', error);
+      await assessmentRef.update({
+        preTranscribeStatus: 'error',
+        preTranscribeError: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
 
 /**
  * Triggered when a file is uploaded to the uploads/ folder
@@ -120,6 +200,12 @@ export const processAssessment = functions
         return;
       }
 
+      // Check if pre-transcription is available
+      const assessmentDoc = await assessmentRef.get();
+      const assessmentData = assessmentDoc.data();
+      const hasPreTranscript = assessmentData?.preTranscribeStatus === 'complete' &&
+                               assessmentData?.preTranscriptWords;
+
       // Get the actual audio file's metadata for content type
       const [audioMetadata] = await audioFile.getMetadata();
       const audioContentType = audioMetadata.contentType || 'audio/webm';
@@ -128,17 +214,23 @@ export const processAssessment = functions
       // Download image for Vision OCR (it uses buffer)
       const [imageBuffer] = await imageFile.download();
 
-      // Build GCS URI for Speech-to-Text (uses URI for long audio)
-      const gcsUri = `gs://${bucket.name}/${audioFile.name}`;
-      console.log(`Audio GCS URI: ${gcsUri}`);
+      let transcription;
 
-      console.log('Calling Speech-to-Text API...');
+      if (hasPreTranscript) {
+        // Use pre-transcription result (saves 5-15 seconds!)
+        console.log('Using pre-transcription result...');
+        transcription = {
+          transcript: assessmentData.preTranscript,
+          words: assessmentData.preTranscriptWords,
+        };
+      } else {
+        // No pre-transcription available, do it now
+        const gcsUri = `gs://${bucket.name}/${audioFile.name}`;
+        console.log(`Audio GCS URI: ${gcsUri}`);
+        console.log('Calling Speech-to-Text API (no pre-transcription available)...');
+        transcription = await transcribeAudio(gcsUri, audioContentType);
+      }
 
-      // Call Speech-to-Text with GCS URI (handles long audio)
-      const transcription = await transcribeAudio(
-        gcsUri,
-        audioContentType
-      );
       console.log(`Transcription: "${transcription.transcript.substring(0, 100)}..."`);
 
       // Call Vision OCR
@@ -158,6 +250,21 @@ export const processAssessment = functions
 
       // Analyze error patterns
       const errorPatterns = analyzeErrorPatterns(matchingResult.words);
+
+      // Generate pattern summary with severity, recommendations, and referrals
+      const patternSummary = generatePatternSummary(errorPatterns, metrics);
+      console.log(`Pattern analysis: ${patternSummary.severity} severity, ${patternSummary.primaryIssues.length} issues, ${patternSummary.recommendations.length} recommendations`);
+
+      // Generate AI summary for student feedback
+      const studentName = assessmentData?.studentName || 'Student';
+      const aiSummary = await generateAISummary(
+        studentName,
+        metrics,
+        matchingResult.words,
+        errorPatterns,
+        patternSummary
+      );
+      console.log(`AI summary generated: ${aiSummary.length} chars`);
 
       // Move audio to temp bucket for playback (24h TTL handled by lifecycle rule)
       const tempAudioPath = `audio-temp/${teacherId}/${assessmentId}/audio.webm`;
@@ -218,6 +325,8 @@ export const processAssessment = functions
         },
         words: matchingResult.words,
         errorPatterns,
+        patternSummary,
+        aiSummary,
         processedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
 

@@ -15,14 +15,17 @@ import {
   Linking,
   Platform,
   Image,
+  Animated,
 } from 'react-native';
+import { DashboardErrorPattern } from '../types';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MaterialIcons } from '@expo/vector-icons';
 import { Audio } from 'expo-av';
+import * as Speech from 'expo-speech';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { useAuth } from '../hooks/useAuth';
-import { DashboardAssessment as Assessment, AlignedWord, AssessmentMetrics } from '../types';
+import { DashboardAssessment as Assessment, AlignedWord, AssessmentMetrics, PatternSummary, SeverityLevel } from '../types';
 import { createAssessment, subscribeToAssessment, completeAssessmentWithImage } from '../services/assessmentService';
 
 import type { RootStackParamList } from '../navigation/AppNavigator';
@@ -87,6 +90,7 @@ export default function AnalysisScreen() {
   const [selectedWord, setSelectedWord] = useState<AlignedWord | null>(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [showProsodyPopup, setShowProsodyPopup] = useState(false);
+  const [highlightedWordIndices, setHighlightedWordIndices] = useState<number[]>([]);
 
   // Background generation state (persists across tab switches)
   const [videoStatus, setVideoStatus] = useState<'idle' | 'generating' | 'ready' | 'error'>('idle');
@@ -290,6 +294,63 @@ export default function AnalysisScreen() {
     }
   };
 
+  // Handle error pattern click - highlight matching words
+  const handleErrorPatternClick = (pattern: DashboardErrorPattern) => {
+    if (!assessment?.words) return;
+
+    // Find word indices that match this error pattern
+    const matchingIndices: number[] = [];
+
+    // Use pattern.type to determine how to match words
+    // This is more reliable than checking pattern name text
+    const patternType = pattern.type;
+
+    if (patternType === 'hesitation') {
+      // Match words with hesitation flag
+      assessment.words.forEach((word, index) => {
+        if (word.hesitation) {
+          matchingIndices.push(index);
+        }
+      });
+    } else if (patternType === 'repetition') {
+      // Match words with repeat flag
+      assessment.words.forEach((word, index) => {
+        if (word.isRepeat) {
+          matchingIndices.push(index);
+        }
+      });
+    } else if (patternType === 'self_correction') {
+      // Match words with self-correction flag
+      assessment.words.forEach((word, index) => {
+        if (word.isSelfCorrection) {
+          matchingIndices.push(index);
+        }
+      });
+    } else {
+      // For other error patterns (substitution, phonetic, etc.), match by examples
+      // Build a set of expected words from examples for efficient lookup
+      const exampleWords = new Set(
+        pattern.examples.map(ex => ex.expected.toLowerCase())
+      );
+
+      assessment.words.forEach((word, index) => {
+        // Match by expected word (case-insensitive) AND word has an error
+        if (exampleWords.has(word.expected.toLowerCase()) &&
+            word.status !== 'correct') {
+          matchingIndices.push(index);
+        }
+      });
+    }
+
+    // Toggle: if same pattern clicked again, clear highlighting
+    if (highlightedWordIndices.length > 0 &&
+        JSON.stringify([...highlightedWordIndices].sort()) === JSON.stringify([...matchingIndices].sort())) {
+      setHighlightedWordIndices([]);
+    } else {
+      setHighlightedWordIndices(matchingIndices);
+    }
+  };
+
   // RENDER: Uploading/Processing state
   if (!assessment || assessment.status === 'uploading' || assessment.status === 'processing') {
     return (
@@ -391,12 +452,14 @@ export default function AnalysisScreen() {
             label="Video"
             active={activeTab === 'video'}
             onPress={() => setActiveTab('video')}
+            ready={videoStatus === 'ready'}
           />
           <SidebarTab
             icon="picture-as-pdf"
             label="Export"
             active={activeTab === 'export'}
             onPress={() => setActiveTab('export')}
+            ready={pdfStatus === 'ready'}
           />
           <SidebarTab
             icon="image"
@@ -420,6 +483,8 @@ export default function AnalysisScreen() {
               onWordPress={(word) => setSelectedWord(word)}
               getWordStyle={getWordStyle}
               onShowProsody={() => setShowProsodyPopup(true)}
+              onErrorPatternClick={handleErrorPatternClick}
+              highlightedWordIndices={highlightedWordIndices}
             />
           )}
           {activeTab === 'video' && (
@@ -502,36 +567,120 @@ function ProcessingStep({ label, done, active }: { label: string; done?: boolean
   );
 }
 
-function SidebarTab({ icon, label, active, onPress }: {
+function SidebarTab({ icon, label, active, onPress, ready }: {
   icon: string;
   label: string;
   active: boolean;
   onPress: () => void;
+  ready?: boolean;
 }) {
   return (
     <TouchableOpacity
       style={[styles.sidebarItem, active && styles.sidebarItemActive]}
       onPress={onPress}
     >
-      <MaterialIcons
-        name={icon as any}
-        size={24}
-        color={active ? '#4299E1' : '#718096'}
-      />
-      <Text style={[styles.sidebarText, active && styles.sidebarTextActive]}>
+      <View style={styles.sidebarIconContainer}>
+        <MaterialIcons
+          name={icon as any}
+          size={24}
+          color={active ? '#4299E1' : ready ? '#48BB78' : '#718096'}
+        />
+        {ready && !active && (
+          <View style={styles.readyBadge}>
+            <MaterialIcons name="check" size={10} color="#FFFFFF" />
+          </View>
+        )}
+      </View>
+      <Text style={[
+        styles.sidebarText,
+        active && styles.sidebarTextActive,
+        ready && !active && styles.sidebarTextReady
+      ]}>
         {label}
       </Text>
     </TouchableOpacity>
   );
 }
 
-function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
+function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody, onErrorPatternClick, highlightedWordIndices }: {
   assessment: Assessment;
   onWordPress: (word: AlignedWord) => void;
   getWordStyle: (status: string) => any;
   onShowProsody: () => void;
+  onErrorPatternClick: (pattern: DashboardErrorPattern) => void;
+  highlightedWordIndices: number[];
 }) {
   const metrics = assessment.metrics;
+
+  // AI Summary playback state
+  const [summaryState, setSummaryState] = useState<'ready' | 'playing' | 'finished'>('ready');
+  const [displayedText, setDisplayedText] = useState('');
+  const revealTimeouts = useRef<NodeJS.Timeout[]>([]);
+
+  // Get the AI summary or fallback to a simple message
+  const aiSummary = assessment.aiSummary ||
+    (metrics?.prosodyGrade === 'Excellent'
+      ? `Great job! You read ${metrics?.totalWords} words with ${metrics?.accuracy}% accuracy.`
+      : metrics?.prosodyGrade === 'Proficient'
+      ? `Good reading! ${metrics?.correctCount} words correct. Keep practicing the highlighted words.`
+      : `Keep practicing! Focus on the words highlighted in red and orange.`);
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      revealTimeouts.current.forEach(t => clearTimeout(t));
+      Speech.stop();
+    };
+  }, []);
+
+  const revealTextGradually = (fullText: string) => {
+    const words = fullText.split(' ');
+    const msPerWord = 320; // Approximate speaking rate
+
+    // Clear any existing timeouts
+    revealTimeouts.current.forEach(t => clearTimeout(t));
+    revealTimeouts.current = [];
+
+    words.forEach((_, index) => {
+      const timeout = setTimeout(() => {
+        setDisplayedText(words.slice(0, index + 1).join(' '));
+      }, index * msPerWord);
+      revealTimeouts.current.push(timeout);
+    });
+  };
+
+  const handlePlaySummary = async () => {
+    setSummaryState('playing');
+    setDisplayedText('');
+
+    // Start text-to-speech
+    Speech.speak(aiSummary, {
+      language: 'en-US',
+      rate: 0.95,
+      onDone: () => {
+        setSummaryState('finished');
+        setDisplayedText(aiSummary);
+      },
+      onStopped: () => {
+        setSummaryState('finished');
+        setDisplayedText(aiSummary);
+      },
+      onError: () => {
+        setSummaryState('finished');
+        setDisplayedText(aiSummary);
+      },
+    });
+
+    // Reveal text gradually
+    revealTextGradually(aiSummary);
+  };
+
+  const handleStopSummary = () => {
+    Speech.stop();
+    revealTimeouts.current.forEach(t => clearTimeout(t));
+    setDisplayedText(aiSummary);
+    setSummaryState('finished');
+  };
 
   return (
     <View style={styles.summaryContainer}>
@@ -551,16 +700,44 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
         </TouchableOpacity>
       </View>
 
-      {/* AI Summary */}
-      <View style={styles.summaryBox}>
-        <Text style={styles.summaryText}>
-          {metrics?.prosodyGrade === 'Excellent'
-            ? `Great job! You read ${metrics?.totalWords} words with ${metrics?.accuracy}% accuracy.`
-            : metrics?.prosodyGrade === 'Proficient'
-            ? `Good reading! ${metrics?.correctCount} words correct. Keep practicing the highlighted words.`
-            : `Keep practicing! Focus on the words highlighted in red and orange.`
-          }
-        </Text>
+      {/* AI Summary - Interactive */}
+      <View style={styles.aiSummaryContainer}>
+        {summaryState === 'ready' && (
+          <TouchableOpacity style={styles.aiSummaryButton} onPress={handlePlaySummary} activeOpacity={0.8}>
+            <MaterialIcons name="volume-up" size={28} color="#4299E1" />
+            <View style={styles.aiSummaryButtonText}>
+              <Text style={styles.aiSummaryTitle}>Hear Your Results</Text>
+              <Text style={styles.aiSummarySubtitle}>Tap to hear your personalized feedback</Text>
+            </View>
+          </TouchableOpacity>
+        )}
+
+        {summaryState === 'playing' && (
+          <View style={styles.aiSummaryPlaying}>
+            <View style={styles.aiSummaryPlayingHeader}>
+              <View style={styles.aiSummaryPlayingLeft}>
+                <MaterialIcons name="graphic-eq" size={24} color="#48BB78" />
+                <Text style={styles.aiSummaryPlayingTitle}>Playing...</Text>
+              </View>
+              <TouchableOpacity style={styles.aiSummaryStopButton} onPress={handleStopSummary}>
+                <Text style={styles.aiSummaryStopText}>Stop</Text>
+              </TouchableOpacity>
+            </View>
+            <Text style={styles.aiSummaryText}>{displayedText}</Text>
+          </View>
+        )}
+
+        {summaryState === 'finished' && (
+          <View style={styles.aiSummaryFinished}>
+            <TouchableOpacity style={styles.aiSummaryPlayAgain} onPress={handlePlaySummary}>
+              <MaterialIcons name="replay" size={20} color="#4299E1" />
+              <Text style={styles.aiSummaryPlayAgainText}>Play Again</Text>
+            </TouchableOpacity>
+            <ScrollView style={styles.aiSummaryTextScroll} nestedScrollEnabled>
+              <Text style={styles.aiSummaryText}>{displayedText}</Text>
+            </ScrollView>
+          </View>
+        )}
       </View>
 
       {/* Fluency Indicators */}
@@ -570,7 +747,7 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
           <View style={styles.fluencyIndicators}>
             {metrics?.hesitationCount ? (
               <View style={styles.fluencyItem}>
-                <MaterialIcons name="pause-circle-outline" size={18} color="#ED8936" />
+                <MaterialIcons name="pause-circle-outline" size={18} color="#7C3AED" />
                 <Text style={styles.fluencyValue}>{metrics.hesitationCount}</Text>
                 <Text style={styles.fluencyLabel}>pauses</Text>
               </View>
@@ -597,22 +774,14 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
       <Text style={styles.sectionTitle}>Text with Error Highlighting</Text>
       <View style={styles.wordsContainer}>
         {assessment.words?.map((word, index) => (
-          <TouchableOpacity
+          <PulsingWord
             key={index}
+            word={word}
+            index={index}
+            isHighlighted={highlightedWordIndices.includes(index)}
             onPress={() => onWordPress(word)}
-            style={[
-              styles.word,
-              getWordStyle(word.status),
-              word.hesitation && styles.wordWithHesitation,
-            ]}
-          >
-            <Text style={styles.wordText}>{word.expected}</Text>
-            {word.hesitation && (
-              <View style={styles.hesitationIndicator}>
-                <Text style={styles.hesitationDot}>⏸</Text>
-              </View>
-            )}
-          </TouchableOpacity>
+            getWordStyle={getWordStyle}
+          />
         ))}
       </View>
 
@@ -630,17 +799,24 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
         </View>
       </View>
 
-      {/* Error Breakdown */}
+      {/* Error Breakdown - Clickable */}
       {assessment.errorPatterns && assessment.errorPatterns.length > 0 && (
         <>
           <Text style={styles.sectionTitle}>Error Breakdown</Text>
+          <Text style={styles.errorBreakdownHint}>Tap an error to highlight words</Text>
           <View style={styles.errorBreakdown}>
             {assessment.errorPatterns.slice(0, 5).map((pattern, index) => (
-              <View key={index} style={styles.errorPatternItem}>
+              <TouchableOpacity
+                key={index}
+                style={styles.errorPatternItem}
+                onPress={() => onErrorPatternClick(pattern)}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="touch-app" size={16} color="#718096" style={{ marginRight: 6 }} />
                 <Text style={styles.errorPatternText}>
                   {pattern.pattern} ({pattern.count}x)
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </>
@@ -664,6 +840,69 @@ function LegendItem({ color, label }: { color: string; label: string }) {
       <View style={[styles.legendColor, { backgroundColor: color }]} />
       <Text style={styles.legendText}>{label}</Text>
     </View>
+  );
+}
+
+// PulsingWord component with animation for highlighted errors
+function PulsingWord({ word, index, isHighlighted, onPress, getWordStyle }: {
+  word: AlignedWord;
+  index: number;
+  isHighlighted: boolean;
+  onPress: () => void;
+  getWordStyle: (status: string) => any;
+}) {
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isHighlighted) {
+      // Start pulsing animation - subtle opacity pulse
+      const pulse = Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: false,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 0.3,
+            duration: 600,
+            useNativeDriver: false,
+          }),
+        ])
+      );
+      pulse.start();
+      return () => pulse.stop();
+    } else {
+      pulseAnim.setValue(0);
+    }
+  }, [isHighlighted]);
+
+  // Interpolate border color opacity for subtle pulse (no size change)
+  const borderColor = pulseAnim.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: ['transparent', 'rgba(229, 62, 62, 0.4)', 'rgba(229, 62, 62, 1)'],
+  });
+
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Animated.View
+        style={[
+          styles.word,
+          getWordStyle(word.status),
+          word.hesitation && styles.wordWithHesitation,
+          // Always have border space reserved to prevent movement
+          styles.wordWithPulseBorder,
+          isHighlighted && { borderColor },
+        ]}
+      >
+        <Text style={styles.wordText}>{word.expected}</Text>
+        {word.hesitation && (
+          <View style={styles.hesitationIndicator}>
+            <Text style={styles.hesitationDot}>⏸</Text>
+          </View>
+        )}
+      </Animated.View>
+    </TouchableOpacity>
   );
 }
 
@@ -948,185 +1187,283 @@ function ExportTab({ assessment, teacherId, assessmentId, pdfStatus, pdfUrl, pdf
 
 function ImageTab({ assessment }: { assessment: Assessment }) {
   const words = assessment.words || [];
-  const [imageLayout, setImageLayout] = useState({ width: 0, height: 0 });
+  const metrics = assessment.metrics;
+  const [containerWidth, setContainerWidth] = useState(0);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Original image dimensions from OCR processing
+  // Original image dimensions from OCR (coordinate space for bounding boxes)
   const originalWidth = assessment.imageWidth || 0;
   const originalHeight = assessment.imageHeight || 0;
 
-  // Calculate scale factor to map bounding boxes to displayed image
-  const scaleX = imageLayout.width > 0 && originalWidth > 0 ? imageLayout.width / originalWidth : 1;
-  const scaleY = imageLayout.height > 0 && originalHeight > 0 ? imageLayout.height / originalHeight : 1;
+  // Calculate aspect ratio for sizing (default to 4:3 if no dimensions)
+  const aspectRatio = originalWidth > 0 && originalHeight > 0
+    ? originalWidth / originalHeight
+    : 4 / 3;
 
-  // Get words with bounding boxes for overlay
+  // Container height based on width and aspect ratio
+  const containerHeight = containerWidth > 0 ? containerWidth / aspectRatio : 500;
+
+  // Find first and last words that have bounding boxes
   const wordsWithBoxes = words.filter(w => w.boundingBox);
+  const firstWord = wordsWithBoxes[0] || null;
+  const lastWord = wordsWithBoxes[wordsWithBoxes.length - 1] || null;
 
-  // Calculate the bounding region of all spoken words to auto-frame
-  const spokenWords = wordsWithBoxes.filter(w => w.spoken);
-  let minX = Infinity, minY = Infinity, maxX = 0, maxY = 0;
+  // Calculate counts
+  const correctCount = metrics?.correctCount || 0;
+  const errorCount = metrics?.errorCount || 0;
 
-  for (const word of spokenWords) {
-    if (word.boundingBox) {
-      minX = Math.min(minX, word.boundingBox.x);
-      minY = Math.min(minY, word.boundingBox.y);
-      maxX = Math.max(maxX, word.boundingBox.x + word.boundingBox.width);
-      maxY = Math.max(maxY, word.boundingBox.y + word.boundingBox.height);
-    }
-  }
+  // Scale factor: displayed width / original width
+  const scale = containerWidth > 0 && originalWidth > 0 ? containerWidth / originalWidth : 0;
 
-  // Get color for word status
-  const getWordOverlayColor = (status: string) => {
-    switch (status) {
-      case 'correct': return 'rgba(72, 187, 120, 0.4)'; // Green
-      case 'misread': return 'rgba(237, 137, 54, 0.5)'; // Orange
-      case 'substituted': return 'rgba(229, 62, 62, 0.5)'; // Red
-      case 'skipped': return 'rgba(160, 174, 192, 0.4)'; // Gray
-      default: return 'rgba(66, 153, 225, 0.3)'; // Blue
-    }
-  };
-
-  const getBorderColor = (status: string) => {
-    switch (status) {
-      case 'correct': return '#48BB78';
-      case 'misread': return '#ED8936';
-      case 'substituted': return '#E53E3E';
-      case 'skipped': return '#A0AEC0';
-      default: return '#4299E1';
-    }
-  };
-
+  // No image available
   if (!assessment.imageUrl) {
     return (
       <View style={styles.tabPlaceholder}>
         <MaterialIcons name="image" size={64} color="#CBD5E0" />
-        <Text style={styles.placeholderText}>Image not available</Text>
+        <Text style={styles.placeholderText}>No image available</Text>
       </View>
     );
   }
 
+  // Render a word overlay box (green highlight, no label)
+  const renderWordOverlay = (
+    word: typeof firstWord,
+    key: string
+  ) => {
+    if (!word?.boundingBox || scale === 0) return null;
+
+    const box = word.boundingBox;
+    return (
+      <View
+        key={key}
+        style={{
+          position: 'absolute',
+          left: box.x * scale,
+          top: box.y * scale,
+          width: box.width * scale,
+          height: box.height * scale,
+          borderWidth: 3,
+          borderColor: '#22C55E',
+          backgroundColor: 'rgba(34, 197, 94, 0.25)',
+          borderRadius: 4,
+          zIndex: 10,
+        }}
+      />
+    );
+  };
+
   return (
     <View style={styles.imageTabContainer}>
-      {/* Legend */}
-      <View style={styles.imageLegendRow}>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#48BB78' }]} />
-          <Text style={styles.legendText}>Correct</Text>
+      {/* Stats bar above image */}
+      <View style={styles.imageStatsBar}>
+        <View style={styles.imageStatItem}>
+          <Text style={styles.imageStatNumber}>{correctCount}</Text>
+          <Text style={styles.imageStatLabel}>Correct</Text>
         </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#ED8936' }]} />
-          <Text style={styles.legendText}>Misread</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#E53E3E' }]} />
-          <Text style={styles.legendText}>Substituted</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: '#A0AEC0' }]} />
-          <Text style={styles.legendText}>Skipped</Text>
+        <View style={styles.imageStatDivider} />
+        <View style={styles.imageStatItem}>
+          <Text style={[styles.imageStatNumber, { color: '#E53E3E' }]}>{errorCount}</Text>
+          <Text style={styles.imageStatLabel}>Errors</Text>
         </View>
       </View>
 
-      {/* Full Resolution Image with Word Overlays */}
-      <ScrollView
-        style={styles.imageFullResScrollView}
-        contentContainerStyle={styles.imageFullResContent}
-        maximumZoomScale={5}
-        minimumZoomScale={1}
-        showsVerticalScrollIndicator={true}
-        showsHorizontalScrollIndicator={true}
-        bouncesZoom={true}
+      {/* First and Last Words Display */}
+      <View style={styles.imageFirstLastRow}>
+        <View style={styles.imageFirstLastBox}>
+          <Text style={styles.imageFirstLastLabel}>First Word</Text>
+          <Text style={styles.imageFirstLastWord}>
+            {firstWord?.expected || '—'}
+          </Text>
+        </View>
+        <View style={styles.imageFirstLastDivider} />
+        <View style={styles.imageFirstLastBox}>
+          <Text style={styles.imageFirstLastLabel}>Last Word</Text>
+          <Text style={styles.imageFirstLastWord}>
+            {lastWord?.expected || '—'}
+          </Text>
+        </View>
+      </View>
+
+      {/* Image container with explicit height based on aspect ratio */}
+      <View
+        style={[styles.imageDisplayContainer, { height: containerHeight }]}
+        onLayout={(e) => {
+          const { width } = e.nativeEvent.layout;
+          setContainerWidth(width);
+        }}
       >
-        <View
-          style={styles.imageOverlayContainer}
-          onLayout={(e) => {
-            // We need the image dimensions first
-          }}
-        >
-          <Image
-            source={{ uri: assessment.imageUrl }}
-            style={styles.fullResImage}
-            resizeMode="contain"
-            onLoad={(e) => {
-              // Get the actual displayed size
-              const { width, height } = e.nativeEvent.source;
-              setImageLayout({ width, height });
-              setImageLoaded(true);
-            }}
-          />
+        {/* The captured image - fills container completely */}
+        <Image
+          source={{ uri: assessment.imageUrl }}
+          style={styles.imageFill}
+          resizeMode="stretch"
+          onLoad={() => setImageLoaded(true)}
+          onError={(e) => console.log('Image load error:', e.nativeEvent.error)}
+        />
 
-          {/* Word bounding box overlays */}
-          {imageLoaded && wordsWithBoxes.map((word, index) => {
-            if (!word.boundingBox) return null;
-
-            const box = word.boundingBox;
-            const scaledX = box.x * scaleX;
-            const scaledY = box.y * scaleY;
-            const scaledWidth = box.width * scaleX;
-            const scaledHeight = box.height * scaleY;
-
-            return (
-              <View
-                key={index}
-                style={[
-                  styles.wordOverlayBox,
-                  {
-                    left: scaledX,
-                    top: scaledY,
-                    width: scaledWidth,
-                    height: scaledHeight,
-                    backgroundColor: getWordOverlayColor(word.status),
-                    borderColor: getBorderColor(word.status),
-                  },
-                ]}
-              />
-            );
-          })}
-        </View>
-      </ScrollView>
-
-      {/* Info footer */}
-      <View style={styles.imageQualityInfo}>
-        <MaterialIcons name="touch-app" size={16} color="#718096" />
-        <Text style={styles.imageQualityText}>
-          Pinch to zoom • Words highlighted by reading accuracy
-        </Text>
+        {/* Word overlays - only render when image is loaded and we have dimensions */}
+        {imageLoaded && scale > 0 && (
+          <>
+            {renderWordOverlay(firstWord, 'first')}
+            {renderWordOverlay(lastWord, 'last')}
+          </>
+        )}
       </View>
+
+      {/* Show dimension info if missing */}
+      {(originalWidth === 0 || originalHeight === 0) && (
+        <Text style={styles.imageDimensionWarning}>
+          Note: Image dimensions not available. Overlays may not align correctly.
+        </Text>
+      )}
     </View>
   );
 }
 
 function PatternsTab({ assessment }: { assessment: Assessment }) {
   const patterns = assessment.errorPatterns || [];
+  const summary = assessment.patternSummary;
 
-  if (patterns.length === 0) {
-    return (
-      <View style={styles.tabPlaceholder}>
-        <MaterialIcons name="check-circle" size={64} color="#48BB78" />
-        <Text style={styles.placeholderText}>No error patterns detected</Text>
-      </View>
-    );
-  }
+  // Severity badge colors and labels
+  const getSeverityConfig = (severity: SeverityLevel) => {
+    switch (severity) {
+      case 'excellent':
+        return { color: '#22C55E', bgColor: '#DCFCE7', icon: 'star' as const, label: 'Excellent' };
+      case 'mild':
+        return { color: '#3B82F6', bgColor: '#DBEAFE', icon: 'trending-up' as const, label: 'Mild Concerns' };
+      case 'moderate':
+        return { color: '#F59E0B', bgColor: '#FEF3C7', icon: 'warning' as const, label: 'Moderate Concerns' };
+      case 'significant':
+        return { color: '#EF4444', bgColor: '#FEE2E2', icon: 'error' as const, label: 'Significant Concerns' };
+    }
+  };
+
+  const severityConfig = summary ? getSeverityConfig(summary.severity) : null;
+
+  // Combine concerns and recommendations into one list for display
+  const hasContent = summary && (
+    summary.referralSuggestions.length > 0 ||
+    summary.primaryIssues.length > 0 ||
+    summary.recommendations.length > 0
+  );
 
   return (
-    <View style={styles.patternsContainer}>
-      <Text style={styles.sectionTitle}>Phonetic Patterns</Text>
-      {patterns.map((pattern, index) => (
-        <View key={index} style={styles.patternCard}>
-          <View style={styles.patternHeader}>
-            <Text style={styles.patternTitle}>{pattern.pattern}</Text>
-            <Text style={styles.patternCount}>{pattern.count} errors</Text>
-          </View>
-          <View style={styles.patternExamples}>
-            {pattern.examples.slice(0, 3).map((ex, i) => (
-              <Text key={i} style={styles.patternExample}>
-                "{ex.expected}" → "{ex.spoken}"
+    <ScrollView style={styles.patternsContainer} showsVerticalScrollIndicator={false}>
+      {/* === UNIFIED SUMMARY CARD === */}
+      {summary && severityConfig && (
+        <View style={styles.unifiedSummaryCard}>
+          {/* Severity Header */}
+          <View style={[styles.severityHeader, { backgroundColor: severityConfig.bgColor }]}>
+            <MaterialIcons name={severityConfig.icon} size={28} color={severityConfig.color} />
+            <View style={styles.severityHeaderText}>
+              <Text style={[styles.severityLabel, { color: severityConfig.color }]}>
+                {severityConfig.label}
               </Text>
-            ))}
+              <Text style={styles.severitySubtext}>
+                {summary.severity === 'excellent'
+                  ? 'Reading at or above expected level'
+                  : summary.severity === 'mild'
+                  ? 'Minor areas for targeted practice'
+                  : summary.severity === 'moderate'
+                  ? 'Multiple areas need focused attention'
+                  : 'Consider additional assessment or support'}
+              </Text>
+            </View>
           </View>
+
+          {/* Content Section */}
+          {hasContent && (
+            <View style={styles.summaryContent}>
+              {/* Referral Alert - inline, compact */}
+              {summary.referralSuggestions.length > 0 && (
+                <View style={styles.referralAlert}>
+                  <MaterialIcons name="warning" size={18} color="#DC2626" />
+                  <Text style={styles.referralAlertText}>
+                    {summary.referralSuggestions[0]}
+                  </Text>
+                </View>
+              )}
+
+              {/* Concerns & Recommendations Combined */}
+              {(summary.primaryIssues.length > 0 || summary.recommendations.length > 0) && (
+                <View style={styles.insightsSection}>
+                  {/* Concerns as compact list */}
+                  {summary.primaryIssues.length > 0 && (
+                    <>
+                      <Text style={styles.insightsSectionLabel}>Focus Areas</Text>
+                      {summary.primaryIssues.slice(0, 3).map((issue, index) => (
+                        <View key={`issue-${index}`} style={styles.insightItem}>
+                          <MaterialIcons name="flag" size={14} color="#F59E0B" />
+                          <Text style={styles.insightText}>{issue}</Text>
+                        </View>
+                      ))}
+                    </>
+                  )}
+
+                  {/* Recommendations as compact list */}
+                  {summary.recommendations.length > 0 && (
+                    <>
+                      <Text style={[styles.insightsSectionLabel, summary.primaryIssues.length > 0 && { marginTop: 12 }]}>
+                        Recommendations
+                      </Text>
+                      {summary.recommendations.slice(0, 3).map((rec, index) => (
+                        <View key={`rec-${index}`} style={styles.insightItem}>
+                          <MaterialIcons name="lightbulb-outline" size={14} color="#3B82F6" />
+                          <Text style={styles.insightText}>{rec}</Text>
+                        </View>
+                      ))}
+                    </>
+                  )}
+                </View>
+              )}
+            </View>
+          )}
         </View>
-      ))}
-    </View>
+      )}
+
+      {/* === DETAILED PATTERNS SECTION === */}
+      {patterns.length > 0 && (
+        <View style={styles.detailedPatternsSection}>
+          <Text style={styles.patternsSectionTitle}>Error Patterns</Text>
+          {patterns.map((pattern, index) => (
+            <View key={index} style={styles.patternCard}>
+              <View style={styles.patternHeader}>
+                <Text style={styles.patternTitle}>{pattern.pattern}</Text>
+                <View style={styles.patternCountBadge}>
+                  <Text style={styles.patternCountText}>{pattern.count}×</Text>
+                </View>
+              </View>
+              <View style={styles.patternExamples}>
+                {pattern.examples.slice(0, 3).map((ex, i) => (
+                  <Text key={i} style={styles.patternExample}>
+                    "{ex.expected}" → "{ex.spoken}"
+                  </Text>
+                ))}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+
+      {/* No patterns - Excellent reading */}
+      {patterns.length === 0 && summary?.severity === 'excellent' && (
+        <View style={styles.excellentReadingCard}>
+          <MaterialIcons name="emoji-events" size={48} color="#F59E0B" />
+          <Text style={styles.excellentTitle}>Outstanding!</Text>
+          <Text style={styles.excellentSubtext}>
+            No significant error patterns detected.
+          </Text>
+        </View>
+      )}
+
+      {/* No data at all */}
+      {patterns.length === 0 && !summary && (
+        <View style={styles.tabPlaceholder}>
+          <MaterialIcons name="check-circle" size={64} color="#48BB78" />
+          <Text style={styles.placeholderText}>No error patterns detected</Text>
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
@@ -1524,6 +1861,24 @@ const styles = StyleSheet.create({
     color: '#4299E1',
     fontWeight: '500',
   },
+  sidebarTextReady: {
+    color: '#48BB78',
+    fontWeight: '500',
+  },
+  sidebarIconContainer: {
+    position: 'relative',
+  },
+  readyBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: '#48BB78',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   // Results area
   resultsArea: {
     flex: 1,
@@ -1567,6 +1922,91 @@ const styles = StyleSheet.create({
     color: '#718096',
     marginTop: 4,
   },
+  // AI Summary styles
+  aiSummaryContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  aiSummaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    gap: 16,
+    backgroundColor: '#EBF8FF',
+  },
+  aiSummaryButtonText: {
+    flex: 1,
+  },
+  aiSummaryTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2C5282',
+    marginBottom: 4,
+  },
+  aiSummarySubtitle: {
+    fontSize: 14,
+    color: '#4A5568',
+  },
+  aiSummaryPlaying: {
+    padding: 16,
+    backgroundColor: '#F0FFF4',
+    minHeight: 120,
+  },
+  aiSummaryPlayingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  aiSummaryPlayingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  aiSummaryPlayingTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#276749',
+  },
+  aiSummaryStopButton: {
+    backgroundColor: '#FC8181',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  aiSummaryStopText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  aiSummaryText: {
+    fontSize: 16,
+    color: '#2D3748',
+    lineHeight: 26,
+  },
+  aiSummaryFinished: {
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  aiSummaryPlayAgain: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: 12,
+    alignSelf: 'flex-start',
+  },
+  aiSummaryPlayAgainText: {
+    fontSize: 14,
+    color: '#4299E1',
+    fontWeight: '500',
+  },
+  aiSummaryTextScroll: {
+    maxHeight: 150,
+  },
+  // Legacy summary styles (kept for compatibility)
   summaryBox: {
     backgroundColor: '#EBF8FF',
     padding: 16,
@@ -1650,15 +2090,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#E2E8F0',
   },
   wordWithHesitation: {
+    backgroundColor: '#DDD6FE', // Light purple background (matching video)
+  },
+  wordWithPulseBorder: {
     borderWidth: 2,
-    borderColor: '#ED8936',
-    borderStyle: 'dashed',
+    borderColor: 'transparent',
+    borderRadius: 4,
   },
   hesitationIndicator: {
     position: 'absolute',
     top: -6,
     right: -6,
-    backgroundColor: '#ED8936',
+    backgroundColor: '#7C3AED', // Purple (matching video)
     borderRadius: 8,
     width: 16,
     height: 16,
@@ -1686,16 +2129,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   hesitationLegendColor: {
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#ED8936',
-    borderStyle: 'dashed',
+    backgroundColor: '#DDD6FE', // Light purple (matching video)
     alignItems: 'center',
     justifyContent: 'center',
   },
   hesitationLegendIcon: {
     fontSize: 8,
-    color: '#ED8936',
+    color: '#7C3AED', // Purple (matching video)
   },
   legendText: {
     fontSize: 14,
@@ -1707,10 +2147,20 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 8,
   },
+  errorBreakdownHint: {
+    fontSize: 12,
+    color: '#A0AEC0',
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
   errorPatternItem: {
-    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 8,
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
+    borderRadius: 6,
   },
   errorPatternText: {
     fontSize: 14,
@@ -1759,6 +2209,120 @@ const styles = StyleSheet.create({
   patternExample: {
     fontSize: 14,
     color: '#4A5568',
+  },
+  // Unified summary card styles (simplified patterns tab)
+  unifiedSummaryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  severityHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  severityHeaderText: {
+    flex: 1,
+  },
+  severityLabel: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+  severitySubtext: {
+    fontSize: 14,
+    color: '#4A5568',
+    marginTop: 4,
+  },
+  summaryContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    gap: 12,
+  },
+  referralAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF2F2',
+    padding: 12,
+    borderRadius: 8,
+    gap: 8,
+  },
+  referralAlertText: {
+    fontSize: 14,
+    color: '#DC2626',
+    flex: 1,
+    fontWeight: '500',
+  },
+  insightsSection: {
+    gap: 6,
+  },
+  insightsSectionLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#718096',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  insightItem: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    paddingVertical: 4,
+  },
+  insightText: {
+    fontSize: 14,
+    color: '#4A5568',
+    flex: 1,
+    lineHeight: 20,
+  },
+  patternsSectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#2D3748',
+    marginBottom: 12,
+    marginTop: 8,
+  },
+  patternCountBadge: {
+    backgroundColor: '#E53E3E',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+  },
+  patternCountText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#FFFFFF',
+  },
+  detailedPatternsSection: {
+    gap: 12,
+  },
+  excellentReadingCard: {
+    backgroundColor: '#FFFBEB',
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  excellentTitle: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#92400E',
+    marginTop: 12,
+    textAlign: 'center',
+  },
+  excellentSubtext: {
+    fontSize: 16,
+    color: '#A16207',
+    textAlign: 'center',
+    marginTop: 8,
+    lineHeight: 24,
   },
   // Word popup
   popupOverlay: {
@@ -2104,58 +2668,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
   },
-  // Image tab styles
-  imageTabContainer: {
-    flex: 1,
-    gap: 16,
-  },
-  imageStatsHeader: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 12,
-    gap: 8,
-  },
-  imageStatRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  imageStatLabel: {
-    fontSize: 16,
-    color: '#718096',
-  },
-  imageStatValue: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#2D3748',
-  },
-  imageStatDivider: {
-    fontSize: 16,
-    color: '#CBD5E0',
-    marginHorizontal: 8,
-  },
-  capturedImageContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    overflow: 'hidden',
-    position: 'relative',
-  },
-  capturedImage: {
-    width: '100%',
-    height: 400,
-    backgroundColor: '#F7FAFC',
-  },
-  imageScrollContainer: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 12,
-    minHeight: 500,
-  },
-  capturedImageFullRes: {
-    width: '100%',
-    height: 600,
-    backgroundColor: '#F7FAFC',
-  },
   imageQualityInfo: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2170,7 +2682,127 @@ const styles = StyleSheet.create({
     color: '#718096',
     flex: 1,
   },
-  // New full-resolution image styles with word overlays
+  // First/Last word summary styles
+  firstLastSummary: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 24,
+  },
+  firstLastItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  firstLastLabel: {
+    fontSize: 14,
+    color: '#718096',
+  },
+  firstLastWord: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#2D3748',
+  },
+  firstLastStatus: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  firstLastStatusText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    textTransform: 'capitalize',
+  },
+  firstLastDivider: {
+    width: 1,
+    height: 30,
+    backgroundColor: '#E2E8F0',
+  },
+  // Image Tab styles
+  imageTabContainer: {
+    flex: 1,
+    gap: 12,
+  },
+  imageStatsBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    gap: 32,
+  },
+  imageFirstLastRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  imageFirstLastBox: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  imageFirstLastLabel: {
+    fontSize: 12,
+    color: '#718096',
+    marginBottom: 4,
+  },
+  imageFirstLastWord: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#22C55E',
+  },
+  imageFirstLastDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E2E8F0',
+  },
+  imageStatItem: {
+    alignItems: 'center',
+  },
+  imageStatNumber: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#22C55E',
+  },
+  imageStatLabel: {
+    fontSize: 14,
+    color: '#718096',
+    marginTop: 4,
+  },
+  imageStatDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#E2E8F0',
+  },
+  imageDisplayContainer: {
+    width: '100%',
+    backgroundColor: '#1A202C',
+    borderRadius: 12,
+    overflow: 'hidden',
+    position: 'relative',
+  },
+  imageFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  imageDimensionWarning: {
+    fontSize: 12,
+    color: '#F59E0B',
+    textAlign: 'center',
+    marginTop: 8,
+    fontStyle: 'italic',
+  },
+  // Legacy image styles (kept for potential future use)
   imageLegendRow: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -2180,21 +2812,6 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 8,
     marginBottom: 12,
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-  },
-  legendText: {
-    fontSize: 12,
-    color: '#4A5568',
-    fontWeight: '500',
   },
   imageFullResScrollView: {
     flex: 1,

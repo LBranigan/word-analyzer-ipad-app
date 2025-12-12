@@ -125,11 +125,15 @@ export function subscribeToAssessment(
         videoUrl: data.videoUrl,
         pdfUrl: data.pdfUrl,
         audioDuration: data.audioDuration,
+        imageWidth: data.imageWidth,
+        imageHeight: data.imageHeight,
         ocrText: data.ocrText,
         transcript: data.transcript,
         metrics: data.metrics,
         words: data.words,
         errorPatterns: data.errorPatterns,
+        patternSummary: data.patternSummary,
+        aiSummary: data.aiSummary,
       });
     }
   });
@@ -162,11 +166,15 @@ export async function getAssessments(
       videoUrl: data.videoUrl,
       pdfUrl: data.pdfUrl,
       audioDuration: data.audioDuration,
+      imageWidth: data.imageWidth,
+      imageHeight: data.imageHeight,
       ocrText: data.ocrText,
       transcript: data.transcript,
       metrics: data.metrics,
       words: data.words,
       errorPatterns: data.errorPatterns,
+      patternSummary: data.patternSummary,
+      aiSummary: data.aiSummary,
     };
   });
 }
@@ -197,11 +205,15 @@ export function subscribeToAssessments(
         videoUrl: data.videoUrl,
         pdfUrl: data.pdfUrl,
         audioDuration: data.audioDuration,
+        imageWidth: data.imageWidth,
+        imageHeight: data.imageHeight,
         ocrText: data.ocrText,
         transcript: data.transcript,
         metrics: data.metrics,
         words: data.words,
         errorPatterns: data.errorPatterns,
+        patternSummary: data.patternSummary,
+        aiSummary: data.aiSummary,
       };
     });
     onUpdate(assessments);

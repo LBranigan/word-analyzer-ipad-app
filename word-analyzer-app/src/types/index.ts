@@ -124,6 +124,7 @@ export interface AlignedWord {
   hesitation?: boolean;       // True if there was a significant pause before this word
   pauseDuration?: number;     // Duration of pause before this word in seconds
   isRepeat?: boolean;         // True if this word was repeated
+  isSelfCorrection?: boolean; // True if student self-corrected this word
   boundingBox?: BoundingBox;  // Position of word on the original image
 }
 
@@ -132,6 +133,16 @@ export interface DashboardErrorPattern {
   pattern: string;
   examples: Array<{ expected: string; spoken: string }>;
   count: number;
+}
+
+export type SeverityLevel = 'excellent' | 'mild' | 'moderate' | 'significant';
+
+export interface PatternSummary {
+  severity: SeverityLevel;
+  primaryIssues: string[];
+  recommendations: string[];
+  strengths: string[];
+  referralSuggestions: string[];
 }
 
 export interface DashboardAssessment {
@@ -160,6 +171,8 @@ export interface DashboardAssessment {
   metrics?: AssessmentMetrics;
   words?: AlignedWord[];
   errorPatterns?: DashboardErrorPattern[];
+  patternSummary?: PatternSummary;
+  aiSummary?: string;  // AI-generated personalized feedback for the student
 }
 
 export type RecordingDuration = 30 | 60;
