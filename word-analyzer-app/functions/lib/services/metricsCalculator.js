@@ -7,20 +7,43 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.calculateMetrics = calculateMetrics;
 exports.analyzeErrorPatterns = analyzeErrorPatterns;
+exports.generatePatternSummary = generatePatternSummary;
 /**
  * Calculate all metrics from matching result
  * Now includes hesitation in prosody calculation
+ * Uses actual reading time from word timestamps for accurate WPM
  */
 function calculateMetrics(matchingResult, audioDuration) {
-    const { words, correctCount, errorCount, skipCount, hesitationCount, fillerWordCount, repeatCount } = matchingResult;
+    const { words, correctCount, errorCount, skipCount, hesitationCount, fillerWordCount, repeatCount, selfCorrectionCount } = matchingResult;
     const totalWords = words.length;
     // Accuracy percentage
     const accuracy = totalWords > 0
         ? Math.round((correctCount / totalWords) * 100)
         : 0;
-    // Words per minute
+    // Calculate actual reading time from word timestamps
+    // This is more accurate than using audioDuration which may include silence
+    let actualReadingTime = audioDuration;
+    // Find first and last word with valid timing
+    const wordsWithTiming = words.filter(w => w.startTime > 0 || w.endTime > 0);
+    if (wordsWithTiming.length >= 2) {
+        const firstWord = wordsWithTiming[0];
+        const lastWord = wordsWithTiming[wordsWithTiming.length - 1];
+        // Reading time is from first word start to last word end
+        const readingStart = firstWord.startTime;
+        const readingEnd = lastWord.endTime;
+        if (readingEnd > readingStart) {
+            actualReadingTime = readingEnd - readingStart;
+            console.log(`Using actual reading time: ${actualReadingTime.toFixed(2)}s (from ${readingStart.toFixed(2)}s to ${readingEnd.toFixed(2)}s)`);
+        }
+    }
+    else if (wordsWithTiming.length === 1) {
+        // Single word - use its duration
+        const word = wordsWithTiming[0];
+        actualReadingTime = word.endTime - word.startTime;
+    }
+    // Words per minute - using actual reading time
     const wordsRead = correctCount + matchingResult.misreadCount + matchingResult.substitutionCount;
-    const minutesElapsed = audioDuration / 60;
+    const minutesElapsed = actualReadingTime / 60;
     const wordsPerMinute = minutesElapsed > 0
         ? Math.round(wordsRead / minutesElapsed)
         : 0;
@@ -94,7 +117,7 @@ function calculateMetrics(matchingResult, audioDuration) {
         prosodyGrade = 'Developing';
     else
         prosodyGrade = 'Needs Support';
-    console.log(`Metrics: accuracy=${accuracy}%, wpm=${wordsPerMinute}, hesitations=${hesitationCount}, fillers=${fillerWordCount}, repeats=${repeatCount}, prosody=${prosodyScore}`);
+    console.log(`Metrics: accuracy=${accuracy}%, wpm=${wordsPerMinute}, hesitations=${hesitationCount}, fillers=${fillerWordCount}, repeats=${repeatCount}, selfCorrections=${selfCorrectionCount}, prosody=${prosodyScore}`);
     return {
         accuracy,
         wordsPerMinute,
@@ -107,6 +130,7 @@ function calculateMetrics(matchingResult, audioDuration) {
         hesitationCount,
         fillerWordCount,
         repeatCount,
+        selfCorrectionCount,
     };
 }
 // Consonant blends - two or more consonants that blend together
@@ -189,10 +213,14 @@ function analyzeErrorPatterns(words) {
             hesitationCount++;
             addPattern('hesitation', 'hesitation', 'Hesitation before word (pause > 0.5s)', word.expected, word.spoken || '(paused)');
         }
-        // Track repetitions (even for correct words)
+        // Track repetitions/stutters (even for correct words)
         if (word.isRepeat) {
             repetitionCount++;
-            addPattern('repetition', 'repetition', 'Word repeated/self-corrected', word.expected, word.spoken || '');
+            addPattern('repetition', 'repetition', 'Word repeated (stutter)', word.expected, word.spoken || '');
+        }
+        // Track self-corrections (positive indicator - student caught their own error)
+        if (word.isSelfCorrection) {
+            addPattern('self_correction', 'self_correction', 'Self-corrected (caught own error)', word.expected, word.spoken || '');
         }
         // Skip further analysis for correct or skipped words
         if (word.status === 'correct' || !word.spoken)
@@ -349,5 +377,222 @@ function analyzeErrorPatterns(words) {
         patterns.push(pattern);
     }
     return patterns.sort((a, b) => b.count - a.count);
+}
+/**
+ * Generate a pattern summary with actionable recommendations for teachers
+ * Based on word-analyzer-v2 generatePatternSummary (concept map)
+ *
+ * Analyzes error patterns to identify:
+ * - Primary issues (phonics, decoding, fluency)
+ * - Specific recommendations for intervention
+ * - Student strengths to build upon
+ * - Referral suggestions when patterns indicate need for specialist evaluation
+ */
+function generatePatternSummary(patterns, metrics) {
+    const primaryIssues = [];
+    const recommendations = [];
+    const strengths = [];
+    const referralSuggestions = [];
+    // Helper to count patterns by type
+    const countByType = (type) => {
+        const pattern = patterns.find(p => p.type === type);
+        return (pattern === null || pattern === void 0 ? void 0 : pattern.count) || 0;
+    };
+    // Get counts for different pattern types
+    const initialSoundErrors = countByType('initial_sound');
+    const finalSoundErrors = countByType('final_sound');
+    const consonantBlendErrors = countByType('consonant_blend');
+    const digraphErrors = countByType('digraph');
+    const firstLetterGuessing = countByType('first_letter_guess');
+    const rSoundErrors = countByType('r_sound');
+    const thSoundErrors = countByType('th_sound');
+    const vowelErrors = countByType('vowel_error');
+    const visualErrors = countByType('visual_similarity');
+    const omissionErrors = countByType('omission');
+    const additionErrors = countByType('addition');
+    const longWordErrors = countByType('word_length');
+    const hesitationCount = metrics.hesitationCount;
+    const repeatCount = metrics.repeatCount;
+    // ============================================
+    // ANALYZE PHONICS ISSUES
+    // ============================================
+    // Consonant blend difficulties (≥2 instances)
+    if (consonantBlendErrors >= 2) {
+        primaryIssues.push('Difficulty with consonant blends (bl, cl, fr, tr, str, etc.)');
+        recommendations.push('Practice blending sounds together with word ladders and blend cards');
+        recommendations.push('Use manipulatives to physically combine letter sounds');
+    }
+    // Digraph difficulties (≥2 instances)
+    if (digraphErrors >= 2) {
+        primaryIssues.push('Difficulty with digraphs (ch, sh, th, ph, wh)');
+        recommendations.push('Focus on digraph recognition with flashcards and sorting activities');
+        recommendations.push('Use mouth position mirrors to show how digraph sounds are made');
+    }
+    // Initial sound errors (≥3 instances)
+    if (initialSoundErrors >= 3) {
+        primaryIssues.push('Inconsistent initial sound recognition');
+        recommendations.push('Practice initial sound isolation with picture sorts');
+        recommendations.push('Use alliteration games and tongue twisters');
+    }
+    // Final sound errors (≥3 instances)
+    if (finalSoundErrors >= 3) {
+        primaryIssues.push('Difficulty with word endings');
+        recommendations.push('Practice word families focusing on ending patterns (-at, -an, -ing)');
+        recommendations.push('Use Elkonin boxes to segment sounds, emphasizing final sounds');
+    }
+    // Vowel confusion (≥2 instances)
+    if (vowelErrors >= 2) {
+        primaryIssues.push('Vowel sound confusion');
+        recommendations.push('Review short vs long vowel sounds with visual cues');
+        recommendations.push('Practice vowel teams and patterns (ea, ee, ai, ay)');
+    }
+    // ============================================
+    // ANALYZE DECODING STRATEGIES
+    // ============================================
+    // First-letter guessing (≥2 instances)
+    if (firstLetterGuessing >= 2) {
+        primaryIssues.push('Relying on first-letter guessing instead of full decoding');
+        recommendations.push('Encourage sounding out the ENTIRE word, not just the first letter');
+        recommendations.push('Use finger-point reading to slow down and attend to all letters');
+        recommendations.push('Practice with decodable texts at the student\'s level');
+    }
+    // Visual similarity errors (b/d, p/q confusion)
+    if (visualErrors >= 2) {
+        primaryIssues.push('Visual letter confusion (b/d, p/q, m/n)');
+        recommendations.push('Use tactile letter formation practice (sand trays, playdough)');
+        recommendations.push('Create anchor words for confused letters (b = bat, d = dog)');
+        recommendations.push('Practice with color-coded highlighting of confused letters');
+    }
+    // Long word difficulties
+    if (longWordErrors >= 3) {
+        primaryIssues.push('Difficulty with multi-syllable words');
+        recommendations.push('Teach syllable division rules (VC/CV, V/CV patterns)');
+        recommendations.push('Practice chunking longer words into manageable parts');
+        recommendations.push('Use word building with prefixes, roots, and suffixes');
+    }
+    // Omission errors (leaving out sounds)
+    if (omissionErrors >= 2) {
+        primaryIssues.push('Omitting sounds or syllables when reading');
+        recommendations.push('Slow down reading pace to attend to all word parts');
+        recommendations.push('Use finger tracking under each syllable');
+    }
+    // Addition errors (adding extra sounds)
+    if (additionErrors >= 2) {
+        primaryIssues.push('Adding extra sounds or syllables');
+        recommendations.push('Practice careful, precise word reading');
+        recommendations.push('Record and playback reading to build self-monitoring');
+    }
+    // ============================================
+    // ANALYZE FLUENCY ISSUES
+    // ============================================
+    // Excessive hesitation
+    const hesitationRate = metrics.totalWords > 0 ? hesitationCount / metrics.totalWords : 0;
+    if (hesitationRate > 0.15) {
+        primaryIssues.push('Frequent hesitation interrupting reading flow');
+        recommendations.push('Increase exposure to high-frequency words through repeated reading');
+        recommendations.push('Practice phrase-cued reading to build fluent word groups');
+        recommendations.push('Use readers theater or echo reading for fluency modeling');
+    }
+    else if (hesitationRate > 0.08) {
+        primaryIssues.push('Occasional hesitation affecting fluency');
+        recommendations.push('Build sight word automaticity with flashcard practice');
+        recommendations.push('Re-read familiar texts to build confidence and speed');
+    }
+    // Excessive repetition (self-correction attempts)
+    const repeatRate = metrics.totalWords > 0 ? repeatCount / metrics.totalWords : 0;
+    if (repeatRate > 0.10) {
+        primaryIssues.push('Frequent word repetitions disrupting flow');
+        recommendations.push('Praise self-correction but work on "getting it right the first time"');
+        recommendations.push('Preview difficult words before reading');
+    }
+    // ============================================
+    // SPEECH PATTERN REFERRALS
+    // ============================================
+    // R-sound issues (potential speech concern)
+    if (rSoundErrors >= 3) {
+        primaryIssues.push('Consistent R → W sound substitution');
+        referralSuggestions.push('Consider speech-language evaluation for R sound production');
+        recommendations.push('Note: This may be developmental in younger students (K-1) but warrants monitoring');
+    }
+    // TH-sound issues (potential speech concern)
+    if (thSoundErrors >= 3) {
+        primaryIssues.push('Consistent TH sound substitution (th → d, t, or f)');
+        referralSuggestions.push('Consider speech-language evaluation for TH sound production');
+        recommendations.push('Practice tongue placement for TH sounds with mirror feedback');
+    }
+    // ============================================
+    // IDENTIFY STRENGTHS
+    // ============================================
+    if (metrics.accuracy >= 95) {
+        strengths.push('Excellent word recognition accuracy');
+    }
+    else if (metrics.accuracy >= 90) {
+        strengths.push('Strong word recognition accuracy');
+    }
+    if (metrics.wordsPerMinute >= 100 && metrics.wordsPerMinute <= 180) {
+        strengths.push('Appropriate reading rate for fluent comprehension');
+    }
+    else if (metrics.wordsPerMinute >= 80) {
+        strengths.push('Developing reading rate');
+    }
+    if (hesitationRate <= 0.05) {
+        strengths.push('Smooth, confident reading with minimal hesitation');
+    }
+    if (initialSoundErrors === 0 && metrics.totalWords >= 20) {
+        strengths.push('Consistent initial sound recognition');
+    }
+    if (consonantBlendErrors === 0 && metrics.totalWords >= 20) {
+        strengths.push('Good handling of consonant blends');
+    }
+    if (digraphErrors === 0 && metrics.totalWords >= 20) {
+        strengths.push('Solid digraph recognition');
+    }
+    if (firstLetterGuessing === 0 && metrics.totalWords >= 20) {
+        strengths.push('Uses full decoding strategies rather than guessing');
+    }
+    if (repeatCount <= 1 && metrics.totalWords >= 20) {
+        strengths.push('Confident first attempts with minimal self-correction needed');
+    }
+    // ============================================
+    // DETERMINE OVERALL SEVERITY
+    // ============================================
+    let severity;
+    const totalIssues = primaryIssues.length;
+    const hasReferralConcerns = referralSuggestions.length > 0;
+    if (totalIssues === 0 && metrics.accuracy >= 95) {
+        severity = 'excellent';
+        if (strengths.length === 0) {
+            strengths.push('Strong overall reading performance');
+        }
+    }
+    else if (totalIssues <= 2 && !hasReferralConcerns && metrics.accuracy >= 85) {
+        severity = 'mild';
+        if (recommendations.length === 0) {
+            recommendations.push('Continue current instruction with targeted practice on identified areas');
+        }
+    }
+    else if (totalIssues <= 4 && metrics.accuracy >= 70) {
+        severity = 'moderate';
+        recommendations.push('Consider small group intervention targeting primary issues');
+    }
+    else {
+        severity = 'significant';
+        recommendations.push('Recommend intensive intervention with progress monitoring');
+        if (metrics.accuracy < 70) {
+            recommendations.push('Text level may be too difficult - consider using easier materials');
+        }
+    }
+    // Add general recommendation if no specific ones were generated
+    if (recommendations.length === 0 && primaryIssues.length > 0) {
+        recommendations.push('Focus instruction on the identified areas during guided reading');
+    }
+    console.log(`Pattern summary: severity=${severity}, issues=${totalIssues}, strengths=${strengths.length}`);
+    return {
+        severity,
+        primaryIssues,
+        recommendations,
+        strengths,
+        referralSuggestions,
+    };
 }
 //# sourceMappingURL=metricsCalculator.js.map

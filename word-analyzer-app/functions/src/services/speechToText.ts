@@ -36,10 +36,12 @@ export async function transcribeAudio(
   }
 
   // Config for speech recognition
+  // enableWordConfidence provides per-word confidence scores for better analysis
   const config: protos.google.cloud.speech.v1.IRecognitionConfig = {
     encoding,
     languageCode: 'en-US',
     enableWordTimeOffsets: true,
+    enableWordConfidence: true,  // Enable per-word confidence scores
     enableAutomaticPunctuation: true,
     model: 'latest_long',
   };
@@ -92,11 +94,17 @@ export async function transcribeAudio(
           Number(wordInfo.endTime.nanos || 0) / 1e9
         : 0;
 
+      // Use per-word confidence if available, otherwise fall back to transcript confidence
+      // Per-word confidence helps identify uncertain transcriptions
+      const wordConfidence = wordInfo.confidence !== undefined && wordInfo.confidence !== null
+        ? wordInfo.confidence
+        : alternative.confidence || 0;
+
       words.push({
         word: wordInfo.word || '',
         startTime,
         endTime,
-        confidence: alternative.confidence || 0,
+        confidence: wordConfidence,
       });
     }
   }

@@ -10,6 +10,43 @@ exports.matchWords = matchWords;
 const phoneticEquivalences_1 = require("../data/phoneticEquivalences");
 const numberEquivalences_1 = require("../data/numberEquivalences");
 /**
+ * OCR character confusions - machine errors that should not penalize students
+ * These are common OCR misreadings that look similar visually
+ * Format: [OCR might read, actual character]
+ */
+const OCR_CONFUSIONS = [
+    // Digit/letter confusions
+    ['0', 'o'], // zero ↔ letter o
+    ['1', 'l'], // one ↔ lowercase L
+    ['1', 'i'], // one ↔ letter i
+    ['5', 's'], // five ↔ letter s
+    ['8', 'b'], // eight ↔ letter b
+    ['6', 'g'], // six ↔ letter g
+    // Letter combination confusions
+    ['rn', 'm'], // r+n looks like m
+    ['cl', 'd'], // c+l looks like d
+    ['vv', 'w'], // v+v looks like w
+    ['li', 'h'], // l+i can look like h
+    ['ii', 'u'], // i+i can look like u
+    // Similar letter confusions
+    ['c', 'e'], // c ↔ e (open c)
+    ['n', 'h'], // n ↔ h
+];
+/**
+ * Normalize OCR confusions in a word
+ * Converts common OCR misreadings to their likely intended characters
+ * This prevents false errors when OCR misreads the source text
+ */
+function normalizeOcrConfusions(word) {
+    let normalized = word.toLowerCase();
+    // Apply OCR confusion normalization (prefer the second character in each pair)
+    for (const [ocrChar, actualChar] of OCR_CONFUSIONS) {
+        // Replace OCR confusion with the "actual" character for comparison
+        normalized = normalized.replace(new RegExp(ocrChar, 'g'), actualChar);
+    }
+    return normalized;
+}
+/**
  * Normalize word for matching
  * - Lowercase
  * - Remove punctuation
@@ -58,6 +95,11 @@ function levenshteinDistance(s1, s2) {
 /**
  * Calculate similarity between two words (0-1)
  * Based on word-analyzer-v2 calculateWordSimilarity (lines 1510-1546)
+ *
+ * Enhanced with:
+ * - OCR confusion handling (rn→m, 0→o, etc.) to prevent false errors from machine mistakes
+ * - Number equivalence (fifteen = 15)
+ * - Phonetic equivalence (homophones)
  */
 function calculateWordSimilarity(word1, word2) {
     const w1 = normalizeWord(word1);
@@ -67,6 +109,14 @@ function calculateWordSimilarity(word1, word2) {
     // Exact match
     if (w1 === w2)
         return 1.0;
+    // OCR confusion check - handle machine OCR errors
+    // Normalize both words for OCR confusions and compare
+    const w1Ocr = normalizeOcrConfusions(w1);
+    const w2Ocr = normalizeOcrConfusions(w2);
+    if (w1Ocr === w2Ocr) {
+        // Words match when OCR confusions are normalized - this is a machine error, not student error
+        return 1.0;
+    }
     // Number equivalents (e.g., "fifteen" = "15", "first" = "1st")
     // Check this BEFORE phonetic equivalents since numbers are a special case
     if ((0, numberEquivalences_1.areNumberEquivalents)(word1, word2))
@@ -84,9 +134,12 @@ function calculateWordSimilarity(word1, word2) {
         }
     }
     // Levenshtein-based similarity
+    // Also check OCR-normalized Levenshtein for better matching
     const distance = levenshteinDistance(w1, w2);
+    const ocrDistance = levenshteinDistance(w1Ocr, w2Ocr);
+    const bestDistance = Math.min(distance, ocrDistance); // Use better match
     const maxLen = Math.max(w1.length, w2.length);
-    const similarity = 1 - (distance / maxLen);
+    const similarity = 1 - (bestDistance / maxLen);
     // Bonus for same length
     const lengthBonus = w1.length === w2.length ? 0.1 : 0;
     return Math.min(1, similarity + lengthBonus);
@@ -104,6 +157,12 @@ function isFillerWord(word) {
  * A pause > 0.5 seconds between words indicates hesitation
  */
 const HESITATION_THRESHOLD = 0.5;
+/**
+ * Pattern to detect punctuation at the end of a word that indicates a natural pause
+ * Includes: . , ; : ! ? - — –
+ * Does NOT include: apostrophe ('), quotation marks (used in contractions/possessives)
+ */
+const NATURAL_PAUSE_PUNCTUATION = /[.,;:!?\-—–]$/;
 /**
  * Detect if there's a hesitation (significant pause) before a word
  * Based on word-analyzer-v2 detectHesitation (lines 2004-2012)
@@ -123,35 +182,75 @@ function detectHesitation(currentWord, previousWord) {
     return { hesitation, pauseDuration };
 }
 /**
- * Detect repeated words in the spoken word sequence
- * A word is considered repeated if the same or very similar word appears consecutively
+ * Detect repeated words and self-corrections in the spoken word sequence
+ *
+ * Stutters: Same or very similar word repeated (error pattern)
+ *   - "the the quick" → "the" at index 1 is a stutter
+ *
+ * Self-corrections: Different word followed by a correction attempt (positive indicator)
+ *   - "house... home" where student changed their answer mid-word
+ *   - Detected when consecutive words share a prefix but are different
  *
  * @param spokenWords Array of spoken word timings
- * @returns Set of indices that are repeated words
+ * @returns Object with sets of repeated and self-corrected word indices
  */
 function detectRepeatedWords(spokenWords) {
     const repeatedIndices = new Set();
+    const selfCorrectionIndices = new Set();
     for (let i = 1; i < spokenWords.length; i++) {
         const current = normalizeWord(spokenWords[i].word);
         const previous = normalizeWord(spokenWords[i - 1].word);
-        // Check if current word is a repeat of the previous word
+        if (!current || !previous)
+            continue;
+        // Check if current word is an exact repeat of the previous word (stutter)
         if (current === previous) {
             repeatedIndices.add(i);
+            continue;
         }
-        // Also check for very similar words (partial repeats/stutters)
-        else if (current.length >= 2 && previous.length >= 2) {
-            // If they share the same first 2+ characters and one is a prefix of the other
+        // Check for very similar words (partial repeats/stutters OR self-corrections)
+        if (current.length >= 2 && previous.length >= 2) {
             const minLen = Math.min(current.length, previous.length);
-            const prefix = current.substring(0, Math.min(3, minLen));
-            if (previous.startsWith(prefix) || current.startsWith(previous.substring(0, Math.min(3, minLen)))) {
+            const currentPrefix = current.substring(0, Math.min(3, minLen));
+            const previousPrefix = previous.substring(0, Math.min(3, minLen));
+            // Words share a prefix (student started the same way)
+            if (currentPrefix === previousPrefix || previous.startsWith(currentPrefix) || current.startsWith(previousPrefix)) {
                 const similarity = calculateWordSimilarity(current, previous);
                 if (similarity >= 0.85) {
+                    // Very similar - this is a stutter/repeat
                     repeatedIndices.add(i);
+                }
+                else if (similarity >= 0.4 && similarity < 0.85) {
+                    // Moderately similar with same prefix - likely a self-correction
+                    // Student started saying one word, then changed to another
+                    // e.g., "thr-... three" or "house... home" or "wen-... went"
+                    selfCorrectionIndices.add(i);
+                    console.log(`Self-correction detected: "${previous}" → "${current}" (similarity: ${similarity.toFixed(2)})`);
+                }
+            }
+            // Also check for self-corrections where student abandons mid-word
+            // Detected by a very short previous word that's a prefix of current
+            if (previous.length <= 3 && current.startsWith(previous)) {
+                // Previous was likely an abandoned attempt: "th" → "three"
+                selfCorrectionIndices.add(i);
+                console.log(`Self-correction (abandoned start): "${previous}" → "${current}"`);
+            }
+        }
+        // Check for quick succession (words spoken rapidly = possible correction)
+        const timeBetween = spokenWords[i].startTime - spokenWords[i - 1].endTime;
+        if (timeBetween < 0.2 && timeBetween >= 0) {
+            // Very quick follow-up - might be a correction
+            // Only flag as self-correction if words are somewhat different
+            const similarity = calculateWordSimilarity(current, previous);
+            if (similarity >= 0.3 && similarity < 0.7) {
+                // Different enough to not be a stutter, similar enough to be related
+                if (!repeatedIndices.has(i) && !selfCorrectionIndices.has(i)) {
+                    selfCorrectionIndices.add(i);
+                    console.log(`Self-correction (quick follow-up): "${previous}" → "${current}" (${timeBetween.toFixed(2)}s gap)`);
                 }
             }
         }
     }
-    return repeatedIndices;
+    return { repeatedIndices, selfCorrectionIndices };
 }
 /**
  * Build similarity matrix between spoken and OCR words
@@ -263,10 +362,11 @@ function matchWords(ocrWords, spokenWords) {
     console.log(`Detected ${fillerWordCount} filler words`);
     // Filter out filler words from spoken for matching
     const cleanSpoken = spokenWords.filter(w => !isFillerWord(w.word));
-    // Detect repeated words in clean spoken words
-    const repeatedIndices = detectRepeatedWords(cleanSpoken);
+    // Detect repeated words and self-corrections in clean spoken words
+    const { repeatedIndices, selfCorrectionIndices } = detectRepeatedWords(cleanSpoken);
     const repeatCount = repeatedIndices.size;
-    console.log(`Detected ${repeatCount} repeated words`);
+    const selfCorrectionCount = selfCorrectionIndices.size;
+    console.log(`Detected ${repeatCount} repeated words, ${selfCorrectionCount} self-corrections`);
     // Build hesitation map for clean spoken words
     const hesitationMap = new Map();
     for (let i = 0; i < cleanSpoken.length; i++) {
@@ -286,6 +386,7 @@ function matchWords(ocrWords, spokenWords) {
             hesitationCount: 0,
             fillerWordCount,
             repeatCount: 0,
+            selfCorrectionCount: 0,
         };
     }
     if (cleanSpoken.length === 0) {
@@ -301,6 +402,7 @@ function matchWords(ocrWords, spokenWords) {
             hesitationCount: 0,
             fillerWordCount,
             repeatCount: 0,
+            selfCorrectionCount: 0,
         };
     }
     // STEP 1: Auto-detect passage boundaries
@@ -377,6 +479,20 @@ function matchWords(ocrWords, spokenWords) {
             // Get hesitation info for this spoken word
             const hesitationInfo = hesitationMap.get(pj) || { hesitation: false, pauseDuration: 0 };
             const isRepeat = repeatedIndices.has(pj);
+            // Filter out hesitations after punctuation (natural pauses)
+            // If this word follows a word ending with punctuation, the pause is natural
+            let adjustedHesitation = hesitationInfo.hesitation;
+            // Check if the expected word BEFORE current (pi-1) ends with punctuation
+            // A pause after punctuation is natural and shouldn't count as hesitation
+            if (adjustedHesitation && pi > 0) {
+                const previousExpectedText = expectedWords[pi - 1].text;
+                if (NATURAL_PAUSE_PUNCTUATION.test(previousExpectedText)) {
+                    adjustedHesitation = false; // Natural pause after punctuation
+                    console.log(`Filtered hesitation after punctuation: "${previousExpectedText}" → "${expectedWords[pi].text}"`);
+                }
+            }
+            // Check if this is a self-correction
+            const isSelfCorrection = selfCorrectionIndices.has(pj);
             alignment.unshift({
                 expected: expectedWords[pi].text,
                 spoken: cleanSpoken[pj].word,
@@ -384,9 +500,10 @@ function matchWords(ocrWords, spokenWords) {
                 startTime: cleanSpoken[pj].startTime,
                 endTime: cleanSpoken[pj].endTime,
                 confidence: cleanSpoken[pj].confidence,
-                hesitation: hesitationInfo.hesitation,
+                hesitation: adjustedHesitation,
                 pauseDuration: hesitationInfo.pauseDuration,
                 isRepeat,
+                isSelfCorrection,
                 boundingBox: expectedWords[pi].boundingBox,
             });
             i = pi;
@@ -436,9 +553,10 @@ function matchWords(ocrWords, spokenWords) {
                 break;
         }
     }
-    // Count hesitations in the final alignment
+    // Count hesitations, repeats, and self-corrections in the final alignment
     const alignmentHesitationCount = alignment.filter(w => w.hesitation).length;
     const alignmentRepeatCount = alignment.filter(w => w.isRepeat).length;
+    const alignmentSelfCorrectionCount = alignment.filter(w => w.isSelfCorrection).length;
     return {
         words: alignment,
         correctCount,
@@ -449,6 +567,7 @@ function matchWords(ocrWords, spokenWords) {
         hesitationCount: alignmentHesitationCount,
         fillerWordCount,
         repeatCount: alignmentRepeatCount,
+        selfCorrectionCount: alignmentSelfCorrectionCount,
     };
 }
 //# sourceMappingURL=wordMatching.js.map
