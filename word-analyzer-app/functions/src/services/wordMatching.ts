@@ -6,6 +6,7 @@
  */
 
 import { arePhoneticEquivalents } from '../data/phoneticEquivalences';
+import { areNumberEquivalents } from '../data/numberEquivalences';
 import { WordTiming } from './speechToText';
 
 export type WordStatus = 'correct' | 'misread' | 'substituted' | 'skipped';
@@ -113,6 +114,10 @@ function calculateWordSimilarity(word1: string, word2: string): number {
 
   // Exact match
   if (w1 === w2) return 1.0;
+
+  // Number equivalents (e.g., "fifteen" = "15", "first" = "1st")
+  // Check this BEFORE phonetic equivalents since numbers are a special case
+  if (areNumberEquivalents(word1, word2)) return 1.0;
 
   // Phonetic equivalents
   if (arePhoneticEquivalents(w1, w2)) return 0.95;

@@ -563,6 +563,36 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
         </Text>
       </View>
 
+      {/* Fluency Indicators */}
+      {(metrics?.hesitationCount || metrics?.fillerWordCount || metrics?.repeatCount) ? (
+        <View style={styles.fluencyRow}>
+          <Text style={styles.fluencyTitle}>Fluency</Text>
+          <View style={styles.fluencyIndicators}>
+            {metrics?.hesitationCount ? (
+              <View style={styles.fluencyItem}>
+                <MaterialIcons name="pause-circle-outline" size={18} color="#ED8936" />
+                <Text style={styles.fluencyValue}>{metrics.hesitationCount}</Text>
+                <Text style={styles.fluencyLabel}>pauses</Text>
+              </View>
+            ) : null}
+            {metrics?.fillerWordCount ? (
+              <View style={styles.fluencyItem}>
+                <MaterialIcons name="chat-bubble-outline" size={18} color="#9F7AEA" />
+                <Text style={styles.fluencyValue}>{metrics.fillerWordCount}</Text>
+                <Text style={styles.fluencyLabel}>fillers</Text>
+              </View>
+            ) : null}
+            {metrics?.repeatCount ? (
+              <View style={styles.fluencyItem}>
+                <MaterialIcons name="repeat" size={18} color="#4299E1" />
+                <Text style={styles.fluencyValue}>{metrics.repeatCount}</Text>
+                <Text style={styles.fluencyLabel}>repeats</Text>
+              </View>
+            ) : null}
+          </View>
+        </View>
+      ) : null}
+
       {/* Word Highlighting */}
       <Text style={styles.sectionTitle}>Text with Error Highlighting</Text>
       <View style={styles.wordsContainer}>
@@ -570,9 +600,18 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
           <TouchableOpacity
             key={index}
             onPress={() => onWordPress(word)}
-            style={[styles.word, getWordStyle(word.status)]}
+            style={[
+              styles.word,
+              getWordStyle(word.status),
+              word.hesitation && styles.wordWithHesitation,
+            ]}
           >
             <Text style={styles.wordText}>{word.expected}</Text>
+            {word.hesitation && (
+              <View style={styles.hesitationIndicator}>
+                <Text style={styles.hesitationDot}>⏸</Text>
+              </View>
+            )}
           </TouchableOpacity>
         ))}
       </View>
@@ -583,6 +622,12 @@ function SummaryTab({ assessment, onWordPress, getWordStyle, onShowProsody }: {
         <LegendItem color="#FEEBC8" label="Misread" />
         <LegendItem color="#FED7D7" label="Substituted" />
         <LegendItem color="#E2E8F0" label="Skipped" />
+        <View style={styles.legendItem}>
+          <View style={[styles.legendColor, styles.hesitationLegendColor]}>
+            <Text style={styles.hesitationLegendIcon}>⏸</Text>
+          </View>
+          <Text style={styles.legendText}>Hesitation</Text>
+        </View>
       </View>
 
       {/* Error Breakdown */}
@@ -1534,6 +1579,41 @@ const styles = StyleSheet.create({
     color: '#2C5282',
     lineHeight: 24,
   },
+  fluencyRow: {
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  fluencyTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#718096',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  fluencyIndicators: {
+    flexDirection: 'row',
+    flex: 1,
+    justifyContent: 'flex-start',
+    gap: 24,
+  },
+  fluencyItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  fluencyValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#2D3748',
+  },
+  fluencyLabel: {
+    fontSize: 14,
+    color: '#718096',
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
@@ -1569,10 +1649,31 @@ const styles = StyleSheet.create({
   wordSkipped: {
     backgroundColor: '#E2E8F0',
   },
+  wordWithHesitation: {
+    borderWidth: 2,
+    borderColor: '#ED8936',
+    borderStyle: 'dashed',
+  },
+  hesitationIndicator: {
+    position: 'absolute',
+    top: -6,
+    right: -6,
+    backgroundColor: '#ED8936',
+    borderRadius: 8,
+    width: 16,
+    height: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hesitationDot: {
+    fontSize: 8,
+    color: '#FFFFFF',
+  },
   legend: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     justifyContent: 'center',
-    gap: 24,
+    gap: 16,
   },
   legendItem: {
     flexDirection: 'row',
@@ -1583,6 +1684,18 @@ const styles = StyleSheet.create({
     width: 16,
     height: 16,
     borderRadius: 4,
+  },
+  hesitationLegendColor: {
+    backgroundColor: '#FFF',
+    borderWidth: 2,
+    borderColor: '#ED8936',
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  hesitationLegendIcon: {
+    fontSize: 8,
+    color: '#ED8936',
   },
   legendText: {
     fontSize: 14,

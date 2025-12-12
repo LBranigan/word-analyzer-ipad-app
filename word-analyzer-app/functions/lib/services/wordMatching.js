@@ -8,6 +8,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.matchWords = matchWords;
 const phoneticEquivalences_1 = require("../data/phoneticEquivalences");
+const numberEquivalences_1 = require("../data/numberEquivalences");
 /**
  * Normalize word for matching
  * - Lowercase
@@ -65,6 +66,10 @@ function calculateWordSimilarity(word1, word2) {
         return 0;
     // Exact match
     if (w1 === w2)
+        return 1.0;
+    // Number equivalents (e.g., "fifteen" = "15", "first" = "1st")
+    // Check this BEFORE phonetic equivalents since numbers are a special case
+    if ((0, numberEquivalences_1.areNumberEquivalents)(word1, word2))
         return 1.0;
     // Phonetic equivalents
     if ((0, phoneticEquivalences_1.arePhoneticEquivalents)(w1, w2))
